@@ -1,3 +1,32 @@
+## Novo — Windows 7: falha ao iniciar por ausência de `api-ms-win-core-path-l1-1-0.dll`
+
+- **Falha observada em Windows 7:** ao tentar iniciar `PT2VHF_APRS_Client.exe`, o sistema informa que o programa não pode ser iniciado porque está faltando `api-ms-win-core-path-l1-1-0.dll`.
+- Tratar o problema como **incompatibilidade de runtime/build com Windows 7**, e não orientar o usuário a baixar/copiar DLL avulsa de sites de terceiros.
+- Revisar a cadeia completa de empacotamento do Windows para identificar qual componente passou a exigir APIs não disponíveis no Windows 7:
+  - versão do Python usada no build;
+  - versão do PyInstaller/Nuitka ou empacotador equivalente;
+  - WebView/runtime;
+  - bibliotecas nativas e wheels;
+  - dependências que tenham abandonado suporte ao Windows 7;
+  - instalador e bootstrap/update helper.
+- Avaliar duas estratégias e documentar a decisão:
+  1. **Build legado dedicado para Windows 7**, congelado em runtime e dependências ainda compatíveis; ou
+  2. declarar oficialmente Windows 7 como não suportado e fazer o instalador bloquear a instalação com mensagem clara, antes de copiar/abrir o executável.
+- Se a opção for manter suporte ao Windows 7:
+  - gerar artefato específico, claramente identificado como **Windows 7 / Legacy**;
+  - usar runtime Python compatível com Windows 7 e versões de dependências verificadas;
+  - evitar dependência de `api-ms-win-core-path-l1-1-0.dll` ausente no sistema;
+  - validar funcionamento do cliente, APRS-IS, mapa/WebView, TNC/KISS, SQLite, atualizador, exportações e demais recursos essenciais;
+  - validar tanto **Setup** quanto **Portable**, se ambos forem oferecidos;
+  - impedir que o atualizador substitua automaticamente o build legado por um build incompatível.
+- Se a opção for não manter suporte:
+  - detectar Windows 7 no instalador e no bootstrap;
+  - exibir mensagem amigável informando a versão mínima suportada;
+  - impedir instalação/execução parcialmente quebrada;
+  - documentar claramente os sistemas operacionais suportados na Release, README e Manual.
+- Adicionar teste de compatibilidade/CI que impeça regressão acidental na versão mínima do Windows.
+- **Critério de aceite:** em Windows 7, o usuário não deve receber o erro genérico de DLL ausente. O aplicativo deve **funcionar em um build legado oficialmente suportado** ou **interromper a instalação de forma controlada e explicar claramente a incompatibilidade**.
+
 ## Novo — Internacionalização: auditoria completa de todas as traduções da aplicação
 
 - Revisar **todas as partes da aplicação** nos dez idiomas suportados: **PT-BR, EN, ES, FR, DE, IT, JA, PL, NL e ZH-CN**.
