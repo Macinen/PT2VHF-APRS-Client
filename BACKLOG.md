@@ -1,3 +1,69 @@
+## Novo — Estatísticas: indicador de processamento com barra de progresso real de 0 a 100%
+
+- Na aba **Estatísticas**, durante operações pesadas de indexação, reconstrução da topologia e cálculo de **Recordes/Enlaces RF**, substituir o simples indicador indefinido por um feedback mais completo:
+  - manter o **relógio/spinner animado**;
+  - adicionar uma **barra de progresso de 0% a 100%**;
+  - exibir o percentual numérico e a etapa atual do processamento.
+- O progresso deve representar **trabalho efetivamente concluído**, e não uma animação baseada apenas em tempo.
+- Dividir o cálculo em fases mensuráveis, por exemplo:
+  1. **Preparando dados / indexando histórico**;
+  2. **Carregando nós e enlaces**;
+  3. **Validando evidências e coordenadas históricas**;
+  4. **Calculando alcançabilidade multi-hop**;
+  5. **Ordenando e consolidando Recordes RF**;
+  6. **Atualizando a interface**.
+- Cada fase deve informar ao frontend pelo menos:
+  - nome/descrição da etapa;
+  - quantidade concluída;
+  - quantidade total conhecida;
+  - percentual global;
+  - tempo decorrido;
+  - quando viável, quantidade de nós, enlaces ou candidatos já processados.
+- Exemplo visual:
+  - **Calculando enlaces RF… 42%**
+  - `████████░░░░░░░░░░░░ 42%`
+  - **Validando 183 de 436 enlaces**
+- Para o cálculo de Recordes RF, usar como unidades reais de progresso os lotes/itens efetivamente processados pelo algoritmo, como:
+  - nós de origem concluídos;
+  - arestas/hops indexados;
+  - candidatos de rota avaliados;
+  - pares de extremidades consolidados.
+- Quando o total ainda não for conhecido, iniciar em modo **indeterminado** com spinner. Assim que o backend conhecer o universo de trabalho, converter para progresso determinado de 0 a 100%.
+- O percentual não pode retroceder durante uma mesma execução, exceto quando uma nova execução for explicitamente iniciada.
+- Não deixar a barra parada em **100%** enquanto ainda houver trabalho importante pendente; 100% deve significar resultado pronto para ser aplicado na interface.
+- Se houver cache válido:
+  - indicar algo como **“Carregando resultado em cache…”**;
+  - concluir rapidamente até 100%;
+  - não simular etapas de cálculo que não ocorreram.
+- Se o cálculo ultrapassar o tempo esperado, a interface deve continuar mostrando progresso real e a etapa atual, em vez de simplesmente parecer travada.
+- Em caso de erro:
+  - interromper a barra;
+  - mostrar a etapa em que ocorreu a falha;
+  - preservar o último ranking válido quando existir;
+  - permitir **Tentar novamente**.
+- Em caso de cancelamento/troca de período:
+  - cancelar ou invalidar a execução anterior;
+  - zerar/iniciar uma nova barra para a nova solicitação;
+  - impedir que progresso antigo atualize a tela da nova execução.
+- Evitar polling agressivo. Preferir um mecanismo de progresso dedicado e leve, por exemplo:
+  - job de processamento com `job_id`;
+  - endpoint de status/progresso;
+  - SSE/WebSocket quando apropriado;
+  - ou polling moderado do status do job.
+- O backend deve manter estado de progresso separado por execução/período, evitando misturar progresso de **24 h**, **7 dias** e **Completo**.
+- Integrar o progresso ao mecanismo global de processamento já existente, mas a aba Estatísticas deve poder mostrar também uma **barra contextual próxima de “Recordes RF observados — maiores distâncias”**.
+- A barra deve funcionar também no período **Completo**, inclusive com banco grande e cálculo multi-hop histórico.
+- Adicionar regressões garantindo:
+  - início em 0% ou modo indeterminado;
+  - atualização monotônica;
+  - transição de fases;
+  - conclusão em 100%;
+  - cancelamento ao mudar período;
+  - recuperação após erro;
+  - cache concluindo rapidamente;
+  - duas execuções concorrentes sem mistura de progresso.
+- **Critério de aceite:** ao atualizar Estatísticas e iniciar a reconstrução/cálculo dos enlaces, o usuário deve ver claramente que o aplicativo continua trabalhando, qual etapa está sendo executada e um progresso real de **0% a 100%** até a conclusão do ranking.
+
 ## Novo — Estatísticas: ranking de Recordes RF fica indisponível
 
 - **Regressão observada na v1.14.23:** a seção **“Recordes RF observados — maiores distâncias”** pode deixar de exibir o ranking e apresentar apenas a mensagem **“Recordes RF temporariamente indisponíveis; as demais estatísticas continuam válidas.”**
