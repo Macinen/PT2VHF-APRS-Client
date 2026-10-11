@@ -1,3 +1,37 @@
+## Novo — Menu superior: exibir endereço de acesso pela rede local
+
+- Incluir no **menu/barra superior** uma indicação clara do endereço Web da aplicação para acesso por outros dispositivos da mesma rede local.
+- Exibir o endereço no formato, por exemplo:
+  - **Web: http://192.168.1.50:5000**
+  - usar automaticamente o **IPv4 LAN real da máquina** e a **porta efetivamente reservada** pelo servidor local.
+- O endereço deve ser clicável, com ação para **copiar para a área de transferência** e, quando aplicável, abrir no navegador.
+- O indicador deve refletir mudanças de porta decorrentes do fallback automático do servidor.
+- Não mostrar apenas `127.0.0.1`/`localhost` como endereço compartilhável, pois esses endereços funcionam somente na própria máquina.
+- Para que o endereço exibido seja realmente acessível por outro computador, tablet ou celular da LAN, implementar um modo de **acesso pela rede local**:
+  - manter o comportamento atual restrito a localhost como opção segura padrão, ou disponibilizar uma opção explícita em **Configuração → Aplicação/Web** para habilitar acesso LAN;
+  - quando habilitado, fazer o servidor escutar em interface apropriada (`0.0.0.0` ou endereço LAN selecionado), preservando o acesso local da janela integrada;
+  - detectar e exibir o endereço LAN utilizável, nunca `0.0.0.0` como URL para o usuário.
+- Mostrar o estado no menu superior, por exemplo:
+  - **Web local: 127.0.0.1:5000** quando restrito à própria máquina;
+  - **Web LAN: 192.168.1.50:5000** quando o compartilhamento em rede estiver habilitado.
+- Adicionar tooltip/ajuda curta explicando que o endereço LAN pode ser aberto em outro dispositivo conectado à mesma rede.
+- Prever aviso de firewall do sistema operacional quando necessário e explicar que a porta precisa estar liberada para conexões de entrada.
+- Segurança:
+  - o acesso LAN deve ser **opt-in**, não habilitado silenciosamente;
+  - não expor automaticamente a aplicação à Internet/WAN;
+  - deixar claro que o recurso é destinado à **rede local confiável**;
+  - avaliar autenticação/token de acesso antes de permitir exposição além da LAN.
+- O recurso deve funcionar em **Windows, Linux e macOS**, inclusive quando o cliente estiver executando em máquina virtual.
+- Adicionar testes para:
+  - detecção do IPv4 LAN;
+  - uso da porta real após fallback;
+  - persistência da opção de acesso LAN;
+  - bind localhost × LAN;
+  - atualização do endereço exibido no menu;
+  - cópia do URL;
+  - comportamento sem interface de rede válida.
+- **Critério de aceite:** com o acesso LAN habilitado, o usuário deve enxergar no menu superior um URL como **http://192.168.x.x:porta** e conseguir abrir esse endereço em outro dispositivo da mesma rede sem precisar descobrir manualmente IP e porta.
+
 ## Novo — Sobre: adicionar PY2FDG / Fábio aos colaboradores
 
 - Adicionar **PY2FDG — Fábio** à seção **Colaboradores** da aba **Sobre**.
