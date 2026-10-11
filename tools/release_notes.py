@@ -14,7 +14,7 @@ def current_version() -> str:
 def changelog_section(version: str) -> str:
     text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     pattern = re.compile(
-        rf"^## v{re.escape(version)}\b[^\n]*\n(?P<body>.*?)(?=^## v|\Z)",
+        rf"^## v?{re.escape(version)}\b[^\n]*\n(?P<body>.*?)(?=^## v?\d|\Z)",
         re.MULTILINE | re.DOTALL,
     )
     match = pattern.search(text)
