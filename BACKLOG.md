@@ -7,6 +7,34 @@
 - A ação deve usar o URL efetivo publicado pelo runtime, incluindo eventual fallback automático de porta, sem reconstruir manualmente um endereço potencialmente diferente.
 - Preservar a ação de copiar o URL, mas separar claramente **abrir no navegador** de **copiar endereço**, evitando comportamento ambíguo.
 - Se o navegador não puder ser aberto, exibir erro não bloqueante e manter o URL disponível para cópia manual.
+- **Acesso externo à máquina dentro da LAN:** quando o modo Web LAN estiver habilitado, garantir que o serviço esteja realmente acessível por outros dispositivos da mesma rede, e não apenas exibindo um IP correto na interface.
+- O backend deve fazer bind em interface compatível com acesso LAN (`0.0.0.0` ou IP LAN selecionado), mantendo o acesso local funcionando.
+- No Windows, detectar se a porta/execução está bloqueada pelo **Windows Defender Firewall** e oferecer fluxo controlado para criar a regra de entrada necessária para o executável/porta em uso.
+- A regra de firewall deve:
+  - ser criada somente com consentimento explícito do usuário;
+  - ficar limitada ao perfil de rede adequado, preferencialmente **Privado**;
+  - usar somente a porta TCP efetivamente utilizada pelo servidor;
+  - evitar abertura ampla e permanente de portas desnecessárias;
+  - ser atualizada/removida quando a porta ou configuração mudar, quando tecnicamente seguro.
+- Em Linux, detectar firewall comum quando possível (por exemplo UFW/firewalld) e informar objetivamente qual porta TCP precisa ser liberada; não alterar regras sem confirmação explícita.
+- Em macOS, detectar bloqueio do firewall/aplicativo quando possível e orientar a autorização correspondente sem desabilitar proteções globais.
+- **Antivírus/EDR de terceiros:** não assumir que é possível liberar programaticamente todos os produtos. Detectar falha de acesso quando viável e apresentar diagnóstico indicando que antivírus, EDR ou política corporativa pode estar bloqueando o executável ou a porta.
+- Implementar um **teste de acessibilidade LAN** após habilitar o recurso:
+  - confirmar bind na interface LAN;
+  - confirmar porta em escuta;
+  - confirmar URL publicado;
+  - informar estado do firewall quando detectável;
+  - indicar claramente **“Acessível na LAN”** ou **“Bloqueado/Não confirmado”**.
+- O diagnóstico deve diferenciar pelo menos:
+  - bind incorreto;
+  - porta não escutando;
+  - firewall do SO bloqueando;
+  - regra ausente;
+  - endereço LAN inválido;
+  - conflito de porta;
+  - bloqueio externo não identificável, incluindo antivírus/EDR.
+- Não desabilitar firewall, antivírus, Defender ou qualquer outra proteção de segurança como forma de resolver o acesso.
+- Não habilitar automaticamente exposição à Internet/WAN, port forwarding, UPnP ou abertura de roteador. O escopo padrão continua sendo **somente a rede local confiável**.
 - Revisar a integração entre `local_server.detect_lan_ipv4()`, o estado/runtime publicado pelo backend e `updateWebAccessStatus()` no frontend para garantir que o campo exibido venha do endereço LAN detectado.
 - Diferenciar claramente:
   - **Web local:** `http://127.0.0.1:porta` somente quando o servidor estiver restrito à própria máquina;
@@ -27,7 +55,7 @@
   - presença de VPN/VirtualBox/Hyper-V;
   - ausência de IPv4 LAN válido;
   - atualização correta do cabeçalho após mudança de modo localhost ↔ LAN.
-- **Critério de aceite:** em uma máquina com IPv4 LAN `192.168.10.2` e acesso LAN habilitado, o menu superior deve exibir algo como **Web LAN: http://192.168.10.2:porta**; ao clicar nesse endereço, o navegador padrão deve abrir exatamente esse URL. O mesmo endereço deve continuar acessível a partir de outro dispositivo conectado à mesma rede. O endereço `127.0.0.1` só pode aparecer quando o acesso estiver efetivamente restrito à própria máquina.
+- **Critério de aceite:** em uma máquina com IPv4 LAN `192.168.10.2` e acesso LAN habilitado, o menu superior deve exibir algo como **Web LAN: http://192.168.10.2:porta**; ao clicar nesse endereço, o navegador padrão deve abrir exatamente esse URL. O serviço deve estar efetivamente em escuta na LAN e, quando necessário e autorizado, a regra de firewall do sistema deve permitir a conexão a partir de outro dispositivo da mesma rede. Se antivírus/EDR ou outra política impedir o acesso, a aplicação deve diagnosticar e informar a causa provável sem desabilitar proteções. O endereço `127.0.0.1` só pode aparecer quando o acesso estiver efetivamente restrito à própria máquina.
 
 ## Implementado na v1.14.25 — Windows 7: falha ao iniciar por ausência de `api-ms-win-core-path-l1-1-0.dll`
 
