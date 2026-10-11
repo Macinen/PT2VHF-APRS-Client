@@ -1170,7 +1170,7 @@
         confirm: 'Envoyer cette annonce APRS maintenant ? Votre indicatif actuel sera utilisé comme expéditeur.',
         sent: 'Annonce PT2VHF APRS Client envoyée.',
         download: `PT2VHF APRS Client v${version} - Téléchargement: tiny.cc/aprs`,
-
+      },
       'de-DE': {
         title: 'Über',
         subtitle: 'Über das Projekt, den Autor und Möglichkeiten, Vorschläge beizutragen.',
@@ -1314,7 +1314,6 @@
         confirm: '现在发送此 APRS Announcement 吗？将使用您当前的呼号作为发送方。',
         sent: 'PT2VHF APRS Client Announcement 已发送。',
         download: `PT2VHF APRS Client v${version} - 下载: tiny.cc/aprs`,
-      },
       },
     };
     return copies[state.language] || copies['pt-BR'];
