@@ -1,4 +1,4 @@
-## Novo — Idiomas: adicionar Alemão, Italiano, Japonês, Polonês e Holandês
+## Novo — Idiomas: adicionar Alemão, Italiano, Japonês, Polonês, Holandês e Chinês
 
 - Expandir os idiomas disponíveis do PT2VHF APRS Client além de **Português, Inglês, Espanhol e Francês**.
 - Adicionar:
@@ -6,7 +6,8 @@
   - **Italiano (it-IT)**;
   - **Japonês (ja-JP)**;
   - **Polonês (pl-PL)**;
-  - **Holandês (nl-NL)**.
+  - **Holandês (nl-NL)**;
+  - **Chinês simplificado (zh-CN)**.
 - Prioridade sugerida para os três idiomas adicionais:
   - **Japonês** — comunidade radioamadora muito relevante e uso amplo de APRS/JAPRS;
   - **Polonês** — forte presença de radioamadores e infraestrutura APRS na Europa Central;
@@ -28,15 +29,15 @@
   - mensagens do indicador global de processamento.
 - Não deixar textos residuais em Português/Inglês quando um dos novos idiomas estiver selecionado, exceto termos técnicos/indicativos que devam permanecer invariáveis.
 - Preservar termos técnicos de radioamadorismo quando a tradução literal piorar a compreensão; usar terminologia comum da comunidade local para APRS, digipeater, iGate, beacon, path, TNC, RF, ACK/REJ etc.
-- Atualizar o mecanismo de auditoria de traduções para considerar **de-DE, it-IT, ja-JP, pl-PL e nl-NL** como idiomas suportados.
+- Atualizar o mecanismo de auditoria de traduções para considerar **de-DE, it-IT, ja-JP, pl-PL, nl-NL e zh-CN** como idiomas suportados.
 - Adicionar testes de cobertura garantindo que:
   - todas as chaves existentes tenham tradução nos nove idiomas;
   - não existam chaves órfãs;
   - não haja fallback silencioso para Português/Inglês em componentes principais;
   - troca de idioma continue funcionando sem reiniciar o aplicativo quando já suportado;
-  - caracteres Unicode do Japonês sejam renderizados corretamente.
-- Revisar layout para textos mais longos em Alemão e para fontes/caracteres CJK em Japonês, evitando truncamento de botões, menus e painéis.
-- **Critério de aceite:** o aplicativo deve operar integralmente nos nove idiomas — PT, EN, ES, FR, DE, IT, JA, PL e NL — com cobertura equivalente às traduções atuais.
+  - caracteres Unicode do Japonês e do Chinês sejam renderizados corretamente.
+- Revisar layout para textos mais longos em Alemão e para fontes/caracteres CJK em Japonês e Chinês, evitando truncamento de botões, menus e painéis.
+- **Critério de aceite:** o aplicativo deve operar integralmente nos dez idiomas — PT, EN, ES, FR, DE, IT, JA, PL, NL e ZH-CN — com cobertura equivalente às traduções atuais.
 
 ## Novo — Análise de rota RF: desenhar também os hops inferidos até o destino final
 
