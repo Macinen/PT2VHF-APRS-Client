@@ -68,8 +68,9 @@ def clear_record_cache():
 
 
 def test_v1424_version_and_feature_markers():
-    assert read("VERSION").strip() == "1.14.24"
-    assert '__version__ = "1.14.24"' in read("pt2vhf_aprs/__init__.py")
+    version = read("VERSION").strip()
+    assert tuple(int(part) for part in version.split(".")) >= (1, 14, 24)
+    assert f'__version__ = "{version}"' in read("pt2vhf_aprs/__init__.py")
 
     overlay = read("pt2vhf_aprs/spacetime_topology.py")
     web_source = read("pt2vhf_aprs/web.py")

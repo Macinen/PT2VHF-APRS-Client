@@ -1,0 +1,74 @@
+#define MyAppName "PT2VHF APRS Client - Windows 7 Legacy"
+#define MyAppVersion "1.14.25"
+#define MyAppPublisher "Alex, PT2VHF"
+#define MyAppExeName "PT2VHF_APRS_Client_Win7_Legacy_x64.exe"
+
+[Setup]
+AppId={{0CE6C737-4D5A-4B9C-BACE-71406DFA1425}
+AppName={#MyAppName}
+AppVersion={#MyAppVersion}
+AppPublisher={#MyAppPublisher}
+DefaultDirName={autopf}\PT2VHF APRS Client Win7 Legacy
+DefaultGroupName=PT2VHF APRS Client Win7 Legacy
+DisableProgramGroupPage=yes
+OutputDir=..\dist-win7
+OutputBaseFilename=PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v{#MyAppVersion}
+Compression=lzma2
+SolidCompression=yes
+WizardStyle=modern
+MinVersion=6.1sp1
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
+PrivilegesRequired=admin
+UninstallDisplayIcon={app}\{#MyAppExeName}
+SetupLogging=yes
+LicenseFile=..\LICENSE
+InfoBeforeFile=PRIVACY_INSTALL.txt
+SetupIconFile=app_icon.ico
+CloseApplications=yes
+CloseApplicationsFilter={#MyAppExeName}
+RestartApplications=no
+
+[Languages]
+Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"
+
+[Tasks]
+Name: "desktopicon"; Description: "Criar atalho na área de trabalho"; GroupDescription: "Atalhos:"; Flags: unchecked
+Name: "startup"; Description: "Iniciar com o Windows"; GroupDescription: "Inicialização:"; Flags: unchecked
+
+[Files]
+Source: "..\dist\PT2VHF_APRS_Client_Win7_Legacy_Portable_x64.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion
+
+[Icons]
+Name: "{group}\PT2VHF APRS Client Win7 Legacy"; Filename: "{app}\{#MyAppExeName}"
+Name: "{autodesktop}\PT2VHF APRS Client Win7 Legacy"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{userstartup}\PT2VHF APRS Client Win7 Legacy"; Filename: "{app}\{#MyAppExeName}"; Tasks: startup
+
+[Run]
+Filename: "{app}\{#MyAppExeName}"; Description: "Executar PT2VHF APRS Client Win7 Legacy"; Flags: nowait postinstall skipifsilent
+
+[UninstallDelete]
+; Dados do usuário em %LOCALAPPDATA% são preservados intencionalmente.
+
+[Code]
+procedure StopPreviousVersion();
+var
+  ResultCode: Integer;
+begin
+  Exec(
+    ExpandConstant('{sys}\taskkill.exe'),
+    '/F /T /IM "{#MyAppExeName}"',
+    '',
+    SW_HIDE,
+    ewWaitUntilTerminated,
+    ResultCode
+  );
+  Sleep(500);
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  StopPreviousVersion();
+  Result := '';
+end;

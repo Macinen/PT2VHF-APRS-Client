@@ -3,6 +3,17 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.25": {
+        "title": "Windows 7 Legacy, Web LAN e interface mais consistente",
+        "items": [
+            "Windows 7 SP1 x64 passa a ter Setup e Portable Legacy próprios, sem WebView2 e com runtime Python 3.8.10 validado em máquina real.",
+            "O canal de atualização Legacy fica isolado dos builds modernos para impedir upgrades incompatíveis.",
+            "Acesso Web pela LAN pode ser habilitado explicitamente; localhost continua sendo o padrão seguro.",
+            "O cabeçalho mostra o endereço Web real e copiável, usa Beacon compacto e deixa o tema somente em Configuração.",
+            "O mecanismo de idioma deixa de mascarar traduções ausentes com Inglês quando outro idioma está selecionado.",
+            "PY2FDG — Fábio passa a constar entre os colaboradores do projeto.",
+        ],
+    },
     "1.14.24": {
         "title": "Recordes RF rápidos, resilientes e com progresso real",
         "items": [

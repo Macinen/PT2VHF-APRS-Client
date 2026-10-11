@@ -1,34 +1,47 @@
-# PT2VHF APRS Client - v1.14.18
+# PT2VHF APRS Client - v1.14.25
 
 Cliente APRS-IS multiplataforma para **Windows, Linux e macOS**, com mapa, mensagens, estações, tracklogs, topologia observada, Log TNC2, banco SQLite local e atualização integrada.
 
-A **v1.14.18** fecha o backlog de software aberto: acompanhamento explícito de estações no mapa e correção completa do ciclo ACK/retry de mensagens APRS, incluindo ACK por RF/TNC.
+A **v1.14.25** consolida as pendências atuais do backlog: suporte oficial a Windows 7 SP1 x64 em canal Legacy, acesso Web LAN opt-in, cabeçalho mais compacto, correção do fallback de idiomas e atualização dos colaboradores.
 
 ## Downloads da versão mais recente
 
-Os arquivos abaixo apontam diretamente para a **release v1.14.18**.
+Os arquivos abaixo apontam diretamente para a **release v1.14.25**.
 
 ### Windows
-- [Windows x64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_Setup_x64_v1.14.18.exe)
-- [Windows x64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_Portable_x64_v1.14.18.exe)
-- [Windows ARM64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_Setup_ARM64_v1.14.18.exe)
-- [Windows ARM64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_Portable_ARM64_v1.14.18.exe)
+- [Windows x64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_Setup_x64_v1.14.25.exe)
+- [Windows x64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_Portable_x64_v1.14.25.exe)
+- [Windows ARM64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_Setup_ARM64_v1.14.25.exe)
+- [Windows ARM64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_Portable_ARM64_v1.14.25.exe)
+- [Windows 7 SP1 x64 — Instalador Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v1.14.25.exe)
+- [Windows 7 SP1 x64 — Portable Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v1.14.25.exe)
+
+> O build Windows 7 Legacy usa runtime separado e abre a interface no navegador padrão. Consulte [docs/WINDOWS7.md](docs/WINDOWS7.md). Windows Vista e XP não são suportados.
 
 ### Linux
-- [Linux x86_64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_x86_64_v1.14.18.AppImage)
-- [Linux x86_64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/pt2vhf-aprs-client_1.14.18_amd64.deb)
-- [Linux x86_64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_Linux_x86_64_v1.14.18.tar.gz)
-- [Linux ARM64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_arm64_v1.14.18.AppImage)
-- [Linux ARM64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/pt2vhf-aprs-client_1.14.18_arm64.deb)
-- [Linux ARM64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_Linux_arm64_v1.14.18.tar.gz)
+- [Linux x86_64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_x86_64_v1.14.25.AppImage)
+- [Linux x86_64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/pt2vhf-aprs-client_1.14.25_amd64.deb)
+- [Linux x86_64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_Linux_x86_64_v1.14.25.tar.gz)
+- [Linux ARM64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_arm64_v1.14.25.AppImage)
+- [Linux ARM64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/pt2vhf-aprs-client_1.14.25_arm64.deb)
+- [Linux ARM64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_Linux_arm64_v1.14.25.tar.gz)
 
 ### macOS
-- [macOS — Apple Silicon](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_macOS_arm64_v1.14.18.dmg)
-- [macOS — Intel](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_macOS_x86_64_v1.14.18.dmg)
+- [macOS — Apple Silicon](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_macOS_arm64_v1.14.25.dmg)
+- [macOS — Intel](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_macOS_x86_64_v1.14.25.dmg)
 
 ### Documentação
-- [Manual PDF](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.18/PT2VHF_APRS_Client_Manual_v1.14.18.pdf)
+- [Manual PDF](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.25/PT2VHF_APRS_Client_Manual_v1.14.25.pdf)
 - [Notas da versão mais recente](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/latest)
+
+## Novidades da v1.14.25
+
+- **Windows 7 Legacy:** Setup e Portable próprios para Windows 7 SP1 x64, com Python 3.8.10, sem WebView2 e canal de atualização separado.
+- **Web LAN:** acesso pela rede local é opcional e desligado por padrão; o cabeçalho mostra e copia o endereço/porta realmente utilizáveis.
+- **Cabeçalho:** Beacon compacto com ícone; seleção de tema permanece somente em Configuração.
+- **Idiomas:** removido o fallback silencioso para Inglês quando outro idioma está selecionado; novos controles LAN traduzidos nos dez idiomas.
+- **Sobre:** PY2FDG — Fábio adicionado aos colaboradores.
+- **Produção:** Windows x64/ARM64, Win7 Legacy x64, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
 
 ## Novidades da v1.14.18
 

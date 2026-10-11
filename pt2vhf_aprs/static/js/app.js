@@ -223,7 +223,10 @@
   function translatedText(pt, en) {
     if (state.language === 'en') return en || pt;
     if (state.language !== 'pt-BR') {
-      return EXTRA_I18N[state.language]?.[pt] || en || EN_TEXT?.get?.(pt) || pt;
+      // Extended locales must never silently fall back to English. A missing
+      // translation remains detectable by the audit and falls back to the
+      // Portuguese source only as a production safety net.
+      return EXTRA_I18N[state.language]?.[pt] || pt;
     }
     return pt;
   }
@@ -1167,6 +1170,150 @@
         confirm: 'Envoyer cette annonce APRS maintenant ? Votre indicatif actuel sera utilisé comme expéditeur.',
         sent: 'Annonce PT2VHF APRS Client envoyée.',
         download: `PT2VHF APRS Client v${version} - Téléchargement: tiny.cc/aprs`,
+      },
+      'de-DE': {
+        title: 'Über',
+        subtitle: 'Über das Projekt, den Autor und Möglichkeiten, Vorschläge beizutragen.',
+        author: 'Erstellt von Alex, PT2VHF, Funkamateur und Initiator des PT2VHF APRS Client.',
+        project: 'PT2VHF APRS Client ist ein moderner plattformübergreifender APRS-Client für Karte, Nachrichten, Statistiken und Netzwerkanalyse.',
+        aprsTitle: 'Was ist APRS?',
+        aprs: 'APRS (Automatic Packet Reporting System) ist ein digitales Amateurfunksystem zum Echtzeit-Austausch von Positionen, Nachrichten, Telemetrie, Wetterdaten und weiteren Informationen über Funk (RF) und das APRS-IS-Netz.',
+        contactTitle: 'Kontakt / Vorschläge / Fragen / Verbesserungen',
+        contact: 'Vorschläge, Fragen, Fehlerberichte und Verbesserungsideen sind willkommen.',
+        contributorsTitle: 'Danksagungen / Mitwirkende',
+        contributors: 'Besonderer Dank gilt den Funkamateuren, die mit Vorschlägen, Tests, Validierungen und Anpassungen zur kontinuierlichen Weiterentwicklung des PT2VHF APRS Client beitragen.',
+        promoteTitle: 'Projekt im APRS-Netz bekannt machen',
+        promote: 'Sie können manuell eine APRS-Ankündigung senden, um den Client bekannt zu machen. Die Nachricht kann vor dem Senden geprüft werden.',
+        promoteButton: 'PT2VHF APRS Client im APRS-Netz bekannt machen',
+        eyebrow: 'APRS-Ankündigung',
+        modalTitle: 'PT2VHF APRS Client-Ankündigung senden',
+        modalDescription: 'Prüfen Sie die Nachricht. Die Ankündigung wird einmalig mit Ihrem aktuellen Rufzeichen als Absender gesendet.',
+        messageLabel: 'Ankündigungsnachricht',
+        send: 'Bestätigen und senden',
+        cancel: 'Abbrechen',
+        confirm: 'Diese APRS-Ankündigung jetzt senden? Ihr aktuelles Rufzeichen wird als Absender verwendet.',
+        sent: 'PT2VHF APRS Client-Ankündigung gesendet.',
+        download: `PT2VHF APRS Client v${version} - Download: tiny.cc/aprs`,
+      },
+      'it-IT': {
+        title: 'Informazioni',
+        subtitle: 'Informazioni sul progetto, sull’autore e su come contribuire con suggerimenti.',
+        author: 'Creato da Alex, PT2VHF, radioamatore e ideatore di PT2VHF APRS Client.',
+        project: 'PT2VHF APRS Client è un moderno client APRS multipiattaforma per mappe, messaggi, statistiche e analisi della rete.',
+        aprsTitle: 'Che cos’è APRS?',
+        aprs: 'APRS (Automatic Packet Reporting System) è un sistema digitale radioamatoriale usato per condividere in tempo reale posizione, messaggi, telemetria, dati meteorologici e altre informazioni, via radio (RF) e tramite la rete APRS-IS.',
+        contactTitle: 'Contatti / Suggerimenti / Domande / Miglioramenti',
+        contact: 'Suggerimenti, domande, segnalazioni di problemi e idee di miglioramento sono benvenuti.',
+        contributorsTitle: 'Ringraziamenti / Collaboratori',
+        contributors: 'Un ringraziamento speciale ai radioamatori che contribuiscono con suggerimenti, test, validazioni e modifiche che aiutano l’evoluzione continua di PT2VHF APRS Client.',
+        promoteTitle: 'Promuovi il progetto sulla rete APRS',
+        promote: 'Puoi inviare manualmente un Announcement APRS per promuovere il client. Il messaggio può essere verificato prima dell’invio.',
+        promoteButton: 'Promuovi PT2VHF APRS Client su APRS',
+        eyebrow: 'Promozione APRS',
+        modalTitle: 'Invia annuncio PT2VHF APRS Client',
+        modalDescription: 'Controlla il messaggio. L’annuncio verrà trasmesso una sola volta usando il tuo nominativo attuale come mittente.',
+        messageLabel: 'Messaggio dell’annuncio',
+        send: 'Conferma e invia',
+        cancel: 'Annulla',
+        confirm: 'Inviare ora questo Announcement APRS? Verrà usato il tuo nominativo attuale come mittente.',
+        sent: 'Announcement di PT2VHF APRS Client inviato.',
+        download: `PT2VHF APRS Client v${version} - Download: tiny.cc/aprs`,
+      },
+      'ja-JP': {
+        title: 'このアプリについて',
+        subtitle: 'プロジェクト、作者、および提案で貢献する方法について。',
+        author: 'PT2VHF APRS Client は、アマチュア無線家 Alex（PT2VHF）が企画・開発しています。',
+        project: 'PT2VHF APRS Client は、地図、メッセージ、統計、ネットワーク解析に対応した最新のクロスプラットフォーム APRS クライアントです。',
+        aprsTitle: 'APRS とは？',
+        aprs: 'APRS（Automatic Packet Reporting System）は、位置、メッセージ、テレメトリ、気象データなどを無線（RF）および APRS-IS ネットワークでリアルタイム共有するアマチュア無線のデジタルシステムです。',
+        contactTitle: '連絡先 / 提案 / 質問 / 改善',
+        contact: '提案、質問、不具合報告、改善案を歓迎します。',
+        contributorsTitle: '謝辞 / 協力者',
+        contributors: '提案、テスト、検証、調整を通じて PT2VHF APRS Client の継続的な改善に協力してくださるアマチュア無線家の皆様に感謝します。',
+        promoteTitle: 'APRS ネットワークでプロジェクトを紹介',
+        promote: 'クライアントを紹介する APRS Announcement を手動送信できます。送信前に内容を確認できます。',
+        promoteButton: 'APRS で PT2VHF APRS Client を紹介',
+        eyebrow: 'APRS 紹介',
+        modalTitle: 'PT2VHF APRS Client のアナウンスを送信',
+        modalDescription: '以下のメッセージを確認してください。現在のコールサインを送信元として一度だけ送信されます。',
+        messageLabel: 'Announcement メッセージ',
+        send: '確認して送信',
+        cancel: 'キャンセル',
+        confirm: 'この APRS Announcement を今すぐ送信しますか？現在のコールサインが送信元として使用されます。',
+        sent: 'PT2VHF APRS Client の Announcement を送信しました。',
+        download: `PT2VHF APRS Client v${version} - Download: tiny.cc/aprs`,
+      },
+      'pl-PL': {
+        title: 'O programie',
+        subtitle: 'Informacje o projekcie, autorze i sposobach przekazywania sugestii.',
+        author: 'Utworzony przez Alexa, PT2VHF, krótkofalowca i pomysłodawcę PT2VHF APRS Client.',
+        project: 'PT2VHF APRS Client to nowoczesny, wieloplatformowy klient APRS do map, wiadomości, statystyk i analizy sieci.',
+        aprsTitle: 'Czym jest APRS?',
+        aprs: 'APRS (Automatic Packet Reporting System) to cyfrowy system krótkofalarski do udostępniania w czasie rzeczywistym pozycji, wiadomości, telemetrii, danych pogodowych i innych informacji przez radio (RF) oraz sieć APRS-IS.',
+        contactTitle: 'Kontakt / Sugestie / Pytania / Ulepszenia',
+        contact: 'Sugestie, pytania, zgłoszenia błędów i pomysły ulepszeń są mile widziane.',
+        contributorsTitle: 'Podziękowania / Współtwórcy',
+        contributors: 'Szczególne podziękowania dla krótkofalowców, którzy poprzez sugestie, testy, walidację i poprawki wspierają ciągły rozwój PT2VHF APRS Client.',
+        promoteTitle: 'Promuj projekt w sieci APRS',
+        promote: 'Możesz ręcznie wysłać ogłoszenie APRS promujące klienta. Wiadomość można sprawdzić przed wysłaniem.',
+        promoteButton: 'Promuj PT2VHF APRS Client w APRS',
+        eyebrow: 'Promocja APRS',
+        modalTitle: 'Wyślij ogłoszenie PT2VHF APRS Client',
+        modalDescription: 'Sprawdź wiadomość. Ogłoszenie zostanie wysłane jeden raz z użyciem bieżącego znaku wywoławczego jako nadawcy.',
+        messageLabel: 'Treść ogłoszenia',
+        send: 'Potwierdź i wyślij',
+        cancel: 'Anuluj',
+        confirm: 'Wysłać teraz to ogłoszenie APRS? Bieżący znak wywoławczy zostanie użyty jako nadawca.',
+        sent: 'Ogłoszenie PT2VHF APRS Client zostało wysłane.',
+        download: `PT2VHF APRS Client v${version} - Pobierz: tiny.cc/aprs`,
+      },
+      'nl-NL': {
+        title: 'Over',
+        subtitle: 'Over het project, de auteur en hoe u met suggesties kunt bijdragen.',
+        author: 'Gemaakt door Alex, PT2VHF, radioamateur en initiatiefnemer van PT2VHF APRS Client.',
+        project: 'PT2VHF APRS Client is een moderne platformonafhankelijke APRS-client voor kaarten, berichten, statistieken en netwerkanalyse.',
+        aprsTitle: 'Wat is APRS?',
+        aprs: 'APRS (Automatic Packet Reporting System) is een digitaal radioamateursysteem om positie, berichten, telemetrie, weergegevens en andere informatie in realtime te delen via radio (RF) en het APRS-IS-netwerk.',
+        contactTitle: 'Contact / Suggesties / Vragen / Verbeteringen',
+        contact: 'Suggesties, vragen, probleemmeldingen en ideeën voor verbeteringen zijn welkom.',
+        contributorsTitle: 'Dankwoord / Bijdragers',
+        contributors: 'Speciale dank aan de radioamateurs die met suggesties, tests, validaties en aanpassingen bijdragen aan de voortdurende ontwikkeling van PT2VHF APRS Client.',
+        promoteTitle: 'Promoot het project op het APRS-netwerk',
+        promote: 'U kunt handmatig een APRS Announcement verzenden om de client te promoten. Het bericht kan voor verzending worden gecontroleerd.',
+        promoteButton: 'Promoot PT2VHF APRS Client op APRS',
+        eyebrow: 'APRS-promotie',
+        modalTitle: 'PT2VHF APRS Client-aankondiging verzenden',
+        modalDescription: 'Controleer het bericht. De aankondiging wordt één keer verzonden met uw huidige roepnaam als afzender.',
+        messageLabel: 'Aankondigingsbericht',
+        send: 'Bevestigen en verzenden',
+        cancel: 'Annuleren',
+        confirm: 'Deze APRS Announcement nu verzenden? Uw huidige roepnaam wordt als afzender gebruikt.',
+        sent: 'PT2VHF APRS Client Announcement verzonden.',
+        download: `PT2VHF APRS Client v${version} - Download: tiny.cc/aprs`,
+      },
+      'zh-CN': {
+        title: '关于',
+        subtitle: '关于项目、作者以及如何提供建议。',
+        author: '由业余无线电爱好者 Alex（PT2VHF）创建并发起 PT2VHF APRS Client。',
+        project: 'PT2VHF APRS Client 是一款现代跨平台 APRS 客户端，提供地图、消息、统计和网络分析功能。',
+        aprsTitle: '什么是 APRS？',
+        aprs: 'APRS（Automatic Packet Reporting System）是一种业余无线电数字系统，用于通过无线电（RF）和 APRS-IS 网络实时共享位置、消息、遥测、气象数据及其他信息。',
+        contactTitle: '联系 / 建议 / 问题 / 改进',
+        contact: '欢迎提供建议、问题、故障报告和改进想法。',
+        contributorsTitle: '致谢 / 贡献者',
+        contributors: '特别感谢通过建议、测试、验证和调整帮助 PT2VHF APRS Client 持续改进的业余无线电爱好者。',
+        promoteTitle: '在 APRS 网络中推广项目',
+        promote: '您可以手动发送 APRS Announcement 来推广客户端。发送前可以检查消息内容。',
+        promoteButton: '在 APRS 中推广 PT2VHF APRS Client',
+        eyebrow: 'APRS 推广',
+        modalTitle: '发送 PT2VHF APRS Client 公告',
+        modalDescription: '请检查下面的消息。公告将仅发送一次，并使用您当前的呼号作为发送方。',
+        messageLabel: '公告消息',
+        send: '确认并发送',
+        cancel: '取消',
+        confirm: '现在发送此 APRS Announcement 吗？将使用您当前的呼号作为发送方。',
+        sent: 'PT2VHF APRS Client Announcement 已发送。',
+        download: `PT2VHF APRS Client v${version} - 下载: tiny.cc/aprs`,
       },
     };
     return copies[state.language] || copies['pt-BR'];
@@ -5496,6 +5643,44 @@
     button.title = detail ? ('APRS-IS — ' + view.label + ' — ' + detail) : ('APRS-IS — ' + view.label + ' — ' + view.hint);
   }
 
+  function updateWebAccessStatus(localInfo = {}) {
+    const scope = String(localInfo.scope || 'local') === 'lan' ? 'lan' : 'local';
+    const localHost = String(localInfo.display_host || localInfo.host || '');
+    const localPort = Number(localInfo.port || 0);
+    const shareUrl = String(localInfo.share_url || localInfo.url || (localHost && localPort ? `http://${localHost}:${localPort}` : ''));
+    const compact = shareUrl.replace(/^https?:\/\//i, '');
+
+    const configStatus = $('#localInterfaceStatus');
+    if (configStatus) configStatus.textContent = compact || ui('indisponível', 'unavailable');
+
+    const header = $('#webAccessStatus');
+    const label = $('#webAccessLabel');
+    const value = $('#webAccessUrl');
+    if (header) {
+      header.classList.toggle('lan', scope === 'lan');
+      header.dataset.url = shareUrl;
+      header.disabled = !shareUrl;
+      header.title = scope === 'lan'
+        ? ui('Copiar endereço para acesso por outro dispositivo da rede local', 'Copy address for access from another device on the LAN')
+        : ui('Copiar endereço Web local', 'Copy local web address');
+    }
+    if (label) label.textContent = scope === 'lan' ? ui('Web LAN:', 'Web LAN:') : ui('Web local:', 'Local web:');
+    if (value) value.textContent = compact || ui('indisponível', 'unavailable');
+    return { scope, shareUrl, compact };
+  }
+
+  $('#webAccessStatus')?.addEventListener('click', async event => {
+    const button = event.currentTarget;
+    const url = String(button?.dataset?.url || '');
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast(ui('Endereço Web copiado.', 'Web address copied.'), 'ok');
+    } catch (_) {
+      window.prompt(ui('Copie o endereço Web:', 'Copy the web address:'), url);
+    }
+  });
+
   async function refreshStatus() {
     try {
       const s = await api('/api/status');
@@ -5508,15 +5693,13 @@
       }
       if (s.connected) state.lastConnectionErrorShown = '';
       const localInfo = s.local_interface || {};
-      const localHost = String(localInfo.host || '');
-      const localPort = Number(localInfo.port || 0);
-      const localStatus = $('#localInterfaceStatus');
-      if (localStatus) {
-        localStatus.textContent = localHost && localPort ? `${localHost}:${localPort}` : ui('indisponível', 'unavailable');
-      }
-      if (!state.localInterfaceAnnounced && localHost && localPort) {
+      const webAccess = updateWebAccessStatus(localInfo);
+      if (!state.localInterfaceAnnounced && webAccess.shareUrl) {
         state.localInterfaceAnnounced = true;
-        toast(`${ui('Interface local', 'Local interface')}: ${localHost}:${localPort}`, 'ok');
+        toast(
+          `${webAccess.scope === 'lan' ? ui('Web LAN', 'Web LAN') : ui('Interface local', 'Local interface')}: ${webAccess.compact}`,
+          'ok'
+        );
       }
 
       const stationCount = Number(s.stations || 0);
@@ -8112,6 +8295,16 @@
     'Desconectar':'Disconnect',
     'Desconectado':'Disconnected',
     'Enviar Beacon':'Send Beacon',
+    'Web local:':'Local web:',
+    'Web LAN:':'Web LAN:',
+    'Copiar endereço Web':'Copy web address',
+    'Copiar endereço Web local':'Copy local web address',
+    'Copiar endereço para acesso por outro dispositivo da rede local':'Copy address for access from another device on the LAN',
+    'Endereço Web copiado.':'Web address copied.',
+    'Copie o endereço Web:':'Copy the web address:',
+    'Permitir acesso Web pela rede local (LAN)':'Allow web access from the local network (LAN)',
+    'Desligado por padrão. Ao alterar, salve e reinicie o aplicativo para aplicar o novo bind. Não expõe automaticamente à Internet.':'Off by default. After changing it, save and restart the application to apply the new bind. It does not automatically expose the application to the Internet.',
+    'Mensagens agendadas e melhorias de usabilidade':'Scheduled messages and usability improvements',
     'Verificando versão…':'Checking version…',
     'Mensagens APRS':'APRS Messages',
     'Agendadas':'Scheduled',
@@ -8759,7 +8952,7 @@
       if (!trimmed) continue;
       const translated = state.language === 'en'
         ? EN_TEXT.get(trimmed)
-        : (EXTRA_I18N[state.language]?.[trimmed] || EN_TEXT.get(trimmed));
+        : EXTRA_I18N[state.language]?.[trimmed];
       const chosen = state.language === 'pt-BR' ? trimmed : (translated || trimmed);
       const lead = original.match(/^\s*/)?.[0] || '';
       const trail = original.match(/\s*$/)?.[0] || '';
@@ -8775,7 +8968,7 @@
         const original = el.dataset[key];
         const translated = state.language === 'en'
           ? EN_TEXT.get(original)
-          : (EXTRA_I18N[state.language]?.[original] || EN_TEXT.get(original));
+          : EXTRA_I18N[state.language]?.[original];
         el.setAttribute(attr, state.language === 'pt-BR' ? original : (translated || original));
       }
     }
@@ -9402,22 +9595,6 @@
     parseFilterIntoBuilder();
     markConfigDirty();
     toast(ui('Filtro padrão para estações brasileiras restaurado.', 'Default Brazil-only filter restored.'), 'ok');
-  });
-  $('#themeQuickToggle')?.addEventListener('click', async () => {
-    const current = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
-    const next = current === 'light' ? 'dark' : 'light';
-    const formTheme = $('#configForm')?.elements.namedItem('app_theme');
-    if (formTheme) formTheme.value = next;
-    applyAppearancePreferences({ ...(state.currentConfig || {}), app_theme: next });
-    if (state.activeTab === 'config') {
-      markConfigDirty();
-      return;
-    }
-    try {
-      const payload = { ...(state.currentConfig || {}), app_theme: next };
-      const saved = await api('/api/config', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-      state.currentConfig = saved.config || payload;
-    } catch (err) { toast(err.message, 'error'); }
   });
 
   function clientStatsCategoryLabel(category) {
