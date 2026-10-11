@@ -12,6 +12,15 @@ HTML_FILES = list((ROOT / "pt2vhf_aprs" / "templates").glob("*.html"))
 VISIBLE_HTML = re.compile(r">\s*([^<>{}\n][^<>{}\n]{2,120})\s*<")
 IGNORE_HTML = re.compile(r"^(?:[\s\d.,:+\-×/%°–—→←↑↓|]+|KISS|AX\.25|APRS(?:-IS)?|RF|AIS|CSV|GeoJSON|KML|TNC/?RF|AGWPE)$", re.I)
 
+EXTENDED_LANGUAGE_PACKS = {
+    "de-DE": "i18n_de.js",
+    "it-IT": "i18n_it.js",
+    "ja-JP": "i18n_ja.js",
+    "pl-PL": "i18n_pl.js",
+    "nl-NL": "i18n_nl.js",
+    "zh-CN": "i18n_zh.js",
+}
+
 
 def _iter_tr_calls(text: str):
     index = 0
@@ -95,6 +104,35 @@ def _dictionary_keys() -> tuple[set[str], set[str]]:
     return set(key_re.findall(es_block)), set(key_re.findall(fr_block))
 
 
+def _extended_pack_counts(expected_keys: int) -> tuple[dict[str, int], list[dict]]:
+    counts: dict[str, int] = {}
+    errors: list[dict] = []
+    value_re = re.compile(r'^"((?:[^"\\]|\\.)*)",?\s*$', re.M)
+    for locale, filename in EXTENDED_LANGUAGE_PACKS.items():
+        path = ROOT / "pt2vhf_aprs" / "static" / "js" / filename
+        if not path.exists():
+            counts[locale] = 0
+            errors.append({"locale": locale, "file": filename, "error": "missing_file"})
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        start = text.find("const values = [")
+        end = text.find("];", start + 1)
+        values = value_re.findall(text[start:end] if start >= 0 and end > start else "")
+        counts[locale] = len(values)
+        if len(values) != expected_keys:
+            errors.append({
+                "locale": locale,
+                "file": filename,
+                "error": "catalog_size_mismatch",
+                "expected": expected_keys,
+                "actual": len(values),
+            })
+        marker = f"window.PT2VHF_I18N['{locale}']"
+        if marker not in text:
+            errors.append({"locale": locale, "file": filename, "error": "locale_marker_missing"})
+    return counts, errors
+
+
 def audit() -> dict:
     malformed = []
     tr_count = 0
@@ -126,6 +164,7 @@ def audit() -> dict:
     missing_es = sorted(fr_keys - es_keys)
     missing_fr = sorted(es_keys - fr_keys)
     dict_total = len(es_keys | fr_keys)
+    extended_counts, extended_errors = _extended_pack_counts(len(es_keys))
     dict_coverage = 100.0 if not (missing_es or missing_fr) else round((dict_total * 2 - len(missing_es) - len(missing_fr)) * 100.0 / max(1, dict_total * 2), 2)
     coverage = 100.0 if tr_count and not malformed else (0.0 if not tr_count else round((tr_count - len(malformed)) * 100 / tr_count, 2))
     return {
@@ -135,6 +174,8 @@ def audit() -> dict:
         "dictionary_coverage_percent": dict_coverage,
         "missing_es_keys": missing_es,
         "missing_fr_keys": missing_fr,
+        "extended_language_pack_counts": extended_counts,
+        "extended_language_pack_errors": extended_errors,
         "hardcoded_visible_candidates": hardcoded,
         "hardcoded_candidate_count": len(hardcoded),
     }
@@ -144,5 +185,10 @@ if __name__ == "__main__":
     result = audit()
     print(json.dumps(result, ensure_ascii=False, indent=2))
     strict = "--strict" in sys.argv
-    if strict and (result["malformed_tr_calls"] or result["missing_es_keys"] or result["missing_fr_keys"]):
+    if strict and (
+        result["malformed_tr_calls"]
+        or result["missing_es_keys"]
+        or result["missing_fr_keys"]
+        or result["extended_language_pack_errors"]
+    ):
         raise SystemExit(1)
