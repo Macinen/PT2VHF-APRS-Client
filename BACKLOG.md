@@ -1,3 +1,36 @@
+## Novo — Análise de rota RF: desenhar também os hops inferidos até o destino final
+
+- **Regressão observada na v1.14.22:** a análise textual da rota inclui o destino final **PY4RC-15**, porém o destaque amarelo no mapa não chega até ele.
+- Caso de referência da captura:
+  - origem: **PP1GEC-10**;
+  - destino: **PY4RC-15**;
+  - rota exibida: **PP1GEC-10 → CERD → PP1MSC-15 → PU1PZP-15 → PY1EU-10 → PY1MRG-15 → PY4RC-15**;
+  - último hop: **PY1MRG-15 → PY4RC-15**, classificado como **RF inferido do path**, aproximadamente **203,1 km**;
+  - o painel lateral contabiliza o hop e inclui PY4RC-15 como destino, mas a linha destacada no mapa termina antes dele.
+- A visualização da rota deve ser consistente com a rota calculada: **todo hop presente em `route.edges` deve ser desenhado**, inclusive hops com `evidence_level = inferred`, desde que tenham sido aceitos pelo motor como parte válida da rota.
+- Não confundir a regra de “não mostrar hop inferido longo sem cadeia sustentada” com a renderização de um hop inferido que **já foi aceito e incluído explicitamente na rota calculada**.
+- O mapa deve destacar o segmento **PY1MRG-15 → PY4RC-15** usando as coordenadas históricas associadas à evidência selecionada para esse hop.
+- O nó de destino final deve permanecer visualmente incluído no foco da rota, mesmo quando:
+  - o último hop é inferido;
+  - o marcador da estação está oculto por filtro;
+  - a posição atual difere da posição histórica usada pela evidência;
+  - a rota foi reconstruída por alcançabilidade histórica.
+- Revisar especialmente:
+  - `rfRouteAllowedPairs()`;
+  - `routeEvidenceByPair`;
+  - filtros de `eligible_edges`;
+  - exclusão de hops inferidos por distância;
+  - criação/atualização das `topologyLines`;
+  - geometria escolhida entre aresta agregada e `route.edges`;
+  - `fitRfRouteBounds()` e os marcadores exclusivos da rota.
+- Quando a rota ativa estiver em modo de análise/foco, a geometria de `route.edges` deve prevalecer sobre filtros genéricos da topologia para garantir que **a rota exibida no painel e a rota desenhada no mapa sejam idênticas**.
+- Adicionar regressão específica com o caso:
+  - rota com 6 hops;
+  - último hop inferido;
+  - destino final PY4RC-15;
+  - verificar que o mapa contém o segmento final e que o bounding/foco inclui o destino.
+- **Critério de aceite:** se o painel mostrar `... → PY1MRG-15 → PY4RC-15`, o mapa deve obrigatoriamente desenhar também **PY1MRG-15 → PY4RC-15** e incluir PY4RC-15 no destaque da rota.
+
 ## Novo — Estatísticas: remover a barra de rolagem interna remanescente
 
 - **Regressão confirmada na v1.14.22:** a aba **Estatísticas** ainda exibe um bloco interno com **barra de rolagem vertical própria**, apesar da correção anterior da v1.14.21.
