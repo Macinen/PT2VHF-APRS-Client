@@ -1,3 +1,38 @@
+## Novo — Barra superior: simplificar controles, Beacon compacto e endereço Web LAN
+
+- Reorganizar a **barra/menu superior** para reduzir poluição visual e liberar espaço para informações operacionais mais úteis.
+- **Remover da barra superior o controle de tema Claro/Escuro**.
+  - Mover a seleção de tema para **Configuração → Aparência / Aplicação**.
+  - Manter as opções atuais de tema e sua persistência.
+  - A mudança de tema deve continuar sendo aplicada imediatamente, sem exigir reinício.
+- **Substituir o botão textual “Enviar Beacon” por um controle menor e compacto com ícone**.
+  - Usar um ícone intuitivo de transmissão/beacon, com tooltip **“Enviar Beacon”**.
+  - Preservar exatamente a mesma ação e validações do botão atual.
+  - Exibir feedback visual de clique/envio sem ocupar a largura de um botão textual grande.
+  - Manter acessibilidade por `aria-label`/tooltip e foco por teclado.
+- **Adicionar à barra superior o endereço Web de acesso pela rede**, em posição visível porém compacta.
+  - Exemplo: **Web: 192.168.1.50:5000**.
+  - Quando o acesso LAN estiver habilitado, mostrar o **IPv4 LAN real** da máquina e a **porta efetivamente usada** pelo servidor.
+  - O endereço deve ser clicável e permitir **copiar o URL completo** para a área de transferência.
+  - Tooltip sugerido: **“Abrir/copiar endereço para acesso por outro dispositivo da rede”**.
+  - Em caso de fallback de porta, atualizar automaticamente o endereço mostrado.
+  - Quando o servidor estiver restrito a localhost, deixar isso explícito, por exemplo **Web local: 127.0.0.1:5000**, sem induzir o usuário a acreditar que já está acessível externamente.
+  - Com acesso LAN ativo, exibir algo como **Web LAN: http://192.168.x.x:porta**.
+- O endereço exibido na barra deve usar o mecanismo definido no backlog de **acesso Web pela rede local**, incluindo suporte a Windows, Linux, macOS e execução em VM.
+- Não confundir “acesso externo” com exposição direta à Internet/WAN:
+  - por padrão, o recurso deve significar **acesso externo à máquina, dentro da LAN**;
+  - exposição à Internet deve permanecer fora do comportamento automático e exigir configuração de segurança específica.
+- Revisar o layout da barra superior após essas mudanças para evitar truncamento em resoluções menores e em idiomas com textos mais longos.
+- Adicionar testes de regressão garantindo:
+  - ausência do controle Claro/Escuro na barra superior;
+  - presença e funcionamento do tema em Configuração;
+  - Beacon compacto com ícone e mesma ação do botão anterior;
+  - endereço Web correto conforme modo localhost/LAN;
+  - atualização após mudança de porta;
+  - cópia do URL;
+  - comportamento responsivo da barra em resoluções menores.
+- **Critério de aceite:** a barra superior deve ficar mais compacta, sem o seletor Claro/Escuro, com um **ícone pequeno para Beacon** e com o **endereço Web LAN visível e copiável** quando o acesso pela rede estiver habilitado.
+
 ## Novo — Menu superior: exibir endereço de acesso pela rede local
 
 - Incluir no **menu/barra superior** uma indicação clara do endereço Web da aplicação para acesso por outros dispositivos da mesma rede local.
