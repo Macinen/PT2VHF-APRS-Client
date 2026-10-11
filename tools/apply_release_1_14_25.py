@@ -40,6 +40,8 @@ checks = {
     "pt2vhf_aprs/static/js/app.js": [
         "function updateWebAccessStatus",
         "navigator.clipboard.writeText(url)",
+        "'de-DE': {",
+        "'zh-CN': {",
         "return EXTRA_I18N[state.language]?.[pt] || pt;",
         ": EXTRA_I18N[state.language]?.[trimmed];",
     ],
@@ -77,6 +79,11 @@ checks = {
         "MinVersion=6.1sp1",
         "PT2VHF_APRS_Client_Setup_Win7_Legacy_x64",
     ],
+    "windows/version_info.txt": [
+        "filevers=(1, 14, 25, 0)",
+        "prodvers=(1, 14, 25, 0)",
+        "StringStruct('ProductVersion', '1.14.25')",
+    ],
     ".github/workflows/build-production-current.yml": [
         "windows-win7-legacy:",
         "python-version: '3.8.10'",
@@ -96,6 +103,13 @@ checks = {
         "## 1.14.25 - 2026-10-11",
         "Windows 7 Legacy",
         "Acesso Web LAN",
+    ],
+    "BACKLOG.md": [
+        "## Implementado na v1.14.25 — Windows 7:",
+        "## Implementado na v1.14.25 — Internacionalização:",
+        "## Implementado na v1.14.25 — Barra superior:",
+        "## Implementado na v1.14.25 — Menu superior:",
+        "## Implementado na v1.14.25 — Sobre:",
     ],
     "docs/WINDOWS7.md": [
         "Windows 7 SP1 x64",
