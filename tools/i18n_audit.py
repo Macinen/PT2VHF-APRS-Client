@@ -119,6 +119,15 @@ def _extended_pack_counts(expected_keys: int) -> tuple[dict[str, int], list[dict
         end = text.find("];", start + 1)
         values = value_re.findall(text[start:end] if start >= 0 and end > start else "")
         counts[locale] = len(values)
+        empty = [index for index, value in enumerate(values) if not value.strip()]
+        if empty:
+            errors.append({
+                "locale": locale,
+                "file": filename,
+                "error": "empty_translation",
+                "indexes": empty[:20],
+                "count": len(empty),
+            })
         if len(values) != expected_keys:
             errors.append({
                 "locale": locale,
@@ -131,6 +140,34 @@ def _extended_pack_counts(expected_keys: int) -> tuple[dict[str, int], list[dict
         if marker not in text:
             errors.append({"locale": locale, "file": filename, "error": "locale_marker_missing"})
     return counts, errors
+
+
+def _silent_english_fallbacks() -> list[dict]:
+    """Detect the regression that caused non-English locales to display English."""
+    findings: list[dict] = []
+    patterns = [
+        re.compile(r"EXTRA_I18N\[[^\]]+\]\?\.\[[^\]]+\]\s*\|\|\s*EN_TEXT"),
+        re.compile(r"PT2VHF_I18N\?\.\[[^\]]+\]\?\.\[[^\]]+\]\s*\|\|\s*en\b"),
+        re.compile(r"extended\s*\)\s*return\s+extended;\s*return\s+en\b", re.S),
+    ]
+    for path in JS_FILES:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for pattern in patterns:
+            for match in pattern.finditer(text):
+                findings.append({
+                    "file": str(path.relative_to(ROOT)),
+                    "snippet": match.group(0)[:180],
+                })
+    return findings
+
+
+def _release_patch_locales() -> dict[str, bool]:
+    path = ROOT / "pt2vhf_aprs" / "static" / "js" / "i18n_v1425.js"
+    locales = ["es", "fr", "de-DE", "it-IT", "ja-JP", "pl-PL", "nl-NL", "zh-CN"]
+    if not path.exists():
+        return {locale: False for locale in locales}
+    text = path.read_text(encoding="utf-8", errors="replace")
+    return {locale: (f"'{locale}':" in text or f"{locale}:" in text) for locale in locales}
 
 
 def audit() -> dict:
@@ -167,6 +204,8 @@ def audit() -> dict:
     extended_counts, extended_errors = _extended_pack_counts(len(es_keys))
     dict_coverage = 100.0 if not (missing_es or missing_fr) else round((dict_total * 2 - len(missing_es) - len(missing_fr)) * 100.0 / max(1, dict_total * 2), 2)
     coverage = 100.0 if tr_count and not malformed else (0.0 if not tr_count else round((tr_count - len(malformed)) * 100 / tr_count, 2))
+    silent_english_fallbacks = _silent_english_fallbacks()
+    release_patch_locales = _release_patch_locales()
     return {
         "tr_calls": tr_count,
         "malformed_tr_calls": malformed,
@@ -176,6 +215,8 @@ def audit() -> dict:
         "missing_fr_keys": missing_fr,
         "extended_language_pack_counts": extended_counts,
         "extended_language_pack_errors": extended_errors,
+        "silent_english_fallbacks": silent_english_fallbacks,
+        "release_patch_locales": release_patch_locales,
         "hardcoded_visible_candidates": hardcoded,
         "hardcoded_candidate_count": len(hardcoded),
     }
@@ -190,5 +231,7 @@ if __name__ == "__main__":
         or result["missing_es_keys"]
         or result["missing_fr_keys"]
         or result["extended_language_pack_errors"]
+        or result["silent_english_fallbacks"]
+        or not all(result["release_patch_locales"].values())
     ):
         raise SystemExit(1)
