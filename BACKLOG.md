@@ -1,3 +1,16 @@
+## Novo — Estatísticas: remover a barra de rolagem interna remanescente
+
+- **Regressão confirmada na v1.14.22:** a aba **Estatísticas** ainda exibe um bloco interno com **barra de rolagem vertical própria**, apesar da correção anterior da v1.14.21.
+- A captura de tela mostra claramente uma segunda barra de rolagem dentro da área de conteúdo da aba, à direita dos cartões/rankings, além da rolagem principal da janela.
+- Remover qualquer contêiner interno da aba Estatísticas que esteja impondo `height`, `max-height`, `overflow-y: auto`, `overflow-y: scroll`, `overflow: auto` ou regra equivalente.
+- A aba inteira deve funcionar como **um único fluxo vertical**, usando **somente a barra de rolagem principal da aplicação/janela**.
+- O conteúdo de **Recordes RF**, atividade/interações, rankings, software/dispositivos, anomalias, digipeaters, iGates e demais seções deve expandir naturalmente no documento.
+- Verificar também wrappers herdados ou estilos responsivos que possam reintroduzir scroll interno apenas em determinadas resoluções/alturas de tela.
+- Não mascarar o problema apenas ocultando a scrollbar com CSS; o contêiner deve deixar de ser uma área de scroll independente.
+- Preservar o indicador global **“Calculando recordes RF…”** e o carregamento assíncrono sem criar um viewport interno.
+- Adicionar regressão de frontend/CSS que garanta que os contêineres principais de Estatísticas não tenham rolagem vertical independente.
+- **Critério de aceite:** na aba Estatísticas, independentemente do tamanho da janela, deve existir apenas uma barra vertical de rolagem para percorrer todo o conteúdo da página.
+
 ## Implementado na v1.14.22 — Mapa: filtros de entidades não ocultam enlaces
 
 - Ao desmarcar estações, objetos, digipeaters, iGates ou subtipos no menu **Ver**, ocultar apenas os respectivos marcadores/entidades.
