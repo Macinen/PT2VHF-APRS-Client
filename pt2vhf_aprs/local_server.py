@@ -38,6 +38,38 @@ def configured_host() -> str:
     return str(os.getenv("PT2VHF_HOST", DEFAULT_HOST) or DEFAULT_HOST).strip() or DEFAULT_HOST
 
 
+def detect_lan_ipv4() -> str:
+    """Return the best-effort IPv4 address usable by another LAN device.
+
+    No packets are sent: UDP connect only asks the OS which local interface
+    would be used. Hostname lookup is kept as a fallback for offline LANs/VMs.
+    """
+    candidates: list[str] = []
+    sock = None
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect(("8.8.8.8", 80))
+        candidates.append(str(sock.getsockname()[0] or ""))
+    except OSError:
+        pass
+    finally:
+        try:
+            if sock is not None:
+                sock.close()
+        except Exception:
+            pass
+    try:
+        _host, _aliases, addresses = socket.gethostbyname_ex(socket.gethostname())
+        candidates.extend(addresses)
+    except OSError:
+        pass
+    for value in candidates:
+        value = str(value or "").strip()
+        if value and not value.startswith("127.") and value != "0.0.0.0":
+            return value
+    return ""
+
+
 def _default_server_factory(app: Any, host: str, port: int, threads: int) -> tuple[str, Any]:
     """Cria e faz bind do servidor antes de retornar.
 
@@ -73,8 +105,28 @@ class LocalServerHandle:
     runtime_file: Path | None = None
 
     @property
+    def local_host(self) -> str:
+        return DEFAULT_HOST if self.host in {"0.0.0.0", "::", ""} else self.host
+
+    @property
     def url(self) -> str:
-        return f"http://{self.host}:{self.port}"
+        return f"http://{self.local_host}:{self.port}"
+
+    @property
+    def lan_host(self) -> str:
+        if self.host in {"0.0.0.0", "::"}:
+            return detect_lan_ipv4()
+        if self.host and self.host != DEFAULT_HOST and not self.host.startswith("127."):
+            return self.host
+        return ""
+
+    @property
+    def share_url(self) -> str:
+        return f"http://{self.lan_host}:{self.port}" if self.lan_host else self.url
+
+    @property
+    def scope(self) -> str:
+        return "lan" if self.lan_host else "local"
 
     @property
     def fallback_count(self) -> int:
@@ -105,7 +157,7 @@ class LocalServerHandle:
         deadline = time.time() + max(0.1, float(timeout))
         while time.time() < deadline:
             try:
-                with socket.create_connection((self.host, self.port), timeout=0.4):
+                with socket.create_connection((self.local_host, self.port), timeout=0.4):
                     return True
             except OSError:
                 time.sleep(0.12)
@@ -203,9 +255,14 @@ def runtime_info() -> dict[str, Any]:
 def _set_runtime(handle: LocalServerHandle) -> None:
     with _runtime_lock:
         _runtime.update({
-            "host": handle.host,
+            "host": handle.local_host,
+            "bind_host": handle.host,
+            "display_host": handle.lan_host or handle.local_host,
+            "lan_ip": handle.lan_host,
             "port": int(handle.port),
             "url": handle.url,
+            "share_url": handle.share_url,
+            "scope": handle.scope,
             "server": handle.server_kind,
             "fallback_count": handle.fallback_count,
         })
@@ -216,8 +273,13 @@ def _clear_runtime(handle: LocalServerHandle) -> None:
         if int(_runtime.get("port") or 0) == int(handle.port):
             _runtime.update({
                 "host": DEFAULT_HOST,
+                "bind_host": DEFAULT_HOST,
+                "display_host": DEFAULT_HOST,
+                "lan_ip": "",
                 "port": None,
                 "url": "",
+                "share_url": "",
+                "scope": "local",
                 "server": "",
                 "fallback_count": 0,
             })
@@ -232,9 +294,14 @@ def _write_runtime_file(path: Path, handle: LocalServerHandle) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         payload = {
             "pid": os.getpid(),
-            "host": handle.host,
+            "host": handle.local_host,
+            "bind_host": handle.host,
+            "display_host": handle.lan_host or handle.local_host,
+            "lan_ip": handle.lan_host,
             "port": int(handle.port),
             "url": handle.url,
+            "share_url": handle.share_url,
+            "scope": handle.scope,
             "started_at": int(time.time()),
         }
         tmp = path.with_suffix(path.suffix + ".tmp")
