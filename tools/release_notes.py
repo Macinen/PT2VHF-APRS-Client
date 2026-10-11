@@ -43,6 +43,10 @@ def main() -> int:
 - `PT2VHF_APRS_Client_Portable_x64_v{version}.exe` - portátil x64.
 - `PT2VHF_APRS_Client_Setup_ARM64_v{version}.exe` - instalador ARM64.
 - `PT2VHF_APRS_Client_Portable_ARM64_v{version}.exe` - portátil ARM64.
+- `PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v{version}.exe` - instalador Legacy para Windows 7 SP1 x64.
+- `PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v{version}.exe` - portátil Legacy para Windows 7 SP1 x64.
+
+> Windows 7 usa um runtime Legacy separado, sem WebView2 e com interface aberta no navegador padrão. Consulte `docs/WINDOWS7.md`.
 
 ### Linux x86_64
 - `PT2VHF_APRS_Client_x86_64_v{version}.AppImage` - AppImage portátil.
