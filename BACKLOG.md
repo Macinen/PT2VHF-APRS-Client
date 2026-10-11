@@ -1,3 +1,29 @@
+## Novo — Menu superior/Web LAN: exibe 127.0.0.1 em vez do IPv4 real da rede
+
+- **Falha observada:** o indicador Web no menu/barra superior está exibindo o endereço de loopback `127.0.0.1`, mesmo quando a máquina possui um endereço IPv4 válido na rede local, por exemplo `192.168.10.2`.
+- O endereço mostrado ao usuário deve refletir o **IPv4 real da interface LAN utilizável por outros dispositivos da mesma rede**, e não o endereço interno de loopback.
+- Revisar a integração entre `local_server.detect_lan_ipv4()`, o estado/runtime publicado pelo backend e `updateWebAccessStatus()` no frontend para garantir que o campo exibido venha do endereço LAN detectado.
+- Diferenciar claramente:
+  - **Web local:** `http://127.0.0.1:porta` somente quando o servidor estiver restrito à própria máquina;
+  - **Web LAN:** `http://192.168.x.x:porta` quando o acesso pela rede local estiver habilitado.
+- Quando o modo LAN estiver habilitado, o servidor deve escutar em interface apropriada (`0.0.0.0` ou interface LAN selecionada), mas o usuário **nunca deve ver `0.0.0.0` como URL**; deve ver o IPv4 concreto da interface.
+- A detecção do IPv4 LAN deve ignorar:
+  - `127.0.0.0/8`;
+  - `0.0.0.0`;
+  - interfaces desconectadas;
+  - adaptadores virtuais/VPN sem rota LAN útil quando existir uma interface física válida.
+- Em hosts com múltiplas interfaces, priorizar o endereço associado à rota padrão/saída efetiva da rede local; se houver mais de um candidato válido, escolher de forma determinística e registrar os candidatos no diagnóstico.
+- Se a detecção automática falhar, manter o acesso local funcionando e sinalizar que o endereço LAN não pôde ser determinado, em vez de apresentar `127.0.0.1` como se fosse compartilhável.
+- Adicionar diagnóstico contendo `bind_host`, `display_host`, `lan_host`, porta, interface/candidato selecionado e motivo da seleção.
+- Adicionar testes de regressão cobrindo:
+  - máquina com IP `192.168.10.2` e bind LAN;
+  - fallback sem Internet, usando resolução/local interfaces;
+  - múltiplos adaptadores;
+  - presença de VPN/VirtualBox/Hyper-V;
+  - ausência de IPv4 LAN válido;
+  - atualização correta do cabeçalho após mudança de modo localhost ↔ LAN.
+- **Critério de aceite:** em uma máquina com IPv4 LAN `192.168.10.2` e acesso LAN habilitado, o menu superior deve exibir algo como **Web LAN: http://192.168.10.2:porta** e esse endereço deve abrir o PT2VHF APRS Client a partir de outro dispositivo conectado à mesma rede. O endereço `127.0.0.1` só pode aparecer quando o acesso estiver efetivamente restrito à própria máquina.
+
 ## Implementado na v1.14.25 — Windows 7: falha ao iniciar por ausência de `api-ms-win-core-path-l1-1-0.dll`
 
 - **Falha observada em Windows 7:** ao tentar iniciar `PT2VHF_APRS_Client.exe`, o sistema informa que o programa não pode ser iniciado porque está faltando `api-ms-win-core-path-l1-1-0.dll`.
