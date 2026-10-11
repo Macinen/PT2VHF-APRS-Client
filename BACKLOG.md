@@ -1,3 +1,52 @@
+## Novo — Internacionalização: auditoria completa de todas as traduções da aplicação
+
+- Revisar **todas as partes da aplicação** nos dez idiomas suportados: **PT-BR, EN, ES, FR, DE, IT, JA, PL, NL e ZH-CN**.
+- Corrigir casos em que, após selecionar um idioma diferente de Inglês, partes da interface continuam aparecendo em **Inglês** por fallback indevido, ausência de chave ou tradução incompleta.
+- A revisão deve cobrir toda a interface, inclusive conteúdos que hoje podem escapar do catálogo principal:
+  - menu/barra superior;
+  - Mapa, controles, camadas, filtros, legendas, tooltips e popups;
+  - Mensagens, conversas, boletins, grupos e mensagens agendadas;
+  - Estações e ações contextuais;
+  - Estatísticas, rankings, Recordes RF, indicadores de processamento e mensagens de erro;
+  - Configuração, todos os grupos, campos, opções, dicas e validações;
+  - TNC/RF, diagnóstico e tráfego bruto;
+  - atualização automática, changelog e avisos de nova versão;
+  - Ajuda e Sobre;
+  - diálogos, modais, confirmações, toasts e mensagens de sucesso/erro;
+  - textos produzidos dinamicamente pelo JavaScript;
+  - textos retornados pelo backend e exibidos diretamente no frontend;
+  - componentes auxiliares em `v190.js`, `v110.js`, `v111.js`, `v142.js`, `v1818.js`, `tnc.js` e demais módulos;
+  - textos criados após troca de idioma sem reiniciar a aplicação.
+- Não considerar a tradução completa apenas porque o arquivo de idioma possui a mesma **quantidade de entradas** que outro catálogo. A auditoria deve validar **chave por chave e componente por componente**, incluindo strings fora dos catálogos atuais.
+- Identificar strings hardcoded em HTML, JavaScript e Python que possam chegar à interface sem passar pelo mecanismo de tradução.
+- Eliminar o comportamento atual em que idiomas como Alemão, Italiano, Japonês, Polonês, Holandês ou Chinês podem herdar silenciosamente o texto em **Inglês** quando não existe tradução específica.
+- Definir fallback de segurança apenas para situações excepcionais:
+  - primeiro, idioma selecionado;
+  - depois, uma tradução explicitamente definida como fallback;
+  - nunca usar fallback para mascarar uma chave ausente nos testes/auditoria.
+- Durante desenvolvimento/teste, uma chave ausente deve ser detectável pela auditoria, mesmo que em produção exista um fallback para evitar campo vazio.
+- Revisar também traduções interpoladas, plurais, datas, números, unidades, percentuais e mensagens formadas por concatenação, evitando frases parcialmente traduzidas.
+- Preservar sem tradução apenas elementos que tecnicamente devam permanecer invariáveis, como:
+  - indicativos;
+  - nomes/protocolos APRS, APRS-IS, AX.25, KISS, TNC, RF;
+  - ACK/REJ;
+  - URLs;
+  - nomes oficiais de software/serviços;
+  - identificadores técnicos quando sua tradução prejudicar a compreensão.
+- Verificar terminologia radioamadora natural em cada idioma, evitando tradução literal inadequada de termos como **digipeater, iGate, beacon, path, heard, tracklog e RF route**.
+- Ampliar `tools/i18n_audit.py` para:
+  - localizar strings visíveis fora do mecanismo i18n;
+  - comparar todas as chaves em todos os dez idiomas;
+  - detectar traduções ausentes;
+  - detectar entradas vazias;
+  - detectar fallback silencioso para Inglês;
+  - detectar chaves órfãs/não utilizadas;
+  - emitir relatório por idioma e por arquivo/componente;
+  - falhar o pipeline em regressões de cobertura.
+- Adicionar um teste automatizado de troca de idioma que percorra os principais componentes da interface e confirme que, ao selecionar **DE/IT/JA/PL/NL/ZH-CN**, textos conhecidos não permanecem em Inglês.
+- Incluir regressões específicas para textos criados **depois** da troca de idioma, como popups, toasts, rankings, indicadores de processamento e diálogos.
+- **Critério de aceite:** ao selecionar qualquer um dos dez idiomas, toda a interface visível deve permanecer coerente com o idioma escolhido, sem blocos residuais em Inglês por ausência de tradução, salvo termos técnicos explicitamente definidos como invariáveis.
+
 ## Novo — Barra superior: simplificar controles, Beacon compacto e endereço Web LAN
 
 - Reorganizar a **barra/menu superior** para reduzir poluição visual e liberar espaço para informações operacionais mais úteis.
