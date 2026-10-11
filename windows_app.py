@@ -447,6 +447,8 @@ def main() -> int:
     diag.log_event("app_start", version=__version__, portable=True)
     updater.register_exit_handler(_exit_for_update)
     db.init_db()
+    runtime_config = db.get_config()
+    server_host = "0.0.0.0" if bool(runtime_config.get("web_lan_enabled")) else HOST
     app = create_app()
     service.start_if_configured()
     tnc_service.start_if_configured()
@@ -454,7 +456,7 @@ def main() -> int:
     try:
         _server_handle = start_local_server(
             app,
-            host=HOST,
+            host=server_host,
             start_port=PORT,
             runtime_file=runtime_file_for(db.DB_PATH.parent),
         )
@@ -462,12 +464,14 @@ def main() -> int:
         URL = _server_handle.url
         diag.log_event(
             "local_server_started",
-            host=HOST,
+            host=server_host,
             port=PORT,
             url=URL,
+            share_url=_server_handle.share_url,
+            scope=_server_handle.scope,
             fallback_count=_server_handle.fallback_count,
         )
-        print(f"{APP_NAME} — Interface local: {HOST}:{PORT}")
+        print(f"{APP_NAME} — Interface local: {URL}")
     except Exception as exc:
         diag.log_event("local_server_start_failed", error=str(exc))
         try:
