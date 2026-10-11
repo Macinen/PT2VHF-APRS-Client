@@ -23,9 +23,9 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Validate v1.14.24 production release
+      - name: Validate v1.14.25 production release
         shell: pwsh
-        run: python tools\apply_release_1_14_24.py
+        run: python tools\apply_release_1_14_25.py
 
       - name: Install Python dependencies
         shell: pwsh
@@ -112,9 +112,9 @@ jobs:
           architecture: 'arm64'
           cache: 'pip'
 
-      - name: Validate v1.14.24 production release
+      - name: Validate v1.14.25 production release
         shell: pwsh
-        run: python tools\apply_release_1_14_24.py
+        run: python tools\apply_release_1_14_25.py
 
       - name: Install Python dependencies
         shell: pwsh
@@ -185,6 +185,73 @@ jobs:
             dist\PT2VHF_APRS_Client\SBOM-Windows-arm64.cdx.json
             dist\PT2VHF_APRS_Client\THIRD_PARTY_LICENSES_Windows_arm64.txt
 
+
+  windows-win7-legacy:
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'release:') }}
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.8.10 x64
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8.10'
+          architecture: 'x64'
+          cache: 'pip'
+          cache-dependency-path: requirements-windows7.txt
+
+      - name: Validate v1.14.25 release metadata
+        shell: pwsh
+        run: python tools\apply_release_1_14_25.py
+
+      - name: Install Win7 Legacy dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade "pip==24.3.1"
+          python -m pip install -r requirements-windows7.txt
+
+      - name: Validate Python 3.8 runtime compatibility
+        shell: pwsh
+        run: |
+          python -m compileall -q pt2vhf_aprs windows_app.py windows_legacy_app.py
+          python -c "import pkgutil,importlib,pt2vhf_aprs; [importlib.import_module(m.name) for m in pkgutil.iter_modules(pt2vhf_aprs.__path__, pt2vhf_aprs.__name__+'.')]; print('PT2VHF runtime imports OK on Python 3.8')"
+          python -c "from pt2vhf_aprs.web import create_app; app=create_app(); print('Flask routes:', len(list(app.url_map.iter_rules())))"
+
+      - name: Generate Windows icon
+        shell: pwsh
+        run: python windows\make_icon.py
+
+      - name: Build Win7 Legacy Portable
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --clean windows\PT2VHF_APRS_Client_Win7_Legacy.spec
+          $version = (Get-Content VERSION -Raw).Trim()
+          New-Item -ItemType Directory -Force dist-win7 | Out-Null
+          Copy-Item dist\PT2VHF_APRS_Client_Win7_Legacy_Portable_x64.exe "dist-win7\PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v$version.exe" -Force
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
+      - name: Build Win7 Legacy installer
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $installerScript = Get-Content windows\installer_win7_legacy.iss -Raw
+          $installerScript = $installerScript -replace '#define MyAppVersion "[^"]+"', "#define MyAppVersion `"$version`""
+          Set-Content windows\installer_win7_legacy.iss -Value $installerScript -Encoding UTF8
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" windows\installer_win7_legacy.iss
+
+      - name: Upload Win7 Legacy artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: PT2VHF-APRS-Client-Windows-Win7-Legacy-x64
+          path: |
+            dist-win7\PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v*.exe
+            dist-win7\PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v*.exe
+
+
   linux-x64:
     if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'release:') }}
     runs-on: ubuntu-latest
@@ -198,9 +265,9 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Validate v1.14.24 production release
+      - name: Validate v1.14.25 production release
         shell: bash
-        run: python tools/apply_release_1_14_24.py
+        run: python tools/apply_release_1_14_25.py
 
       - name: Build Linux packages
         shell: bash
@@ -233,9 +300,9 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Validate v1.14.24 production release
+      - name: Validate v1.14.25 production release
         shell: bash
-        run: python tools/apply_release_1_14_24.py
+        run: python tools/apply_release_1_14_25.py
 
       - name: Build Linux ARM64 packages
         shell: bash
@@ -274,7 +341,7 @@ jobs:
       - name: Core smoke tests
         shell: bash
         run: |
-          python tools/apply_release_1_14_24.py
+          python tools/apply_release_1_14_25.py
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest
@@ -304,9 +371,9 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Validate v1.14.24 production release
+      - name: Validate v1.14.25 production release
         shell: bash
-        run: python tools/apply_release_1_14_24.py
+        run: python tools/apply_release_1_14_25.py
 
       - name: Build macOS DMG
         shell: bash
@@ -342,9 +409,9 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate v1.14.24 production release
+      - name: Validate v1.14.25 production release
         shell: bash
-        run: python tools/apply_release_1_14_24.py
+        run: python tools/apply_release_1_14_25.py
 
       - name: Generate versioned PDF manual
         shell: bash
@@ -372,6 +439,7 @@ jobs:
     needs:
       - windows-x64
       - windows-arm64
+      - windows-win7-legacy
       - linux-x64
       - linux-arm64
       - linux-smoke
