@@ -223,7 +223,10 @@
   function translatedText(pt, en) {
     if (state.language === 'en') return en || pt;
     if (state.language !== 'pt-BR') {
-      return EXTRA_I18N[state.language]?.[pt] || en || EN_TEXT?.get?.(pt) || pt;
+      // Extended locales must never silently fall back to English. A missing
+      // translation remains detectable by the audit and falls back to the
+      // Portuguese source only as a production safety net.
+      return EXTRA_I18N[state.language]?.[pt] || pt;
     }
     return pt;
   }
@@ -5496,6 +5499,44 @@
     button.title = detail ? ('APRS-IS — ' + view.label + ' — ' + detail) : ('APRS-IS — ' + view.label + ' — ' + view.hint);
   }
 
+  function updateWebAccessStatus(localInfo = {}) {
+    const scope = String(localInfo.scope || 'local') === 'lan' ? 'lan' : 'local';
+    const localHost = String(localInfo.display_host || localInfo.host || '');
+    const localPort = Number(localInfo.port || 0);
+    const shareUrl = String(localInfo.share_url || localInfo.url || (localHost && localPort ? `http://${localHost}:${localPort}` : ''));
+    const compact = shareUrl.replace(/^https?:\/\//i, '');
+
+    const configStatus = $('#localInterfaceStatus');
+    if (configStatus) configStatus.textContent = compact || ui('indisponível', 'unavailable');
+
+    const header = $('#webAccessStatus');
+    const label = $('#webAccessLabel');
+    const value = $('#webAccessUrl');
+    if (header) {
+      header.classList.toggle('lan', scope === 'lan');
+      header.dataset.url = shareUrl;
+      header.disabled = !shareUrl;
+      header.title = scope === 'lan'
+        ? ui('Copiar endereço para acesso por outro dispositivo da rede local', 'Copy address for access from another device on the LAN')
+        : ui('Copiar endereço Web local', 'Copy local web address');
+    }
+    if (label) label.textContent = scope === 'lan' ? ui('Web LAN:', 'Web LAN:') : ui('Web local:', 'Local web:');
+    if (value) value.textContent = compact || ui('indisponível', 'unavailable');
+    return { scope, shareUrl, compact };
+  }
+
+  $('#webAccessStatus')?.addEventListener('click', async event => {
+    const button = event.currentTarget;
+    const url = String(button?.dataset?.url || '');
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast(ui('Endereço Web copiado.', 'Web address copied.'), 'ok');
+    } catch (_) {
+      window.prompt(ui('Copie o endereço Web:', 'Copy the web address:'), url);
+    }
+  });
+
   async function refreshStatus() {
     try {
       const s = await api('/api/status');
@@ -5508,15 +5549,13 @@
       }
       if (s.connected) state.lastConnectionErrorShown = '';
       const localInfo = s.local_interface || {};
-      const localHost = String(localInfo.host || '');
-      const localPort = Number(localInfo.port || 0);
-      const localStatus = $('#localInterfaceStatus');
-      if (localStatus) {
-        localStatus.textContent = localHost && localPort ? `${localHost}:${localPort}` : ui('indisponível', 'unavailable');
-      }
-      if (!state.localInterfaceAnnounced && localHost && localPort) {
+      const webAccess = updateWebAccessStatus(localInfo);
+      if (!state.localInterfaceAnnounced && webAccess.shareUrl) {
         state.localInterfaceAnnounced = true;
-        toast(`${ui('Interface local', 'Local interface')}: ${localHost}:${localPort}`, 'ok');
+        toast(
+          `${webAccess.scope === 'lan' ? ui('Web LAN', 'Web LAN') : ui('Interface local', 'Local interface')}: ${webAccess.compact}`,
+          'ok'
+        );
       }
 
       const stationCount = Number(s.stations || 0);
@@ -9402,22 +9441,6 @@
     parseFilterIntoBuilder();
     markConfigDirty();
     toast(ui('Filtro padrão para estações brasileiras restaurado.', 'Default Brazil-only filter restored.'), 'ok');
-  });
-  $('#themeQuickToggle')?.addEventListener('click', async () => {
-    const current = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
-    const next = current === 'light' ? 'dark' : 'light';
-    const formTheme = $('#configForm')?.elements.namedItem('app_theme');
-    if (formTheme) formTheme.value = next;
-    applyAppearancePreferences({ ...(state.currentConfig || {}), app_theme: next });
-    if (state.activeTab === 'config') {
-      markConfigDirty();
-      return;
-    }
-    try {
-      const payload = { ...(state.currentConfig || {}), app_theme: next };
-      const saved = await api('/api/config', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-      state.currentConfig = saved.config || payload;
-    } catch (err) { toast(err.message, 'error'); }
   });
 
   function clientStatsCategoryLabel(category) {
