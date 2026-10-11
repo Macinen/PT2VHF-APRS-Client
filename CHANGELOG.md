@@ -1,3 +1,17 @@
+## 1.14.25 - 2026-10-11
+
+- **Windows 7 Legacy:** Windows 7 SP1 x64 passa a ter Setup e Portable próprios, construídos com Python 3.8.10/PyInstaller 5.13.2 e interface no navegador, sem dependência de WebView2.
+- **Canal Legacy isolado:** o atualizador identifica a edição Win7 e procura exclusivamente assets Legacy, impedindo substituição automática por um build moderno incompatível.
+- **Windows moderno preservado:** Windows 10/11 continuam usando o build principal em Python 3.12/WebView2; nenhuma dependência moderna foi rebaixada para acomodar o Win7.
+- **Acesso Web LAN:** nova opção opt-in permite servir a interface para outros dispositivos da rede local; localhost continua sendo o padrão seguro.
+- **Endereço no cabeçalho:** a barra superior mostra Web local ou Web LAN com o IPv4 utilizável e a porta realmente reservada, permitindo copiar o URL completo.
+- **Cabeçalho compacto:** o seletor rápido de tema sai da barra superior; o tema permanece em Configuração e continua sendo aplicado imediatamente. Enviar Beacon passa a usar um botão compacto com ícone e acessibilidade por tooltip/aria-label.
+- **Internacionalização:** removido o fallback silencioso para Inglês quando outro idioma está selecionado; textos sem tradução explícita não são mais mascarados em Inglês, e os novos controles LAN recebem traduções nos dez idiomas suportados.
+- **Auditoria i18n:** a validação passa a detectar regressões de fallback indevido, paridade dos catálogos, entradas vazias e textos visíveis candidatos fora do mecanismo de tradução.
+- **Sobre:** PY2FDG — Fábio passa a constar entre os colaboradores, com crédito pelas sugestões de mensagens agendadas e usabilidade.
+- **Manual e Release:** documentação passa a identificar claramente os artefatos modernos e Win7 Legacy e a política de suporte mínimo.
+- Release completa para Windows x64/ARM64, Windows 7 SP1 x64 Legacy, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
+
 ## 1.14.24 - 2026-10-11
 
 - **Recordes RF — algoritmo:** o ranking deixa de recalcular `_compatible_events()` para o caminho inteiro a cada expansão e passa a propagar incrementalmente a evidência histórica selecionada hop a hop.
