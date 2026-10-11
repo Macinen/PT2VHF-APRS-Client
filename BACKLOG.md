@@ -1,3 +1,11 @@
+## Novo — Sobre: adicionar PY2FDG / Fábio aos colaboradores
+
+- Adicionar **PY2FDG — Fábio** à seção **Colaboradores** da aba **Sobre**.
+- Exibir o indicativo em destaque e o nome ao lado, seguindo o padrão visual já usado para os demais colaboradores.
+- Registrar sua contribuição ao projeto, especialmente pelas sugestões relacionadas a **mensagens agendadas/programadas** e melhorias de usabilidade na interface de Mensagens.
+- Manter a lista de colaboradores organizada e legível nos idiomas suportados.
+- **Critério de aceite:** ao abrir a aba **Sobre**, a seção **Colaboradores** deve incluir **PY2FDG — Fábio**.
+
 ## Implementado na v1.14.24 — Estatísticas: indicador de processamento com barra de progresso real de 0 a 100%
 
 - Na aba **Estatísticas**, durante operações pesadas de indexação, reconstrução da topologia e cálculo de **Recordes/Enlaces RF**, substituir o simples indicador indefinido por um feedback mais completo:
