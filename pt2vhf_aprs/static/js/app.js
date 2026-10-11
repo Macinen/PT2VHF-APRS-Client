@@ -8151,6 +8151,16 @@
     'Desconectar':'Disconnect',
     'Desconectado':'Disconnected',
     'Enviar Beacon':'Send Beacon',
+    'Web local:':'Local web:',
+    'Web LAN:':'Web LAN:',
+    'Copiar endereço Web':'Copy web address',
+    'Copiar endereço Web local':'Copy local web address',
+    'Copiar endereço para acesso por outro dispositivo da rede local':'Copy address for access from another device on the LAN',
+    'Endereço Web copiado.':'Web address copied.',
+    'Copie o endereço Web:':'Copy the web address:',
+    'Permitir acesso Web pela rede local (LAN)':'Allow web access from the local network (LAN)',
+    'Desligado por padrão. Ao alterar, salve e reinicie o aplicativo para aplicar o novo bind. Não expõe automaticamente à Internet.':'Off by default. After changing it, save and restart the application to apply the new bind. It does not automatically expose the application to the Internet.',
+    'Mensagens agendadas e melhorias de usabilidade':'Scheduled messages and usability improvements',
     'Verificando versão…':'Checking version…',
     'Mensagens APRS':'APRS Messages',
     'Agendadas':'Scheduled',
@@ -8798,7 +8808,7 @@
       if (!trimmed) continue;
       const translated = state.language === 'en'
         ? EN_TEXT.get(trimmed)
-        : (EXTRA_I18N[state.language]?.[trimmed] || EN_TEXT.get(trimmed));
+        : EXTRA_I18N[state.language]?.[trimmed];
       const chosen = state.language === 'pt-BR' ? trimmed : (translated || trimmed);
       const lead = original.match(/^\s*/)?.[0] || '';
       const trail = original.match(/\s*$/)?.[0] || '';
@@ -8814,7 +8824,7 @@
         const original = el.dataset[key];
         const translated = state.language === 'en'
           ? EN_TEXT.get(original)
-          : (EXTRA_I18N[state.language]?.[original] || EN_TEXT.get(original));
+          : EXTRA_I18N[state.language]?.[original];
         el.setAttribute(attr, state.language === 'pt-BR' ? original : (translated || original));
       }
     }
