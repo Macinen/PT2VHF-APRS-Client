@@ -313,6 +313,8 @@ def build_manual(output: Path, screenshots_dir: Path | None = None, logo_path: P
         ["Sistema", "Arquivo recomendado", "Observação"],
         ["Windows x64", f"PT2VHF_APRS_Client_Setup_x64_v{version}.exe", "Instalador principal"],
         ["Windows x64", f"PT2VHF_APRS_Client_Portable_x64_v{version}.exe", "Executável portátil"],
+        ["Windows 7 SP1 x64", f"PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v{version}.exe", "Instalador Legacy"],
+        ["Windows 7 SP1 x64", f"PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v{version}.exe", "Portable Legacy"],
         ["Linux amd64", f"pt2vhf-aprs-client_{version}_amd64.deb", "Debian/Ubuntu"],
         ["Linux x86_64", f"PT2VHF_APRS_Client_x86_64_v{version}.AppImage", "AppImage portátil"],
         ["Linux x86_64", f"PT2VHF_APRS_Client_Linux_x86_64_v{version}.tar.gz", "Pacote portátil"],
@@ -339,12 +341,14 @@ def build_manual(output: Path, screenshots_dir: Path | None = None, logo_path: P
     story.append(Spacer(1, 8))
 
     section(story, st, "4. Instalação no Windows", [
-        "Para a maioria dos usuários, utilize o instalador Setup. A versão Portable não precisa ser instalada e usa o mesmo banco local da versão instalada."
+        "Para Windows 10/11, utilize o Setup ou Portable normal. Para Windows 7 SP1 x64, use exclusivamente os artefatos Win7 Legacy, construídos com runtime compatível e sem dependência de WebView2."
     ], [
-        "Execute o instalador e siga as telas.",
+        "Windows moderno: a janela integrada usa Microsoft Edge WebView2.",
+        "Windows 7 Legacy: a interface é aberta no navegador padrão e o backend permanece local em Flask/Waitress.",
+        "O canal de atualização Legacy nunca substitui automaticamente o aplicativo por um build Windows moderno incompatível.",
+        "Windows Vista e XP não são suportados.",
         "Se o Windows informar editor desconhecido, confirme apenas se o arquivo veio da Release oficial.",
-        "O banco fica em %LOCALAPPDATA%\\PT2VHF APRS Client\\data\\pt2vhf_aprs.db.",
-        "A janela integrada usa Microsoft Edge WebView2. Se o runtime não estiver disponível, o programa pode usar o navegador como fallback."
+        "O banco fica em %LOCALAPPDATA%\\PT2VHF APRS Client\\data\\pt2vhf_aprs.db."
     ])
 
     section(story, st, "5. Instalação no Linux", [
@@ -373,7 +377,9 @@ def build_manual(output: Path, screenshots_dir: Path | None = None, logo_path: P
         "A Configuração é organizada em cartões/seções para Estação APRS, APRS-IS, Mapa e Topologia, Mensagens/Aparência, Aplicativo, Atualizações e Backup/Dados, começando diretamente pela primeira seção.",
         "Antes de conectar ao APRS-IS, preencha Indicativo, Latitude, Longitude e Altitude. Caso tente conectar sem esses dados, o programa leva o usuário à Configuração e destaca os campos pendentes.",
         "Conectar ao iniciar vem habilitado por padrão em novas instalações e fica na seção APRS-IS.",
-        "O botão Enviar Beacon na barra principal superior dispara manualmente o mesmo beacon disponível em Configuração, sem exigir troca de aba.",
+        "O ícone de Beacon na barra principal superior dispara manualmente o mesmo beacon disponível em Configuração, sem exigir troca de aba.",
+        "A barra superior exibe o endereço Web local; com acesso LAN habilitado, mostra o IPv4 e a porta realmente utilizáveis por outro dispositivo da mesma rede.",
+        "Acesso Web pela LAN é opt-in, fica desligado por padrão e pode exigir liberação da porta no firewall do sistema.",
         "Latitude, Longitude e Altitude são apresentadas em linhas independentes para manter a leitura e a edição dentro do cartão mesmo em DMS, janelas menores ou fontes ampliadas.",
         "Se algum campo for alterado e você tentar mudar de aba antes de salvar, o cliente oferece Salvar e sair, Descartar alterações ou Cancelar. Na v1.14.5, Salvar e sair mostra o erro real do backend quando houver falha, Descartar restaura o último estado salvo localmente sem depender do backend e Cancelar/Continuar preserva exatamente a edição em curso.",
         "O botão inferior Salvar configuração compara o formulário atual com o último baseline persistido e envia somente os campos efetivamente alterados. Uma resposta lenta de leitura da Configuração não pode apagar uma edição feita enquanto a resposta estava pendente."
