@@ -175,7 +175,7 @@ def audit() -> dict:
     tr_count = 0
     for path in JS_FILES:
         text = path.read_text(encoding="utf-8", errors="replace")
-        expected_args = 4 if path.name in {"v190.js", "v110.js"} else 1
+        expected_args = 4 if path.name in {"v190.js", "v110.js", "v111.js", "v142.js"} else 1
         for snippet, raw_args in _iter_tr_calls(text):
             args = _split_js_args(raw_args)
             tr_count += 1
