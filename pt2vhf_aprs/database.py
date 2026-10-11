@@ -140,6 +140,7 @@ DEFAULT_CONFIG = {
     "aprs_filter": BRAZIL_FILTER,
     "connect_on_start": 1,
     "open_browser_on_start": 0,
+    "web_lan_enabled": 0,
     "check_updates_on_start": 1,
     "update_check_minutes": 15,
     "auto_download_updates": 0,
@@ -277,6 +278,7 @@ def init_db() -> None:
                 aprs_filter TEXT NOT NULL DEFAULT 'p/PP/PQ/PR/PS/PT/PU/PV/PW/PX/PY/ZV/ZW/ZX/ZY/ZZ',
                 connect_on_start INTEGER NOT NULL DEFAULT 1,
                 open_browser_on_start INTEGER NOT NULL DEFAULT 0,
+                web_lan_enabled INTEGER NOT NULL DEFAULT 0,
                 check_updates_on_start INTEGER NOT NULL DEFAULT 1,
                 update_check_minutes INTEGER NOT NULL DEFAULT 15,
                 auto_download_updates INTEGER NOT NULL DEFAULT 0,
@@ -609,6 +611,8 @@ def init_db() -> None:
         config_columns = {row["name"] for row in conn.execute("PRAGMA table_info(config)").fetchall()}
         if "open_browser_on_start" not in config_columns:
             conn.execute("ALTER TABLE config ADD COLUMN open_browser_on_start INTEGER NOT NULL DEFAULT 0")
+        if "web_lan_enabled" not in config_columns:
+            conn.execute("ALTER TABLE config ADD COLUMN web_lan_enabled INTEGER NOT NULL DEFAULT 0")
         if "language" not in config_columns:
             conn.execute("ALTER TABLE config ADD COLUMN language TEXT NOT NULL DEFAULT 'pt-BR'")
         if "map_type" not in config_columns:
@@ -819,6 +823,7 @@ def save_config(data: dict[str, Any]) -> dict[str, Any]:
     merged["beacon_minutes"] = max(1, int(merged["beacon_minutes"] or 10))
     merged["connect_on_start"] = 1 if bool(merged["connect_on_start"]) else 0
     merged["open_browser_on_start"] = 1 if bool(merged["open_browser_on_start"]) else 0
+    merged["web_lan_enabled"] = 1 if bool(merged["web_lan_enabled"]) else 0
     merged["check_updates_on_start"] = 1 if bool(merged["check_updates_on_start"]) else 0
     merged["update_check_minutes"] = max(5, min(1440, int(merged["update_check_minutes"] or 15)))
     merged["auto_download_updates"] = 0
