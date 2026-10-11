@@ -1,3 +1,31 @@
+## Novo — Estatísticas: ranking de Recordes RF fica indisponível
+
+- **Regressão observada na v1.14.23:** a seção **“Recordes RF observados — maiores distâncias”** pode deixar de exibir o ranking e apresentar apenas a mensagem **“Recordes RF temporariamente indisponíveis; as demais estatísticas continuam válidas.”**
+- Tratar a indisponibilidade como falha do cálculo/carregamento dos Recordes RF, não como ausência legítima de dados quando existem enlaces/rotas históricos no banco.
+- Investigar separadamente as etapas:
+  - chamada do endpoint dedicado de Recordes RF;
+  - timeout do frontend e do backend;
+  - construção do grafo RF histórico;
+  - cache/single-flight introduzidos nas versões recentes;
+  - exceções durante cálculo de alcançabilidade multi-hop;
+  - serialização do payload;
+  - fallback para o último resultado válido.
+- Registrar no log de diagnóstico a causa real da indisponibilidade, incluindo exceção, duração do cálculo, período solicitado, quantidade de nós/arestas/eventos considerados e se houve timeout.
+- A interface não deve permanecer indefinidamente em **“temporariamente indisponíveis”** após uma falha transitória:
+  - se existir um último resultado válido para o mesmo período, mantê-lo visível e sinalizar que está desatualizado;
+  - se não existir cache válido, permitir nova tentativa automática e também nova tentativa ao clicar em **Atualizar estatísticas**;
+  - quando o cálculo subsequente funcionar, substituir automaticamente o estado de erro pelo ranking.
+- O endpoint de Recordes RF deve retornar erro estruturado e diagnóstico suficiente quando falhar, sem converter exceção em lista vazia nem em zeros.
+- Garantir que o período **Completo** continue capaz de calcular o ranking mesmo com banco grande; otimização não pode eliminar rotas multi-hop históricas nem tornar o cálculo permanentemente indisponível.
+- Adicionar regressões para:
+  - primeira carga com ranking válido;
+  - timeout seguido de recuperação;
+  - exceção seguida de recuperação;
+  - reutilização do último resultado válido;
+  - cálculo no período Completo com grande quantidade de eventos;
+  - atualização concorrente sem deadlock ou starvation do single-flight/cache.
+- **Critério de aceite:** havendo dados RF válidos no banco, a seção **Recordes RF observados — maiores distâncias** deve voltar a exibir o ranking; uma falha transitória pode gerar aviso, mas não deve apagar o último resultado válido nem deixar o ranking permanentemente indisponível.
+
 ## Implementado na v1.14.23 — Idiomas: adicionar Alemão, Italiano, Japonês, Polonês, Holandês e Chinês
 
 - Expandir os idiomas disponíveis do PT2VHF APRS Client além de **Português, Inglês, Espanhol e Francês**.
