@@ -2,6 +2,11 @@
 
 - **Falha observada:** o indicador Web no menu/barra superior está exibindo o endereço de loopback `127.0.0.1`, mesmo quando a máquina possui um endereço IPv4 válido na rede local, por exemplo `192.168.10.2`.
 - O endereço mostrado ao usuário deve refletir o **IPv4 real da interface LAN utilizável por outros dispositivos da mesma rede**, e não o endereço interno de loopback.
+- O endereço exibido no menu/barra superior deve ser **clicável**.
+- Ao clicar no IP/URL, abrir o **navegador padrão do sistema operacional** exatamente no endereço e porta atualmente exibidos, por exemplo `http://192.168.10.2:8080`.
+- A ação deve usar o URL efetivo publicado pelo runtime, incluindo eventual fallback automático de porta, sem reconstruir manualmente um endereço potencialmente diferente.
+- Preservar a ação de copiar o URL, mas separar claramente **abrir no navegador** de **copiar endereço**, evitando comportamento ambíguo.
+- Se o navegador não puder ser aberto, exibir erro não bloqueante e manter o URL disponível para cópia manual.
 - Revisar a integração entre `local_server.detect_lan_ipv4()`, o estado/runtime publicado pelo backend e `updateWebAccessStatus()` no frontend para garantir que o campo exibido venha do endereço LAN detectado.
 - Diferenciar claramente:
   - **Web local:** `http://127.0.0.1:porta` somente quando o servidor estiver restrito à própria máquina;
@@ -22,7 +27,7 @@
   - presença de VPN/VirtualBox/Hyper-V;
   - ausência de IPv4 LAN válido;
   - atualização correta do cabeçalho após mudança de modo localhost ↔ LAN.
-- **Critério de aceite:** em uma máquina com IPv4 LAN `192.168.10.2` e acesso LAN habilitado, o menu superior deve exibir algo como **Web LAN: http://192.168.10.2:porta** e esse endereço deve abrir o PT2VHF APRS Client a partir de outro dispositivo conectado à mesma rede. O endereço `127.0.0.1` só pode aparecer quando o acesso estiver efetivamente restrito à própria máquina.
+- **Critério de aceite:** em uma máquina com IPv4 LAN `192.168.10.2` e acesso LAN habilitado, o menu superior deve exibir algo como **Web LAN: http://192.168.10.2:porta**; ao clicar nesse endereço, o navegador padrão deve abrir exatamente esse URL. O mesmo endereço deve continuar acessível a partir de outro dispositivo conectado à mesma rede. O endereço `127.0.0.1` só pode aparecer quando o acesso estiver efetivamente restrito à própria máquina.
 
 ## Implementado na v1.14.25 — Windows 7: falha ao iniciar por ausência de `api-ms-win-core-path-l1-1-0.dll`
 
