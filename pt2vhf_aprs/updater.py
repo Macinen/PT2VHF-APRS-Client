@@ -47,7 +47,11 @@ def _is_frozen() -> bool:
 def current_update_mode() -> str:
     exe = Path(sys.executable)
     if sys.platform == "win32":
-        return "windows-portable" if "portable" in exe.name.lower() else "windows-installer"
+        name = exe.name.lower()
+        legacy = os.getenv("PT2VHF_WIN7_LEGACY") == "1" or "win7_legacy" in name
+        if legacy:
+            return "windows-legacy-portable" if "portable" in name else "windows-legacy-installer"
+        return "windows-portable" if "portable" in name else "windows-installer"
     if sys.platform == "darwin":
         return "macos-dmg"
     if os.getenv("APPIMAGE"):
@@ -72,7 +76,11 @@ def desired_asset_name(version: str) -> str:
     version = str(version or "").lstrip("vV")
     mode = current_update_mode()
     machine = _machine()
-    if mode == "windows-portable":
+    if mode == "windows-legacy-portable":
+        return f"PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v{version}.exe"
+    if mode == "windows-legacy-installer":
+        return f"PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v{version}.exe"
+    if mode in {"windows-portable", "windows-legacy-portable"}:
         arch = "ARM64" if machine == "arm64" else "x64"
         return f"PT2VHF_APRS_Client_Portable_{arch}_v{version}.exe"
     if mode == "windows-installer":
@@ -96,6 +104,8 @@ def install_supported(mode: str | None = None) -> bool:
     if not _is_frozen() and os.getenv("PT2VHF_ALLOW_SOURCE_UPDATE") != "1":
         return False
     machine = _machine()
+    if mode in {"windows-legacy-portable", "windows-legacy-installer"}:
+        return sys.platform == "win32" and machine == "x86_64"
     if mode.startswith("windows-"):
         return sys.platform == "win32" and machine in {"x86_64", "arm64"}
     if mode == "macos-dmg":
@@ -412,7 +422,7 @@ def _write_windows_cmd_helper(pending: dict[str, Any]) -> Path:
         'ping 127.0.0.1 -n 6 >nul',
     ]
 
-    if mode == "windows-portable":
+    if mode in {"windows-portable", "windows-legacy-portable"}:
         destination = current.parent / downloaded.name
         backup = _portable_backup_path(current)
         lines += [
@@ -486,7 +496,7 @@ def _write_windows_helper(pending: dict[str, Any]) -> Path:
         "Start-Sleep -Milliseconds 500\n"
     )
 
-    if mode == "windows-portable":
+    if mode in {"windows-portable", "windows-legacy-portable"}:
         destination = current.parent / path.name
         backup = _portable_backup_path(current)
         body = (
