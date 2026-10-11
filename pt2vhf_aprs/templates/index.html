@@ -29,8 +29,8 @@
     </div>
   </div>
   <div class="connection-box">
-    <button id="headerSendBeaconButton" type="button" class="btn secondary" title="Enviar beacon manual usando a configuração atual">Enviar Beacon</button>
-    <button id="themeQuickToggle" type="button" class="btn secondary theme-quick-toggle" title="Alternar tema">☀/☾</button>
+    <button id="headerSendBeaconButton" type="button" class="btn secondary beacon-icon-button" title="Enviar Beacon" aria-label="Enviar Beacon"><span aria-hidden="true">📡</span></button>
+    <button id="webAccessStatus" type="button" class="web-access-status" title="Copiar endereço Web" aria-label="Copiar endereço Web"><span id="webAccessLabel">Web local:</span> <strong id="webAccessUrl">detectando…</strong></button>
     <div id="languageQuickSwitch" class="language-quick-switch" aria-label="Idioma / Language">
       <button id="languageQuickCurrent" type="button" class="language-quick-current" aria-haspopup="menu" aria-expanded="false" title="Trocar idioma">
         <img id="languageQuickCurrentFlag" class="language-quick-img" src="{{ url_for('static', filename='img/flag_br.svg') }}" alt="Brasil">
@@ -1265,6 +1265,11 @@
             <input name="open_browser_on_start" type="checkbox">
             <span>Abrir também no navegador ao iniciar</span>
           </label>
+          <label class="check-field app-lan-check">
+            <input name="web_lan_enabled" type="checkbox">
+            <span>Permitir acesso Web pela rede local (LAN)</span>
+            <small>Desligado por padrão. Ao alterar, salve e reinicie o aplicativo para aplicar o novo bind. Não expõe automaticamente à Internet.</small>
+          </label>
           <div class="local-interface-info" title="Porta local escolhida automaticamente na inicialização">
             <strong>Interface local:</strong>
             <span id="localInterfaceStatus">detectando…</span>
@@ -1460,6 +1465,7 @@
             <div class="about-contributor"><strong>PP5PK</strong><span>Daniel Kondlatsch</span></div>
             <div class="about-contributor"><strong>PT2YW</strong><span>Ywstter</span></div>
             <div class="about-contributor"><strong>PT2PAG</strong><span>Paulo Galvão</span></div>
+            <div class="about-contributor"><strong>PY2FDG</strong><span>Fábio</span><small>Mensagens agendadas e melhorias de usabilidade</small></div>
           </div>
         </article>
       </div>
