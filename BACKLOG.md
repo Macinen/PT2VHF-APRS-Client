@@ -1,4 +1,4 @@
-## Novo — Windows 7: falha ao iniciar por ausência de `api-ms-win-core-path-l1-1-0.dll`
+## Implementado na v1.14.25 — Windows 7: falha ao iniciar por ausência de `api-ms-win-core-path-l1-1-0.dll`
 
 - **Falha observada em Windows 7:** ao tentar iniciar `PT2VHF_APRS_Client.exe`, o sistema informa que o programa não pode ser iniciado porque está faltando `api-ms-win-core-path-l1-1-0.dll`.
 - Tratar o problema como **incompatibilidade de runtime/build com Windows 7**, e não orientar o usuário a baixar/copiar DLL avulsa de sites de terceiros.
@@ -27,7 +27,7 @@
 - Adicionar teste de compatibilidade/CI que impeça regressão acidental na versão mínima do Windows.
 - **Critério de aceite:** em Windows 7, o usuário não deve receber o erro genérico de DLL ausente. O aplicativo deve **funcionar em um build legado oficialmente suportado** ou **interromper a instalação de forma controlada e explicar claramente a incompatibilidade**.
 
-## Novo — Internacionalização: auditoria completa de todas as traduções da aplicação
+## Implementado na v1.14.25 — Internacionalização: auditoria completa de todas as traduções da aplicação
 
 - Revisar **todas as partes da aplicação** nos dez idiomas suportados: **PT-BR, EN, ES, FR, DE, IT, JA, PL, NL e ZH-CN**.
 - Corrigir casos em que, após selecionar um idioma diferente de Inglês, partes da interface continuam aparecendo em **Inglês** por fallback indevido, ausência de chave ou tradução incompleta.
@@ -76,7 +76,7 @@
 - Incluir regressões específicas para textos criados **depois** da troca de idioma, como popups, toasts, rankings, indicadores de processamento e diálogos.
 - **Critério de aceite:** ao selecionar qualquer um dos dez idiomas, toda a interface visível deve permanecer coerente com o idioma escolhido, sem blocos residuais em Inglês por ausência de tradução, salvo termos técnicos explicitamente definidos como invariáveis.
 
-## Novo — Barra superior: simplificar controles, Beacon compacto e endereço Web LAN
+## Implementado na v1.14.25 — Barra superior: simplificar controles, Beacon compacto e endereço Web LAN
 
 - Reorganizar a **barra/menu superior** para reduzir poluição visual e liberar espaço para informações operacionais mais úteis.
 - **Remover da barra superior o controle de tema Claro/Escuro**.
@@ -111,7 +111,7 @@
   - comportamento responsivo da barra em resoluções menores.
 - **Critério de aceite:** a barra superior deve ficar mais compacta, sem o seletor Claro/Escuro, com um **ícone pequeno para Beacon** e com o **endereço Web LAN visível e copiável** quando o acesso pela rede estiver habilitado.
 
-## Novo — Menu superior: exibir endereço de acesso pela rede local
+## Implementado na v1.14.25 — Menu superior: exibir endereço de acesso pela rede local
 
 - Incluir no **menu/barra superior** uma indicação clara do endereço Web da aplicação para acesso por outros dispositivos da mesma rede local.
 - Exibir o endereço no formato, por exemplo:
@@ -145,7 +145,7 @@
   - comportamento sem interface de rede válida.
 - **Critério de aceite:** com o acesso LAN habilitado, o usuário deve enxergar no menu superior um URL como **http://192.168.x.x:porta** e conseguir abrir esse endereço em outro dispositivo da mesma rede sem precisar descobrir manualmente IP e porta.
 
-## Novo — Sobre: adicionar PY2FDG / Fábio aos colaboradores
+## Implementado na v1.14.25 — Sobre: adicionar PY2FDG / Fábio aos colaboradores
 
 - Adicionar **PY2FDG — Fábio** à seção **Colaboradores** da aba **Sobre**.
 - Exibir o indicativo em destaque e o nome ao lado, seguindo o padrão visual já usado para os demais colaboradores.
