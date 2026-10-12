@@ -21,6 +21,7 @@ from . import updater
 from .aprs_service import full_callsign, service
 from .scheduled_messages import prepare_schedule_payload, service as scheduled_message_service
 from .local_server import runtime_info as local_server_runtime_info
+from .lan_access import lan_diagnostics, request_windows_firewall_rule
 from .tnc_service import (
     get_tnc_config,
     heard_stations,
@@ -891,8 +892,18 @@ def create_app() -> Flask:
         payload = service.status()
         payload.update(db.summary_counts())
         payload["tnc"] = tnc_service.status()
-        payload["local_interface"] = local_server_runtime_info()
+        local_info = local_server_runtime_info()
+        local_info["access"] = lan_diagnostics(local_info)
+        payload["local_interface"] = local_info
         return jsonify(payload)
+
+    @app.post("/api/local-interface/firewall/allow")
+    def api_allow_local_interface_firewall():
+        local_info = local_server_runtime_info()
+        if str(local_info.get("scope") or "local") != "lan":
+            return jsonify({"ok": False, "error": "Habilite o acesso Web LAN e reinicie a aplicação antes de liberar o firewall."}), 409
+        result = request_windows_firewall_rule(local_info.get("port"))
+        return jsonify(result), (200 if result.get("ok") else 400)
 
     @app.get("/api/current-version-info")
     def api_current_version_info():
