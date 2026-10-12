@@ -11,6 +11,7 @@
 - **Smoke do Portable:** o pipeline executa o Portable recém-gerado e confirma que a versão embutida coincide com `VERSION`.
 - **Smoke do Setup:** o instalador é executado silenciosamente em diretório temporário; o executável instalado é então consultado e precisa reportar exatamente a mesma versão.
 - **Updater Legacy:** mantida a seleção exclusiva dos assets Windows 7 Setup/Portable, atualização in-place do Portable e rollback.
+- **Gate de release:** publicação só ocorre após probe de versão do Portable e do executável realmente instalado pelo Setup Legacy.
 - Release completa para Windows x64/ARM64, Windows 7 SP1 x64 Legacy, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
 
 ## 1.14.26 - 2026-10-11
