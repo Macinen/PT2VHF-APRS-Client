@@ -53,8 +53,11 @@ def test_v1426_lan_diagnostics_and_firewall_are_explicit():
     assert '/api/local-interface/firewall/allow' in web
     assert "lan_diagnostics(local_info," in web
     assert 'id="lanFirewallButton"' in html
-    assert "profile=private" in module
-    assert 'ShellExecuteW(None, "runas", "netsh.exe"' in module
+    assert "profile=any" in module
+    assert "remoteip=localsubnet" in module
+    assert 'ShellExecuteW(' in module
+    assert '"runas"' in module
+    assert '_firewall_script' in module
     assert "UPnP" not in module
 
 
