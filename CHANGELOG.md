@@ -10,6 +10,7 @@
 - **Segurança:** firewall/Defender nunca são desabilitados; não há UPnP, port-forwarding ou exposição automática à Internet/WAN.
 - **i18n:** novos controles e mensagens de Web LAN/firewall recebem cobertura nos dez idiomas.
 - **Regressões:** novos testes cobrem desktop Win7, updater Legacy, separação de assets, Web LAN, firewall e metadados da release.
+- **Pipeline:** publicação condicionada à validação v1.14.26, pytest, sintaxe JS/Python, build Win7 Legacy e demais artefatos multiplataforma.
 - Release completa para Windows x64/ARM64, Windows 7 SP1 x64 Legacy, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
 
 ## 1.14.25 - 2026-10-11
