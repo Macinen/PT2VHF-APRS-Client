@@ -2,47 +2,72 @@
 
 O PT2VHF APRS Client mantém um build separado para **Windows 7 SP1 x64**.
 
-## Por que existe um build separado
+## Arquitetura da edição Legacy
 
-A edição moderna usa Python 3.12 e componentes recentes. O build Legacy preserva o mesmo código funcional do cliente, mas usa uma cadeia isolada compatível com Windows 7 e inicia em **janela desktop**, sem forçar o navegador externo.
+A edição moderna usa Python 3.12 e WebView2. O Windows 7 usa uma cadeia isolada, baseada em Python 3.8.10 e PyInstaller 5.13.2.
+
+A partir da v1.14.27, a edição Legacy **não empacota pywebview/pythonnet**. Essa pilha foi removida após a v1.14.26 fechar imediatamente em Windows 7 real, embora o build passasse no runner do GitHub.
+
+## Janela da aplicação
+
+O backend Flask/Waitress continua rodando dentro do executável PT2VHF. Para apresentar a interface:
+
+1. o cliente procura Google Chrome, Chromium ou Brave compatível;
+2. quando encontra, abre o navegador em **modo app** (`--app=http://127.0.0.1:porta`), sem abas nem barra de endereço;
+3. o processo principal do PT2VHF continua ativo na bandeja;
+4. se nenhum navegador compatível for encontrado, abre o navegador padrão como fallback, mas **não encerra o backend**.
+
+O fallback é diagnosticado e não é tratado como falha silenciosa.
 
 ## Runtime Legacy
 
-- Python 3.8.10 x64.
-- PyInstaller 5.13.2.
-- Waitress 3.0.0.
-- Pillow 10.4.0.
-- psutil 6.1.1.
-- pywebview 4.4.1.
-- pythonnet 3.0.3.
-- O modo `--browser` permanece disponível apenas para diagnóstico/uso explícito.
+- Python 3.8.10 x64;
+- PyInstaller 5.13.2;
+- Flask 3.0.3;
+- Waitress 3.0.0;
+- Pillow 10.4.0;
+- psutil 6.1.1;
+- sem pywebview/pythonnet no executável Legacy.
 
 ## Artefatos
 
 - `PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v<versão>.exe`
 - `PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v<versão>.exe`
 
-O instalador Legacy usa identidade separada da instalação moderna, evitando substituição acidental.
+## Atualização integrada
 
-## Atualizações
+O build Legacy possui canal próprio:
 
-O build Legacy possui canal próprio. Setup e Portable procuram exclusivamente os assets Legacy correspondentes. O Portable substitui o executável no mesmo caminho, preserva backup para rollback e relança a nova versão. O Setup baixa e executa somente o instalador Legacy.
+- Portable procura apenas `PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_vX.Y.Z.exe`;
+- Setup procura apenas `PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_vX.Y.Z.exe`;
+- o Portable é substituído no mesmo caminho, com backup/rollback;
+- nenhuma edição moderna de Windows é aplicada automaticamente ao Windows 7.
+
+## Proteção contra versão antiga no Setup
+
+A v1.14.27 adiciona três barreiras:
+
+- o instalador encerra processos Legacy antigos, inclusive Portable versionado;
+- o pipeline limpa todos os diretórios de build antes de recompilar;
+- o Setup é instalado em pasta temporária no CI e o executável instalado precisa reportar a mesma versão da Release através de `--write-version`.
+
+Isso impede que um executável residual de uma versão anterior seja incluído ou lançado por engano.
 
 ## Web LAN
 
-- O acesso LAN continua opt-in.
-- Quando habilitado, o servidor faz bind para a LAN e o cabeçalho exibe o IPv4 utilizável, nunca `0.0.0.0`.
-- Clicar no endereço abre o URL no navegador padrão; há ação separada para copiar.
-- No Windows, a Configuração oferece autorização explícita para criar uma regra TCP no Windows Firewall limitada ao perfil **Privado** e à porta efetiva.
-- O aplicativo não desabilita firewall/antivírus e não configura UPnP/port-forwarding.
+- acesso LAN permanece opt-in;
+- o cabeçalho exibe o IPv4 LAN utilizável e a porta efetiva;
+- clicar no endereço abre o URL; copiar permanece em ação separada;
+- regra de firewall do Windows só é criada após confirmação explícita e limitada ao perfil Privado;
+- não há UPnP/port-forwarding automático.
 
-## Requisitos e limites
+## Requisitos
 
-- Mínimo: **Windows 7 SP1 x64**.
-- Windows 8/8.1 x64 podem utilizar o build Legacy quando necessário.
-- Windows Vista e Windows XP não são suportados.
-- A shell integrada depende de um renderer Web compatível disponível no sistema; falhas são diagnosticadas e o navegador externo não é aberto silenciosamente como comportamento padrão.
+- mínimo: **Windows 7 SP1 x64**;
+- Windows Vista e XP não são suportados;
+- para a janela dedicada, recomenda-se um Chrome/Chromium/Brave ainda funcional no Windows 7;
+- sem navegador compatível, o modo fallback usa o navegador padrão.
 
 ## Validação
 
-O build Legacy original foi validado em máquina Windows 7 real. A v1.14.26 adiciona regressões específicas para janela desktop, updater Setup/Portable, seleção de assets Legacy e Web LAN.
+O primeiro build Legacy sem dependência de APIs modernas foi validado em Windows 7 real. A v1.14.27 acrescenta validação automática de versão do Portable e do executável realmente instalado pelo Setup. A validação final de comportamento gráfico continua dependendo de teste em Windows 7 real.
