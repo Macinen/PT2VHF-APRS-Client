@@ -5645,46 +5645,46 @@
 
   function updateWebAccessStatus(localInfo = {}) {
     const scope = String(localInfo.scope || 'local') === 'lan' ? 'lan' : 'local';
+    const access = localInfo.access || {};
     const lanHost = String(localInfo.lan_ip || localInfo.lan_host || '').trim();
-    const displayHost = String(localInfo.display_host || '').trim();
-    const localHost = String(localInfo.host || '').trim();
     const localPort = Number(localInfo.port || 0);
-
-    // A URL compartilhável do backend é autoritativa no modo LAN. Nunca
-    // substituí-la por 127.0.0.1 quando há um IPv4 LAN concreto publicado.
-    let shareUrl = String(localInfo.display_url || localInfo.share_url || '').trim();
+    const localUrl = String(localInfo.url || (localPort ? `http://127.0.0.1:${localPort}` : '')).trim();
+    const detectedUrl = String(localInfo.display_url || localInfo.share_url || '').trim();
+    // v1.14.29 still shows the detected IP, but it is NEVER a shareable
+    // address until the backend is actually listening on LAN.
+    let shareUrl = String(localInfo.share_url || '').trim();
     if (lanHost && localPort) {
-      shareUrl = `http://${lanHost}:${localPort}`;
-    } else if (!shareUrl) {
-      const host = displayHost || localHost;
-      shareUrl = host && localPort ? `http://${host}:${localPort}` : '';
+      const lanCandidate = `http://${lanHost}:${localPort}`;
+      if (scope === 'lan') shareUrl = lanCandidate;
     }
-    if (lanHost && localPort && /\/\/(?:127\.|0\.0\.0\.0(?::|\/|$))/i.test(shareUrl)) {
-      shareUrl = `http://${lanHost}:${localPort}`;
-    }
-
-    const compact = shareUrl.replace(/^https?:\/\//i, '');
-
-    const configStatus = $('#localInterfaceStatus');
-    if (configStatus) configStatus.textContent = compact || ui('indisponível', 'unavailable');
-
+    if (scope !== 'lan') shareUrl = localUrl;
+    const displayed = scope === 'lan' ? shareUrl : (detectedUrl || localUrl);
+    const compact = displayed.replace(/^https?:\/\//i, '');
     const header = $('#webAccessStatus');
     const label = $('#webAccessLabel');
     const value = $('#webAccessUrl');
     if (header) {
       header.classList.toggle('lan', scope === 'lan');
-      header.title = shareUrl
-        ? (scope === 'lan'
-          ? ui('Endereço Web acessível pela rede local', 'Web address available on the local network')
-          : ui('Endereço Web local da aplicação', 'Local web address of the application'))
-        : '';
+      header.title = scope === 'lan'
+        ? ui('Endereço LAN publicado; confirme no outro dispositivo.', 'Published LAN address; confirm from another device.')
+        : ui('Endereço detectado; acesso LAN DESABILITADO. Use a URL localhost nesta máquina.',
+             'Detected IP only; LAN access DISABLED. Use localhost on this computer.');
     }
-    if (label) label.textContent = scope === 'lan' ? ui('Web LAN:', 'Web LAN:') : (lanHost ? ui('Web:', 'Web:') : ui('Web local:', 'Local web:'));
+    if (label) label.textContent = scope === 'lan'
+      ? ui('Web LAN:', 'Web LAN:')
+      : (lanHost ? ui('Web:', 'Web:') : ui('Web local:', 'Local web:'));
     if (value) value.textContent = compact || ui('indisponível', 'unavailable');
-
-    const access = localInfo.access || {};
+    const configStatus = $('#localInterfaceStatus');
+    if (configStatus) configStatus.textContent =
+      scope === 'lan' ? (shareUrl || '-') : (localUrl + ' — ' +
+        ui('somente esta máquina', 'this computer only'));
     const accessStatus = $('#lanAccessStatus');
-    if (accessStatus) accessStatus.textContent = access.message || ui('Diagnóstico LAN indisponível.', 'LAN diagnostics unavailable.');
+    if (accessStatus) accessStatus.textContent =
+      (access.message || ui('Diagnóstico LAN indisponível.', 'LAN diagnostics unavailable.')) +
+      (access.external_access_confirmed
+        ? ' · ' + ui('Último acesso remoto: ', 'Last remote access: ') +
+          (access.last_remote_access?.address || '')
+        : '');
     const firewallButton = $('#lanFirewallButton');
     if (firewallButton) firewallButton.disabled = scope !== 'lan';
     return { scope, shareUrl, compact, access };
@@ -5809,20 +5809,24 @@
       const lines = [info.message, 'bind=' + info.actual_bind_host,
         'IP LAN=' + (info.lan_ip || '-'), 'porta=' + info.port,
         'LAN socket=' + (info.listening_lan ? 'OK' : 'FALHA'),
-        'URL=' + (info.share_url || '-')];
+        'Firewall=' + (info.windows_firewall_rule === true ? 'OK' : 'não confirmado'),
+        'URLs para teste remoto: ' + (info.lan_urls || []).join(' | '),
+        'Teste a partir de OUTRO computador: ' + (info.remote_test_urls || []).join(' | '),
+        info.external_access_confirmed ? 'Acesso remoto confirmado: ' +
+          (info.last_remote_access?.address || '') : 'Acesso externo ainda não confirmado'];
       if ($('#lanAccessStatus')) $('#lanAccessStatus').textContent = lines.join(' · ');
     } catch (err) { toast(String(err?.message || err), 'error'); }
   });
 
   $('#lanFirewallButton')?.addEventListener('click', async () => {
     if (!window.confirm(ui(
-      'Autorizar o PT2VHF APRS Client no Windows Firewall para a rede Privada? O Windows solicitará confirmação de administrador.',
-      'Allow PT2VHF APRS Client through Windows Firewall on the Private network? Windows will request administrator approval.'
+      'Autorizar a porta Web do PT2VHF somente para computadores da rede local? O Windows solicitará confirmação de administrador. Evite redes Wi-Fi públicas.',
+      'Allow PT2VHF web access only from your local subnet? Windows will ask for administrator approval. Avoid public Wi-Fi.'
     ))) return;
     try {
       const result = await api('/api/local-interface/firewall/allow', { method: 'POST' });
       toast(result?.requested
-        ? ui('Solicitação enviada ao Windows. Confirme a janela do UAC.', 'Request sent to Windows. Confirm the UAC prompt.')
+        ? ui('Confirme o UAC e clique em Testar bind LAN para verificar a liberação.', 'Approve UAC and click Test LAN to verify the firewall rule.')
         : ui('Regra de firewall processada.', 'Firewall rule processed.'), 'ok');
       setTimeout(() => { void refreshStatus(); }, 1800);
     } catch (err) {
