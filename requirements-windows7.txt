@@ -1,5 +1,5 @@
-# PT2VHF APRS Client - Windows 7 SP1 x64 legacy test build
-# Keep this environment isolated from the normal Windows 10/11 build.
+# PT2VHF APRS Client - Windows 7 SP1 x64 legacy production build
+# Keep this environment isolated from the normal Windows 10/11 build. The Win7 shell uses an installed Chromium-family browser in app mode.
 Flask==3.0.3
 aprslib==0.7.2
 pyserial==3.5
@@ -8,5 +8,3 @@ pystray==0.19.5
 Pillow==10.4.0
 psutil==6.1.1
 pyinstaller==5.13.2
-pywebview==4.4.1
-pythonnet==3.0.3
