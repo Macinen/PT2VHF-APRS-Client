@@ -51,7 +51,7 @@ def test_v1426_lan_diagnostics_and_firewall_are_explicit():
     module = read("pt2vhf_aprs/lan_access.py")
     html = read("pt2vhf_aprs/templates/index.html")
     assert '/api/local-interface/firewall/allow' in web
-    assert "lan_diagnostics(local_info)" in web
+    assert "lan_diagnostics(local_info," in web
     assert 'id="lanFirewallButton"' in html
     assert "profile=private" in module
     assert 'ShellExecuteW(None, "runas", "netsh.exe"' in module
