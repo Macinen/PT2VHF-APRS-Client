@@ -57,8 +57,8 @@ Isso impede que um executável residual de uma versão anterior seja incluído o
 
 - acesso LAN permanece opt-in;
 - o cabeçalho exibe o IPv4 LAN utilizável e a porta efetiva;
-- clicar no endereço abre o URL; copiar permanece em ação separada;
-- regra de firewall do Windows só é criada após confirmação explícita e limitada ao perfil Privado;
+- o endereço Web no cabeçalho é informativo; use o endereço IPv4 real e a porta efetiva para outros dispositivos;
+- regra de firewall exige UAC explícito e limita a porta TCP efetiva à sub-rede local (`LocalSubnet`), sem exposição à Internet;
 - não há UPnP/port-forwarding automático.
 
 ## Requisitos
@@ -70,4 +70,4 @@ Isso impede que um executável residual de uma versão anterior seja incluído o
 
 ## Validação
 
-O primeiro build Legacy sem dependência de APIs modernas foi validado em Windows 7 real. A v1.14.27 acrescenta validação automática de versão do Portable e do executável realmente instalado pelo Setup. A validação final de comportamento gráfico continua dependendo de teste em Windows 7 real.
+O primeiro build Legacy sem dependência de APIs modernas foi validado em Windows 7 real. A v1.14.27 acrescenta validação automática de versão do Portable e do executável realmente instalado pelo Setup. O pipeline v1.14.32 verifica HTTP real do servidor usando Python 3.8 em runner Windows. Isso não comprova a interface gráfica, popup transitório ou compartilhamento LAN em Windows 7 real, que continuam dependentes de teste físico.

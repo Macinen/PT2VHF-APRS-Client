@@ -1,4 +1,4 @@
-## Novo — PRIORIDADE ALTA: Windows 11 não atualiza e falha ao iniciar após as versões recentes (PyInstaller _MEI / pythonnet .NET)
+## Aberto — PRIORIDADE ALTA: Windows 11 não atualiza e falha ao iniciar após as versões recentes (PyInstaller _MEI / pythonnet .NET)
 
 - **Relato de campo em 12/10/2026:** usuário de **Windows 11** informou que, depois da penúltima atualização, não consegue mais concluir a atualização do PT2VHF APRS Client. Evidência fotográfica de **três erros distintos**. A versão exata de origem/destino e se a instalação é Portable ou Setup precisam ser confirmadas nos logs; não presumir sem prova.
 - **Erro 1 — PyInstaller bootstrap:**
@@ -58,97 +58,15 @@
 
 > **v1.14.30 — implementação e validação:** adicionada verificação do socket no IP LAN real e detecção de reinício pendente, além de correção do handoff `exit=0` do Chromium. Os testes automatizados e o empacotamento não substituem o teste em duas máquinas na mesma rede nem uma atualização física do Win7 Portable.
 
-## Reaberto — Web HTTP falha também no próprio computador: diagnóstico localhost x IP LAN (Win11/7)
+## Validado em campo — Web LAN Windows 11 → Windows 11 (12/10/2026; issue #76 encerrada)
 
-- **Falha confirmada:** mesmo quando o aplicativo identifica/exibe o IPv4 da máquina host, outra máquina na mesma rede local não consegue acessar a interface Web do PT2VHF APRS Client.
-- **Novo teste de campo (12/10/2026):** o usuário informa que a **interface Web continua sem funcionar mesmo acessada no próprio computador que executa o aplicativo**. A URL exata utilizada e a mensagem do navegador ainda não foram informadas; portanto, **não presumir** se a tentativa foi feita via `127.0.0.1`, `localhost` ou IPv4 LAN. O problema não pode ser classificado exclusivamente como bloqueio entre computadores ou firewall de entrada remoto.
-- **Prioridade de diagnóstico local (antes dos testes em outro host):** no próprio computador, com a aplicação efetivamente aberta, comparar as URLs `http://127.0.0.1:<porta-real>/`, `http://localhost:<porta-real>/` e `http://<IP-LAN-real>:<porta-real>/`. Obter a porta de `local_server.json`/runtime (não pressupor 8080, pois existe fallback), anotar qual URL foi tentada, código HTTP ou erro concreto (recusada, timeout, conexão redefinida, 404/500, HTML em branco, JS/API falhando).
-- **Interpretação obrigatória da matriz de testes:**
-  - Se `127.0.0.1` **também falha**, investigar primeiro inicialização do backend, bind real, PID, porta, firewall local/proxy/navegador, bootstrap PyInstaller/WebView, erros do servidor e conflito de porta; **não** começar por regra de firewall LAN.
-  - Se `127.0.0.1` **funciona**, mas o IPv4 LAN falha no mesmo computador, investigar `web_lan_enabled` salvo, necessidade de reiniciar, `bind_host` real, seleção do IPv4 de interface, socket `LISTENING`, regras de firewall, filtros locais/VPN e proxy.
-  - Se HTML carrega mas **mapa/interface fica branca ou incompleta**, inspecionar erros de JavaScript, assets estáticos, endpoints API e falhas no navegador separadamente da conectividade TCP.
-- **Diagnóstico técnico exigido:** verificar `netstat -ano` para `127.0.0.1:<porta>` versus `0.0.0.0:<porta>` (ou IPv4 explícito), PID relacionado a `PT2VHF_APRS_Client`, `/api/status`, `/api/local-interface/test`, `diagnostics.log` e `local_server.json`; não mostrar “LAN acessível” baseado apenas em detecção de IP.
-- **Relacionamento com outro problema ativo:** no Windows 11 já há relato separado de falha PyInstaller `_MEI`/pythonnet/.NET; verificar se o processo do servidor permanece vivo após fallback para navegador. Não concluir que a falha da janela integrada implica indisponibilidade HTTP sem teste.
-- **Critério de aceite local:** o app deve responder no navegador do **próprio host** via `http://127.0.0.1:<porta-real>/` em modo localhost ou LAN; em modo LAN, deve responder também no IPv4 real do host. **Somente após esses dois testes** validar acesso por outro computador da mesma sub-rede, com firewall habilitado.
-- **Correções de código na v1.14.31:** regra de Firewall criada por uma única operação elevada com UAC; substitui regras antigas de mesmo nome; porta TCP efetiva, sem vínculo ao caminho mutável do executável Portable; `remoteip=localsubnet` com `profile=any` para permitir acesso de outro host local também quando o Windows classifica a rede como Pública (sem roteamento à Internet). O usuário deve autorizar explicitamente o UAC e utilizar apenas LAN confiável.
-- **Diagnóstico de conectividade aprimorado:** alternativas IPv4 em hosts com múltiplos adaptadores, URL de teste `/api/local-interface/remote-probe`, confirmação de acesso externo somente após a aplicação receber HTTP de outro endereço IP, jamais apenas por `localhost` ou IP detectado.
-- **Validação física em aberto:** reproduzir Windows 11/Windows 7 em máquinas reais com outro equipamento da LAN e firewall habilitado. Se faltar acesso externo apesar da regra, investigar isolamento de Wi-Fi, rede convidada, VPN e perfis da rede. Não declarar resolvido só pelo CI.
-- **Novo relato (Windows 11 e Windows 7):** o acesso/compartilhamento da interface Web continua **sem funcionar em ambas as versões do Windows, mesmo com a opção habilitada**. Tratar como bug multiplataforma Windows ainda **não corrigido**; o diagnóstico de bind introduzido na v1.14.30 não constitui prova de acesso remoto efetivo.
-- **Escopo:** Windows 11 Setup/Portable x64 e Windows 7 Legacy Setup/Portable x64; confirmar também ARM64 Windows quando viável. Reproduzir em duas máquinas distintas na mesma LAN real, por cabo e/ou Wi-Fi, sem pressupor que a opção de compartilhamento aplica o bind antes de reiniciar.
-- **Investigação discriminante** (registrar resultados e erro de conexão):
-  1. Confirmar `web_lan_enabled=1` salvo em `/api/config` e reiniciar completamente o PT2VHF, encerrando também a instância da bandeja.
-  2. Confirmar `bind_host=0.0.0.0` e `scope=lan` no runtime de `/api/status` após o reinício. `lan_ip` exibido não comprova bind LAN.
-  3. Na máquina host, testar tanto `http://127.0.0.1:<porta>` quanto `http://<IPv4-LAN>:<porta>`; distinguir conexão recusada, timeout, erro HTTP ou página carregada parcialmente.
-  4. Na segunda máquina, testar exatamente `http://<IPv4-LAN-do-host>:<porta-efetiva>` (incluindo porta de fallback) e registrar resultado; conferir que ambos os computadores estão na mesma rede e não há isolamento de clientes/AP isolation.
-  5. Confirmar socket TCP com `netstat -ano` no Windows 7/11 e correlacionar `LISTENING`, endereço local, PID, executável e porta. Não declarar LAN disponível a partir de mera detecção de IPv4.
-  6. Verificar regras de entrada do Windows Firewall, perfil de rede ativo (Privado/Público/Domínio), porta real e edição Portable/Setup. Detectar regras antigas apontando para executáveis anteriores e permitir correção com consentimento/UAC.
-  7. Conferir escolha do IPv4 correto com interfaces múltiplas (Wi-Fi, Ethernet, VPN, adaptadores virtuais, IPv4 APIPA) e publicar apenas um endereço realmente compartilhável. Em modo localhost, não apresentar o IP informativo como URL acessível de outra máquina.
-  8. Verificar se a regra de firewall está de fato instalada/ativa; solicitação de UAC não equivale a sucesso de instalação da regra.
-- **Experiência de usuário:** após habilitar a opção e salvar, informar claramente que é necessário reiniciar (ou oferecer reinício controlado). Depois de iniciar, exibir **URL real para outro dispositivo**, estado de bind, estado do firewall e instruções objetivas de teste remoto. Se o servidor estiver somente em localhost, mostrar **Não compartilhável** em vez de divulgar um endereço LAN como funcional.
-- **Segurança obrigatória:** Web LAN desligada por padrão; não abrir porta no roteador/Internet nem desabilitar firewall. Revisar autenticação/autorização e proteção de endpoints que expõem configurações, passcode APRS-IS e ações de TX antes de afirmar que o compartilhamento está seguro; acesso remoto não pode implicar controle irrestrito da estação sem proteção.
-- **Testes de regressão:** comportamento localhost desabilitado, LAN habilitada após reinício, retenção do estado entre versões, portas alternativas, múltiplos adaptadores IPv4, firewall negado/autorizado, Windows 11 e Win7 Portable/Setup, conexão real de segundo dispositivo e confirmação da interface completa (HTML, JS, API e WebSocket, se houver).
-- **Critério de aceite reforçado:** em Windows 11 **e** Windows 7, com acesso LAN ligado e servidor reiniciado, outro computador da mesma rede deve abrir e utilizar a interface Web pelo IP/porta efetivos sem desativar o firewall; com acesso desligado, somente o próprio host pode acessar a interface. Registrar evidência e logs dos dois sistemas.
-- Tratar como falha funcional de **bind/acessibilidade LAN**, não apenas de exibição do endereço.
-- Revisar o ciclo completo do modo Web LAN:
-  - leitura/persistência de `web_lan_enabled`;
-  - necessidade de reinício após alteração;
-  - seleção de `server_host`;
-  - bind efetivo do servidor Waitress/Werkzeug;
-  - porta efetivamente utilizada;
-  - regra do Windows Defender Firewall;
-  - escopo/perfil de rede do Windows;
-  - URL publicada no runtime;
-  - diagnóstico de porta em escuta;
-  - acesso a partir de outro host da mesma sub-rede.
-- Quando **Permitir acesso Web pela rede local (LAN)** estiver habilitado:
-  - o backend deve fazer bind em `0.0.0.0` ou na interface LAN apropriada;
-  - não pode permanecer preso a `127.0.0.1`;
-  - `scope` deve ser `lan`;
-  - `share_url` deve usar o IPv4 LAN real;
-  - a porta deve estar em escuta em endereço acessível externamente.
-- Confirmar o bind real usando inspeção do socket/servidor, e não apenas a configuração desejada.
-- Adicionar ao diagnóstico:
-  - `configured_web_lan_enabled`;
-  - `requested_bind_host`;
-  - `actual_bind_host`;
-  - `lan_ip`;
-  - `port`;
-  - `scope`;
-  - `share_url`;
-  - estado da porta em escuta;
-  - regra de firewall correspondente;
-  - perfil de rede Windows atual (Privado/Público/Domínio), quando detectável.
-- Em Windows, revisar a regra criada pelo botão de firewall:
-  - entrada TCP;
-  - porta efetivamente em uso;
-  - executável correto da edição atual;
-  - perfil Privado;
-  - compatibilidade com Setup e Portable;
-  - compatibilidade com Win7 Legacy;
-  - regra antiga não pode apontar para binário/caminho de versão anterior.
-- Se a porta mudar por fallback automático, a regra de firewall deve refletir a porta real.
-- O aplicativo deve informar claramente:
-  - **Acessível na LAN**;
-  - **Servidor restrito a localhost**;
-  - **Firewall sem regra/possivelmente bloqueado**;
-  - **Perfil de rede incompatível**;
-  - **Porta não está em escuta**;
-  - **Não foi possível confirmar externamente**.
-- Não considerar como sucesso apenas conseguir conectar em `127.0.0.1` a partir da própria máquina.
-- Adicionar teste local que verifique que, em modo LAN, o servidor aceita conexão pelo IPv4 LAN detectado e não apenas pelo loopback.
-- Adicionar teste de regressão para:
-  - `web_lan_enabled=0` → bind localhost;
-  - `web_lan_enabled=1` → bind LAN;
-  - porta fallback mantendo URL/regra corretas;
-  - Setup Windows;
-  - Portable Windows;
-  - Win7 Legacy Setup;
-  - Win7 Legacy Portable.
-- Adicionar um teste/diagnóstico de conectividade orientado ao usuário:
-  - exibir a URL a testar em outro dispositivo;
-  - informar se o servidor está corretamente configurado para aceitar LAN;
-  - não afirmar que está acessível apenas porque o IP foi detectado.
-- **Critério de aceite:** com duas máquinas na mesma rede, ao habilitar **Permitir acesso Web pela rede local (LAN)** e reiniciar a aplicação, a segunda máquina deve conseguir abrir `http://<IP-LAN-do-host>:<porta>` e utilizar a interface Web normalmente, sem depender de `127.0.0.1` e sem desabilitar o firewall do sistema.
+- **Retificação:** a interface Web funciona no computador host via `127.0.0.1` e pelo endereço IPv4 privado `192.168.x.x`.
+- **Acesso remoto validado:** segundo computador Windows 11 abriu a interface Web do host também Windows 11 na mesma LAN.
+- **Issue #76 encerrada:** falha Web não se reproduz no ambiente efetivamente testado. Não repetir no backlog o relato já retificado.
+- **Windows 7:** funcionalidade de Web LAN entre duas máquinas ainda não validada em Win7 real; conservar testes de campo.
+- **Segurança:** opt-in, autorização explícita de UAC e regra TCP limitada à sub-rede local; nunca abrir acesso à Internet.
+- **v1.14.32:** pipeline executará smoke HTTP da página HTML, asset JavaScript, ping e remote-probe usando Python 3.8 no build Win7 Legacy e builds modernos.
+- **Separados:** popup nativo transitório no Windows 7 e falhas PyInstaller/pythonnet no Windows 11 continuam em investigação.
 
 ## Em validação na v1.14.30 — Win7 Legacy Portable: relançamento após update
 
