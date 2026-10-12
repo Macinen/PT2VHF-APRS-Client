@@ -3,7 +3,13 @@ from __future__ import annotations
 
 import json
 import socket
+import sys
+from pathlib import Path
 from urllib.request import ProxyHandler, build_opener
+
+# Direct invocation (python tools/smoke_web_http.py) must find the repo package
+# even on Windows CI/Python 3.8 where sys.path[0] is the tools directory.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from pt2vhf_aprs import __version__
 from pt2vhf_aprs.local_server import start_local_server
