@@ -176,6 +176,10 @@ def lan_diagnostics(runtime: dict[str, Any],
     scope = str(runtime.get("scope") or "local")
     bind_host = str(runtime.get("bind_host") or "127.0.0.1")
     lan_ip = str(runtime.get("lan_ip") or "")
+    candidates = [str(ip) for ip in runtime.get("lan_ip_candidates", []) or []]
+    if lan_ip and lan_ip not in candidates:
+        candidates.insert(0, lan_ip)
+    lan_urls = ["http://{}:{}".format(ip, port) for ip in candidates if port]
     listening_local = tcp_listening(port) if port else False
     listening_lan = tcp_listening(port, lan_ip) if port and lan_ip else False
     firewall = windows_firewall_rule_exists(port) if scope == "lan" and port else None
@@ -212,7 +216,9 @@ def lan_diagnostics(runtime: dict[str, Any],
         "actual_bind_host": bind_host, "bind_host": bind_host,
         "display_host": str(runtime.get("display_host") or ""),
         "lan_ip": lan_ip, "port": port,
+        "lan_urls": lan_urls,
         "share_url": str(runtime.get("share_url") or ""),
+        "remote_test_urls": [url + "/api/local-interface/remote-probe" for url in lan_urls],
         "listening": listening_local, "listening_lan": listening_lan,
         "external_access_confirmed": bool(remote["confirmed"]),
         "last_remote_access": remote,
