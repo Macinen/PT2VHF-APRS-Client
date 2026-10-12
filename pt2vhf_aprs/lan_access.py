@@ -8,6 +8,7 @@ import subprocess
 import sys
 import threading
 import time
+import re
 from pathlib import Path
 from typing import Any
 
@@ -45,14 +46,21 @@ def tcp_listening(port: Any, host: str = "127.0.0.1") -> bool:
         return False
 
 
+def _firewall_rule_present(output: str, port: int) -> bool:
+    """Parse localized netsh output conservatively; never accept an old port."""
+    raw = str(output or "").lower()
+    # Match exact TCP port, not e.g. 8080 as a substring of 18080.
+    if not re.search(r"(?<![0-9])" + str(int(port)) + r"(?![0-9])", raw):
+        return False
+    # New rule intentionally follows the executable across Portable updates.
+    return "tcp" in raw and "localsubnet" in raw.replace(" ", "")
+
+
 def windows_firewall_rule_exists(port: int | None = None) -> bool | None:
-    """Consult the firewall without showing a console window or polling netsh
-    at the same frequency as /api/status (every ~3 s).
-    """
+    """Cache a hidden netsh probe; a local connection does not prove firewall access."""
     if os.name != "nt":
         return None
-    executable = str(Path(sys.executable).resolve())
-    key = (port, executable.lower())
+    key = (port, FIREWALL_RULE_NAME)
     now = time.monotonic()
     with _firewall_cache_lock:
         if _firewall_cache["key"] == key and now < float(_firewall_cache["until"]):
@@ -60,67 +68,70 @@ def windows_firewall_rule_exists(port: int | None = None) -> bool | None:
     try:
         result = subprocess.run(
             ["netsh", "advfirewall", "firewall", "show", "rule", f"name={FIREWALL_RULE_NAME}"],
-            capture_output=True,
-            text=True,
-            timeout=8,
-            check=False,
-            # GUI executables made with PyInstaller --noconsole must never
-            # spawn a visible console for periodic diagnostic commands.
+            capture_output=True, text=True, errors="replace", timeout=8, check=False,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
-        output = result.stdout.lower()
-        rule_exists = result.returncode == 0
-        if port is not None and str(_valid_port(port)) not in output:
-            rule_exists = False
-        if executable.lower() not in output:
-            rule_exists = False
+        present = bool(result.returncode == 0) if port is None else (
+            result.returncode == 0 and _firewall_rule_present(result.stdout, _valid_port(port)))
     except Exception:
-        rule_exists = None
+        present = None
     with _firewall_cache_lock:
         _firewall_cache.update(key=key, until=time.monotonic() + FIREWALL_CHECK_CACHE_SECONDS,
-                               result=rule_exists)
-    return rule_exists
+                               result=present)
+    return present
+
+
+def _firewall_script(port: int) -> str:
+    """One elevated operation, not two racing ShellExecuteW calls.
+
+    Port-based rule survives renamed/moved Portable executables and upgrades.
+    Access is deliberately restricted to the local subnet, including on Windows
+    machines where the network profile is set to Public.
+    """
+    port = _valid_port(port)
+    return (
+        "@echo off\r\n"
+        f'netsh advfirewall firewall delete rule name="{FIREWALL_RULE_NAME}" >nul 2>&1\r\n'
+        f'netsh advfirewall firewall add rule name="{FIREWALL_RULE_NAME}" '
+        f'dir=in action=allow protocol=TCP localport={port} profile=any '
+        'remoteip=localsubnet enable=yes\r\n'
+        "exit /b %errorlevel%\r\n"
+    )
 
 
 def request_windows_firewall_rule(port: Any) -> dict[str, Any]:
-    """Request an elevated, Private-profile inbound TCP rule.
+    """Ask UAC once; do not silently change Windows security policy.
 
-    Elevation is always interactive through the Windows UAC prompt. We never
-    disable the firewall or modify global profiles.
+    The elevated script replaces old rules and installs one local-subnet TCP
+    rule for the *actual* server port. The immediate result means only that
+    Windows accepted the request, never that the rule was installed.
     """
     value = _valid_port(port)
     if os.name != "nt":
         return {"ok": False, "supported": False, "error": "Ação disponível somente no Windows."}
-
-    exe = Path(sys.executable).resolve()
-    delete_args = f'advfirewall firewall delete rule name="{FIREWALL_RULE_NAME}"'
-    add_args = (
-        f'advfirewall firewall add rule name="{FIREWALL_RULE_NAME}" '
-        f'dir=in action=allow protocol=TCP localport={value} profile=private '
-        f'program="{exe}" remoteip=localsubnet enable=yes'
-    )
-
-    _invalidate_firewall_cache()
     try:
-        # Delete old rule first so a port change does not leave stale exposure.
-        ctypes.windll.shell32.ShellExecuteW(None, "runas", "netsh.exe", delete_args, None, 0)
-        rc = ctypes.windll.shell32.ShellExecuteW(None, "runas", "netsh.exe", add_args, None, 1)
+        # Persist the helper in the same application data folder on Win7/Win11.
+        # No shell interpolation of user-supplied values: only a validated port.
+        from . import database as db
+        script = db.DB_PATH.parent / "allow_web_lan_firewall.cmd"
+        script.parent.mkdir(parents=True, exist_ok=True)
+        script.write_bytes(_firewall_script(value).encode("ascii"))
+        _invalidate_firewall_cache()
+        rc = ctypes.windll.shell32.ShellExecuteW(
+            None, "runas", os.environ.get("COMSPEC", "cmd.exe"),
+            '/d /c ""' + str(script) + '""', None, 0
+        )
         if int(rc) <= 32:
-            raise OSError("O Windows recusou a solicitação de elevação do firewall.")
+            raise OSError("O Windows não iniciou a autorização de firewall (UAC).")
         diag.log_event(
-            "lan_firewall_rule_requested",
-            rule=FIREWALL_RULE_NAME,
-            port=value,
-            profile="private",
-            executable=str(exe),
+            "lan_firewall_rule_requested", rule=FIREWALL_RULE_NAME, port=value,
+            profile="any", remoteip="localsubnet", portable_compatible=True,
         )
         return {
-            "ok": True,
-            "supported": True,
-            "requested": True,
-            "rule": FIREWALL_RULE_NAME,
-            "port": value,
-            "profile": "private",
+            "ok": True, "supported": True, "requested": True, "confirmed": False,
+            "rule": FIREWALL_RULE_NAME, "port": value,
+            "profile": "any", "remote_ip": "localsubnet",
+            "message": "Autorize o UAC. Em seguida, use Testar LAN para verificar a regra."
         }
     except Exception as exc:
         diag.log_event("lan_firewall_rule_failed", port=value, error=str(exc))
