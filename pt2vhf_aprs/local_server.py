@@ -126,19 +126,31 @@ class LocalServerHandle:
 
     @property
     def lan_host(self) -> str:
-        if self.host in {"0.0.0.0", "::"}:
-            return detect_lan_ipv4()
-        if self.host and self.host != DEFAULT_HOST and not self.host.startswith("127."):
+        """IPv4 real do host na LAN, independente do endereço de bind."""
+        if self.host and self.host not in {"0.0.0.0", "::", ""} and not self.host.startswith("127."):
             return self.host
-        return ""
-
-    @property
-    def share_url(self) -> str:
-        return f"http://{self.lan_host}:{self.port}" if self.lan_host else self.url
+        return detect_lan_ipv4()
 
     @property
     def scope(self) -> str:
-        return "lan" if self.lan_host else "local"
+        """Escopo de acessibilidade do servidor, não de detecção do IP."""
+        if self.host in {"0.0.0.0", "::"}:
+            return "lan"
+        if self.host and self.host != DEFAULT_HOST and not self.host.startswith("127."):
+            return "lan"
+        return "local"
+
+    @property
+    def share_url(self) -> str:
+        """URL compartilhável somente quando o serviço realmente aceita LAN."""
+        if self.scope == "lan" and self.lan_host:
+            return f"http://{self.lan_host}:{self.port}"
+        return self.url
+
+    @property
+    def display_url(self) -> str:
+        """URL informativa exibida ao usuário, priorizando o IP real do host."""
+        return f"http://{self.lan_host}:{self.port}" if self.lan_host else self.url
 
     @property
     def fallback_count(self) -> int:
@@ -273,6 +285,7 @@ def _set_runtime(handle: LocalServerHandle) -> None:
             "lan_ip": handle.lan_host,
             "port": int(handle.port),
             "url": handle.url,
+            "display_url": handle.display_url,
             "share_url": handle.share_url,
             "scope": handle.scope,
             "server": handle.server_kind,
@@ -290,6 +303,7 @@ def _clear_runtime(handle: LocalServerHandle) -> None:
                 "lan_ip": "",
                 "port": None,
                 "url": "",
+                "display_url": "",
                 "share_url": "",
                 "scope": "local",
                 "server": "",
@@ -312,6 +326,7 @@ def _write_runtime_file(path: Path, handle: LocalServerHandle) -> None:
             "lan_ip": handle.lan_host,
             "port": int(handle.port),
             "url": handle.url,
+            "display_url": handle.display_url,
             "share_url": handle.share_url,
             "scope": handle.scope,
             "started_at": int(time.time()),
