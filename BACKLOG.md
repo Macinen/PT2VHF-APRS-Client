@@ -1,3 +1,68 @@
+## Novo — Configuração: retenção independente por tipo de dado no mapa
+
+- Adicionar em **Configuração** uma seção específica de **Retenção de dados do mapa**.
+- Permitir configurar por quanto tempo cada categoria permanece disponível para exibição/histórico no mapa e consultas relacionadas.
+- A retenção deve ser configurável **independentemente por categoria**, incluindo pelo menos:
+  - Estações;
+  - Enlaces RF;
+  - Enlaces Internet/iGate;
+  - Digipeaters;
+  - iGates;
+  - Objetos APRS;
+  - Itens AIS, quando aplicável;
+  - Balões/Radiossondas, quando aplicável;
+  - Tracklogs/posições históricas;
+  - demais entidades persistentes exibidas no mapa.
+- Sugestão inicial de períodos:
+  - **24 horas**;
+  - **1 semana**;
+  - **1 mês**;
+  - **3 meses**;
+  - **6 meses**;
+  - **1 ano**;
+  - **Permanente / Nunca apagar**.
+- Considerar também uma opção curta de **1 hora** ou **6 horas** apenas onde fizer sentido operacional, mas não poluir a interface com períodos excessivos.
+- O padrão deve privilegiar histórico útil sem crescimento descontrolado do banco. Sugestão:
+  - Estações: **1 mês**;
+  - Enlaces RF: **Permanente**;
+  - Enlaces Internet/iGate: **1 mês**;
+  - Digipeaters: **Permanente**;
+  - iGates: **Permanente**;
+  - Objetos: **1 mês**;
+  - Tracklogs: **1 mês**.
+- A política de retenção deve controlar a **persistência no banco**, não apenas ocultar itens antigos da interface.
+- Separar claramente:
+  - **Período de visualização** do mapa (ex.: 1 h, 24 h, 7 d);
+  - **Período de retenção** no banco.
+- Reduzir o período de retenção não deve apagar dados imediatamente sem confirmação quando houver perda irreversível relevante.
+- Ao trocar de **Permanente** para um período limitado, informar quantos registros antigos serão elegíveis para limpeza antes de executar a purga, quando tecnicamente viável.
+- A limpeza deve ser incremental/segura para evitar:
+  - travamento da aplicação;
+  - lock prolongado do SQLite;
+  - consumo excessivo de CPU;
+  - impacto no recebimento APRS.
+- Executar manutenção em background ou em lotes pequenos.
+- Registrar no diagnóstico:
+  - categoria;
+  - política configurada;
+  - quantidade de registros removidos;
+  - duração da limpeza;
+  - erro, se houver.
+- A retenção deve respeitar o modelo histórico já existente: nós/enlaces que estiverem configurados como **Permanente** não podem desaparecer por timeout visual ou limpeza automática.
+- Adicionar ação **“Aplicar retenção agora”** para permitir ao usuário executar manualmente a política configurada.
+- Adicionar opção **“Restaurar padrões de retenção”** sem alterar outras configurações da aplicação.
+- Persistir essas opções na configuração/banco e preservar os valores em atualizações futuras.
+- Incluir traduções em todos os idiomas suportados.
+- Adicionar testes cobrindo:
+  - persistência das políticas;
+  - retenção independente por categoria;
+  - modo Permanente;
+  - mudança de período;
+  - limpeza em lotes;
+  - preservação de nós/enlaces permanentes;
+  - atualização sem perda das configurações anteriores.
+- **Critério de aceite:** em Configuração, o usuário deve conseguir definir a retenção de cada categoria do mapa separadamente e a aplicação deve remover apenas os registros cuja idade exceda a política daquela categoria, sem confundir retenção com filtro/período de visualização.
+
 ## Implementado na v1.14.29 — Cabeçalho continua em 127.0.0.1: detectar IP LAN independentemente do bind
 
 - **Falha confirmada após a v1.14.28:** o cabeçalho continua mostrando `127.0.0.1` em vez do IPv4 real da máquina na rede, por exemplo `192.168.x.x`.
