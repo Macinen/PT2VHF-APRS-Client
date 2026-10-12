@@ -82,6 +82,51 @@ def detect_lan_ipv4() -> str:
     return normalized[0] if normalized else ""
 
 
+
+def lan_ipv4_candidates() -> list[str]:
+    """Addresses of active LAN interfaces; includes alternatives on VPN/multi-NIC hosts.
+
+    The preferred IPv4 may come from the default route; other devices may need
+    the Ethernet/Wi-Fi address instead. Do not invent availability from a name.
+    """
+    candidates: list[str] = []
+    primary = detect_lan_ipv4()
+    if primary:
+        candidates.append(primary)
+    try:
+        import psutil
+        stats = psutil.net_if_stats()
+        for name, addrs in psutil.net_if_addrs().items():
+            if name in stats and not stats[name].isup:
+                continue
+            for entry in addrs:
+                if entry.family != socket.AF_INET:
+                    continue
+                address = str(entry.address or "").strip()
+                try:
+                    ip = ipaddress.ip_address(address)
+                except ValueError:
+                    continue
+                if ip.version == 4 and ip.is_private and not ip.is_loopback and not ip.is_link_local:
+                    if address not in candidates:
+                        candidates.append(address)
+    except Exception:
+        pass
+    try:
+        _host, _aliases, addresses = socket.gethostbyname_ex(socket.gethostname())
+        for address in addresses:
+            try:
+                ip = ipaddress.ip_address(address)
+            except ValueError:
+                continue
+            if ip.version == 4 and ip.is_private and not ip.is_loopback and not ip.is_link_local:
+                if address not in candidates:
+                    candidates.append(address)
+    except OSError:
+        pass
+    return candidates[:12]
+
+
 def _default_server_factory(app: Any, host: str, port: int, threads: int) -> tuple[str, Any]:
     """Cria e faz bind do servidor antes de retornar.
 
@@ -283,6 +328,7 @@ def _set_runtime(handle: LocalServerHandle) -> None:
             "bind_host": handle.host,
             "display_host": handle.lan_host or handle.local_host,
             "lan_ip": handle.lan_host,
+            "lan_ip_candidates": lan_ipv4_candidates(),
             "port": int(handle.port),
             "url": handle.url,
             "display_url": handle.display_url,
@@ -301,6 +347,7 @@ def _clear_runtime(handle: LocalServerHandle) -> None:
                 "bind_host": DEFAULT_HOST,
                 "display_host": DEFAULT_HOST,
                 "lan_ip": "",
+                "lan_ip_candidates": [],
                 "port": None,
                 "url": "",
                 "display_url": "",
@@ -324,6 +371,7 @@ def _write_runtime_file(path: Path, handle: LocalServerHandle) -> None:
             "bind_host": handle.host,
             "display_host": handle.lan_host or handle.local_host,
             "lan_ip": handle.lan_host,
+            "lan_ip_candidates": lan_ipv4_candidates(),
             "port": int(handle.port),
             "url": handle.url,
             "display_url": handle.display_url,
