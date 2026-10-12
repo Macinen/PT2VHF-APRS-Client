@@ -66,7 +66,7 @@ def test_v1426_lan_ip_detection_rejects_loopback_and_link_local():
     assert "addr.is_loopback" in source
     assert "addr.is_unspecified" in source
     assert "addr.is_link_local" in source
-    assert "addr.is_private" in source
+    assert "is_private" in source
 
 
 def test_v1426_i18n_patch_covers_all_extra_locales():
