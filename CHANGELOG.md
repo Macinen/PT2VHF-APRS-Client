@@ -1,3 +1,15 @@
+## 1.14.30 - 2026-10-12
+
+- **Web LAN funcional e diagnóstico:** a opção LAN continua exigindo salvamento e reinício, mas o novo teste verifica o socket no IPv4 LAN e na porta efetiva, distinguindo bind confirmado, restrição a localhost e reinício pendente; não confunde teste local com confirmação externa.
+- **Firewall Windows:** regra restrita ao perfil Privado, sub-rede local, porta e executável da edição em uso. Diagnóstico identifica regras antigas de outra versão/porta.
+- **Windows 7 Legacy Portable:** correção de falso erro `Shell encerrou imediatamente (exit=0)` quando Chromium repassa `--app` a um processo existente.
+- **Retenção SQLite:** seção em Configuração para retenção por categoria: estações, digipeaters, iGates, enlaces RF, enlaces Internet/iGate, objetos APRS/AIS/radiossondas, tracklogs, mensagens individuais, boletins, mensagens de grupo, pacotes, logs APRS e eventos de topologia.
+- **Permanente e histórico:** RF/digipeaters/iGates permanentes por padrão. Links históricos independentes dos registros de nós; remoção de estação não executa cascata sobre `topology_edges`.
+- **Capacidade:** tamanho do banco no painel, políticas salvas, limpeza manual confirmada e manutenção em pequenos lotes com worker em segundo plano; nenhuma compactação bloqueante automática.
+- **Migração conservadora:** bancos com dados existentes precisam de ativação explícita da primeira limpeza automática; novas instalações podem usar o agendamento padrão.
+- **Testes:** regressões SQLite, isolamento de categorias, proteção de enlaces, diagnóstico LAN e handoff Chromium no Windows 7. Acessibilidade entre duas máquinas depende também do firewall e da rede reais e permanece sujeita à validação física.
+- Release completa: Windows x64/ARM64, Windows 7 Legacy x64 Setup/Portable, Linux x86_64/ARM64, macOS Intel/Apple Silicon e Manual PDF.
+
 ## 1.14.29 - 2026-10-11
 
 - **IP LAN independente do bind:** o cliente passa a detectar `lan_ip` mesmo quando o servidor está restrito a `127.0.0.1`.
