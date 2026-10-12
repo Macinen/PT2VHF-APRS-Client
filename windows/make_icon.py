@@ -7,6 +7,8 @@ uma imagem detalhada para 16 pixels.
 from __future__ import annotations
 
 from pathlib import Path
+from io import BytesIO
+import struct
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -95,12 +97,26 @@ def main() -> None:
     with Image.open(SOURCE) as brand:
         brand.verify()
     frames = [render_icon(size) for size in SIZES]
-    # Pillow supports per-size frames through append_images: the 16 px and
-    # 24 px drawings are genuine variants, not a downscaled 256 px drawing.
-    frames[-1].save(
-        OUTPUT, format="ICO",
-        sizes=[(size, size) for size in SIZES],
-        append_images=frames[:-1],
+    # Build genuine separate PNG-backed icon images in an ICO directory.
+    # Pillow's save(sizes=...) merely scales one original; hand-assembling
+    # PNG frames preserves separate typography at the small Windows sizes.
+    encoded = []
+    for frame in frames:
+        buffer = BytesIO()
+        frame.save(buffer, format="PNG", optimize=True)
+        encoded.append(buffer.getvalue())
+    offset = 6 + len(SIZES) * 16
+    entries = []
+    for size, raw in zip(SIZES, encoded):
+        dimension = 0 if size == 256 else size
+        entries.append(struct.pack(
+            "<BBBBHHII", dimension, dimension, 0, 0,
+            1, 32, len(raw), offset
+        ))
+        offset += len(raw)
+    OUTPUT.write_bytes(
+        struct.pack("<HHH", 0, 1, len(SIZES)) +
+        b"".join(entries) + b"".join(encoded)
     )
     print(OUTPUT)
 
