@@ -3,6 +3,16 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.32": {
+        "title": "Validação Web LAN e pacote completo Windows 7",
+        "items": [
+            "Acesso Web na LAN comprovado em teste Windows 11 para Windows 11, além de loopback e IP IPv4 no host.",
+            "O pipeline exerce uma aplicação Flask real por HTTP no Windows e no build Windows 7 Legacy, incluindo HTML, JS, diagnóstico e versão.",
+            "Windows 7 SP1 x64 continua com Setup e Portable próprios, Python 3.8 e cadeia PyInstaller isolada; validação física necessária.",
+            "A janela transitória do Windows 7 e o erro de atualização/boot do Windows 11 seguem em investigação; esta versão não declara correção desses problemas.",
+            "Matriz completa: Windows x64/ARM64, Win7 Legacy, Linux x86_64/ARM64, macOS Intel/Apple Silicon e Manual PDF.",
+        ],
+    },
     "1.14.31": {
         "title": "Compartilhamento Web LAN Windows e diagnóstico Win7",
         "items": [
