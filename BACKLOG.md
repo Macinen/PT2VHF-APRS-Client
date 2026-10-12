@@ -1,3 +1,50 @@
+## Novo — Win7 Legacy Portable: atualização conclui, mas relançamento da janela falha após update
+
+- **Falha confirmada em Windows 7 Portable após atualização integrada:** o aplicativo informa que a atualização foi concluída, por exemplo **v1.14.28 → v1.14.29**, mas durante o relançamento aparece a mensagem:
+  - **“Não foi possível iniciar a janela dedicada do Windows 7 Legacy.”**
+  - **“Detalhes: Shell encerrou imediatamente (exit=0).”**
+- O resultado atual não corresponde ao comportamento esperado: a atualização deve terminar com a nova versão aberta normalmente na janela Legacy, sem cair desnecessariamente para o navegador padrão.
+- **Causa provável a validar:** no modo Legacy, Chrome/Chromium/Brave pode aceitar a solicitação `--app=...`, repassar a abertura para um processo já existente e encerrar o processo filho com **exit code 0**. O launcher atual trata qualquer encerramento rápido como erro, mesmo quando `exit=0` representa handoff bem-sucedido.
+- Revisar `_launch_legacy_app_window()` em `windows_app.py`:
+  - **exit code 0 não deve ser tratado automaticamente como falha**;
+  - considerar falha imediata apenas quando houver código de saída diferente de zero ou evidência concreta de que a janela não foi aberta;
+  - não depender da permanência do processo filho do navegador para concluir que a janela está ativa;
+  - registrar separadamente `process_handoff`, `exit_code`, `browser_path`, `profile_dir` e `url`.
+- Quando o navegador já estiver em execução com o mesmo perfil, aceitar o handoff para o processo existente sem exibir alerta falso.
+- Não abrir uma segunda instância/fallback no navegador padrão se a janela `--app` já tiver sido aceita por Chrome/Chromium/Brave.
+- Revisar o ciclo completo do **updater Portable Win7**:
+  1. baixar e validar o novo EXE Legacy;
+  2. encerrar a instância PT2VHF anterior;
+  3. encerrar/limpar somente a shell Legacy vinculada à instância anterior quando necessário;
+  4. substituir o Portable;
+  5. relançar **uma única vez** a nova versão;
+  6. iniciar a janela Legacy;
+  7. confirmar versão nova;
+  8. não deixar janela/shell antiga concorrendo com a nova.
+- O helper de atualização deve aguardar o encerramento real da instância anterior antes de relançar a nova versão.
+- Evitar que o mutex/single-instance da aplicação redirecione o relançamento para uma instância antiga ainda viva.
+- Registrar no diagnóstico do updater:
+  - PID da instância anterior;
+  - PID da nova instância;
+  - caminho do executável antes/depois;
+  - versão antiga/nova;
+  - comando de relançamento;
+  - resultado do relançamento;
+  - navegador Legacy selecionado;
+  - PID do processo de shell quando disponível;
+  - exit code do launcher do navegador;
+  - se ocorreu handoff para processo já existente.
+- Adicionar teste de regressão simulando:
+  - navegador `--app` iniciado;
+  - processo filho encerra rapidamente com **exit=0**;
+  - launcher deve considerar o handoff válido e **não** exibir erro/fallback.
+- Adicionar teste separado para:
+  - encerramento rápido com código diferente de zero → erro real/fallback controlado;
+  - atualização Portable seguida de relançamento único;
+  - ausência de instância antiga após update;
+  - nova versão aberta e reportando a versão alvo.
+- **Critério de aceite:** no Windows 7 Portable, após atualizar pelo próprio aplicativo, a versão nova deve abrir automaticamente e permanecer operacional. Um `exit=0` do processo intermediário Chrome/Chromium/Brave não pode ser tratado como falha se a abertura tiver sido repassada corretamente para o navegador já existente. Não deve surgir alerta falso nem abrir fallback duplicado no navegador padrão.
+
 ## Novo — Configuração: retenção independente por tipo de dado no mapa
 
 - Adicionar em **Configuração** uma seção específica de **Retenção de dados do mapa**.
