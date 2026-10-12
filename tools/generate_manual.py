@@ -378,8 +378,11 @@ def build_manual(output: Path, screenshots_dir: Path | None = None, logo_path: P
         "Antes de conectar ao APRS-IS, preencha Indicativo, Latitude, Longitude e Altitude. Caso tente conectar sem esses dados, o programa leva o usuário à Configuração e destaca os campos pendentes.",
         "Conectar ao iniciar vem habilitado por padrão em novas instalações e fica na seção APRS-IS.",
         "O ícone de Beacon na barra principal superior dispara manualmente o mesmo beacon disponível em Configuração, sem exigir troca de aba.",
-        "A barra superior exibe o endereço Web local; com acesso LAN habilitado, mostra o IPv4 e a porta realmente utilizáveis por outro dispositivo da mesma rede.",
-        "Acesso Web pela LAN é opt-in, fica desligado por padrão e pode exigir liberação da porta no firewall do sistema.",
+        "O cabeçalho diferencia IPv4 detectado da URL que o backend efetivamente publica para a rede. Exibir o IPv4 não comprova que outro computador consegue conectar.",
+        "Para compartilhar no Windows 7/11: habilite Permitir acesso Web LAN, salve, encerre completamente o Client pelo ícone da bandeja e abra novamente. Em Configuração, clique Autorizar no Firewall do Windows e confirme o UAC.",
+        "A regra de Firewall autoriza apenas computadores da sub-rede local na porta realmente usada pelo Client. Se houver VPN ou adaptadores múltiplos, utilize Testar bind LAN para consultar outras URLs IPv4.",
+        "Em outro computador da mesma LAN, abra http://IP-LAN:PORTA/api/local-interface/remote-probe. A resposta server_received_request=true permite confirmar acesso remoto no diagnóstico do primeiro computador.",
+        "O acesso LAN oferece controles da estação; habilite-o somente em redes de confiança. Não encaminhe a porta no roteador e evite redes Wi-Fi públicas.",
         "Latitude, Longitude e Altitude são apresentadas em linhas independentes para manter a leitura e a edição dentro do cartão mesmo em DMS, janelas menores ou fontes ampliadas.",
         "Se algum campo for alterado e você tentar mudar de aba antes de salvar, o cliente oferece Salvar e sair, Descartar alterações ou Cancelar. Na v1.14.5, Salvar e sair mostra o erro real do backend quando houver falha, Descartar restaura o último estado salvo localmente sem depender do backend e Cancelar/Continuar preserva exatamente a edição em curso.",
         "O botão inferior Salvar configuração compara o formulário atual com o último baseline persistido e envia somente os campos efetivamente alterados. Uma resposta lenta de leitura da Configuração não pode apagar uma edição feita enquanto a resposta estava pendente."
