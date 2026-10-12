@@ -84,6 +84,8 @@ def test_web_presence_and_visible_alert_control():
     assert "settingsForm.insertBefore(card,retentionCard)" in alert_js
     assert "data-v190-alert" in alert_js
     assert "station_appeared" in alert_js
+    assert 'type="button" id="v190AlertsSave"' in alert_js
+    assert 'type="button" id="v190GroupAdd"' in alert_js
 
 
 def test_windows_ico_has_real_per_size_aprs_variants(tmp_path, monkeypatch):
