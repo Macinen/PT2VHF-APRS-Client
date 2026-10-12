@@ -1,3 +1,16 @@
+## 1.14.31 - 2026-10-12
+
+- **Windows 11/7 — acesso Web LAN:** a liberação do Firewall deixa de executar duas solicitações UAC concorrentes; usa uma única operação elevada que substitui a regra anterior e instala a porta TCP efetiva, limitada a `LocalSubnet`. A regra não fica mais vinculada ao caminho do EXE, que pode mudar no Windows Portable.
+- **Perfis de rede:** a regra de acesso local limitada à sub-rede funciona também quando o Windows marca a rede como Pública, sem exigir a desativação do firewall. O compartilhamento continua desligado por padrão e requer autorização explícita do usuário via UAC. Recomenda-se apenas LAN confiável.
+- **Detecção IPv4:** apresenta endereços alternativos quando o host possui Wi-Fi, Ethernet, adaptador virtual ou VPN.
+- **Diagnóstico efetivo:** `/api/local-interface/remote-probe` permite confirmar HTTP em outro computador. O servidor só informa acesso externo confirmado se receber solicitação real com IP não-loopback; detectar IP e conectar pelo próprio host não basta.
+- **Interface:** distingue URL informativa de URL realmente compartilhável, alerta para reinício total após habilitar LAN e orienta a testar portas/endereços disponíveis.
+- **Win7 Legacy:** mantém correção para executar `netsh` sem console visível e cache de 60 segundos. Acrescenta monitor nativo temporário `EnumWindows` que registra janelas transitórias dos processos filhos no diagnóstico para investigar o popup externo ainda não identificado.
+- **Banco SQLite:** preserva todas as políticas de retenção por categoria e o histórico de enlaces RF independentes da expiração dos nós.
+- **Testes:** operação única de Firewall, porta exata, cache, evidência externa, bind real em `0.0.0.0`, regressão Windows 7 e documentação. Testes físicos de Win7 e acesso entre dois computadores permanecem necessários antes de fechar as ocorrências de campo.
+- **Documentação:** manual PDF revisado com procedimentos para liberar a porta e testar a partir de outro computador na mesma LAN.
+- **Entrega completa:** Windows 11 x64/ARM64 (Setup e Portable), Windows 7 Legacy x64 (Setup e Portable), Linux x86_64/ARM64 (AppImage, DEB, TAR), macOS Intel/Apple Silicon (DMG), SBOM/licenças e Manual PDF.
+
 ## 1.14.30 - 2026-10-12
 
 - **Web LAN funcional e diagnóstico:** a opção LAN continua exigindo salvamento e reinício, mas o novo teste verifica o socket no IPv4 LAN e na porta efetiva, distinguindo bind confirmado, restrição a localhost e reinício pendente; não confunde teste local com confirmação externa.
