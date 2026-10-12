@@ -1,12 +1,12 @@
-# PT2VHF APRS Client - v1.14.32
+# PT2VHF APRS Client - v1.14.33
 
 Cliente APRS-IS multiplataforma para **Windows, Linux e macOS**, com mapa, mensagens, estações, tracklogs, topologia observada, Log TNC2, banco SQLite local e atualização integrada.
 
-A **v1.14.32** consolida a validação real do acesso Web pela LAN em Windows 11 e acrescenta smoke HTTP nos builds Windows, inclusive no runtime Windows 7 Legacy. O popup transitório Win7 e a regressão de atualização Win11 continuam em investigação.
+A **v1.14.33** acrescenta o ícone Windows com a palavra **APRS** ampliada, preferência pelo IP LAN real ao abrir o navegador, LAN ativa por padrão apenas em instalações novas e indicação laranja/preto durante sessões Web remotas. O padrão de abertura automática de aba adicional permanece desativado. A validação física do popup transitório Win7 e do atualizador Win11 continua pendente.
 
-## Downloads — versão 1.14.32
+## Downloads — versão 1.14.32 (última publicada)
 
-**Links diretos de todos os instaladores e edições portáteis.** Escolha o sistema operacional abaixo; não é necessário procurar os arquivos na lista de *Assets* do GitHub.
+**Links diretos de todos os instaladores e edições portáteis publicados.** A nova v1.14.33 está em preparação: até o GitHub concluir todos os builds e publicar os arquivos, estes links continuam apontando para a v1.14.32 que existe e não retorna 404. Na publicação, o pipeline atualiza a lista automaticamente.
 
 ### Windows 10 / 11 — x64 (Intel / AMD)
 
@@ -44,11 +44,20 @@ A **v1.14.32** consolida a validação real do acesso Web pela LAN em Windows 11
 
 ### Manual e histórico
 
-- [Manual ilustrado em PDF — v${v}](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Manual_v1.14.32.pdf)
+- [Manual ilustrado em PDF — v1.14.32](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Manual_v1.14.32.pdf)
 - [Release completa v1.14.32 — notas, integridade e outros arquivos](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/tag/v1.14.32)
 - [Todas as versões](https://github.com/alexpmr/PT2VHF-APRS-Client/releases)
 
 > **Importante:** todos os links acima são conferidos contra os arquivos efetivamente publicados na release v1.14.32. Para testar versões futuras ainda não publicadas, utilize a página de [Releases](https://github.com/alexpmr/PT2VHF-APRS-Client/releases) em vez de links antecipados.
+
+## Novidades da v1.14.33
+
+- **Ícone APRS Windows:** composição com a palavra APRS maior e alto contraste, com imagens próprias para 16/24/32/48/64/128/256 px, inclusive Win7 Setup/Portable e bandeja do Windows.
+- **IP LAN como abertura preferencial:** ao solicitar o navegador, usar o IPv4 real e a porta confirmados quando o servidor está escutando na LAN; `127.0.0.1` segue disponível caso o acesso externo esteja desativado/indisponível, sem alterar healthchecks internos.
+- **Configuração inicial:** acesso Web LAN ativado nas instalações novas e abertura de navegador adicional desativada; preferências já armazenadas não são substituídas.
+- **Web em uso:** indicação laranja/preto no IP do cabeçalho durante presença efetiva de abas remotas, com heartbeat e expiração, distinta do registro do último acesso.
+- **Segurança:** compartilhamento somente na LAN, sem UPnP/port-forwarding automático. Windows Firewall segue sujeito a autorização UAC e testes de outro dispositivo.
+- **Validação:** nova suíte de testes e matrizes de build Windows x64/ARM64/Win7 Legacy, Linux x86_64/ARM64, macOS Intel/Apple Silicon e Manual PDF.
 
 ## Novidades da v1.14.32
 

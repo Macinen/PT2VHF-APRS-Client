@@ -1,3 +1,12 @@
+## 1.14.33 - 2026-10-12
+
+- Windows: ícone multirresolução APRS com lettering grande e contraste, incluindo bandeja de notificação e atalhos.
+- Web: abertura do navegador pelo IP da rede local e porta efetiva quando LAN está ativa e acessível; fallback seguro em localhost.
+- Novas instalações: acesso Web LAN habilitado por padrão; opção de abrir uma aba adicional no navegador permanece desligada. Preferências já gravadas preservadas.
+- Atividade Web: sessões remotas visíveis identificadas por heartbeat, indicador IP ampliado e destaque laranja/preto enquanto houver usuário ativo; expiração em 75 s, sem confundir último acesso com sessão presente.
+- Endpoints Web, testes de regressão, traduções e pipeline multiplataforma sincronizados.
+- Observação: validação em hardware Win7 real e regressão conhecida do atualizador Windows 11 permanecem em investigação.
+
 ## 1.14.32 - 2026-10-12
 
 - **Interface Web LAN:** validação real do usuário com dois computadores Windows 11; funcionou pelo loopback, pelo IP LAN do host e pelo acesso remoto na rede privada. Issue #76 encerrada neste cenário.

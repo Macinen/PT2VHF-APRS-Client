@@ -71,3 +71,11 @@ Isso impede que um executável residual de uma versão anterior seja incluído o
 ## Validação
 
 O primeiro build Legacy sem dependência de APIs modernas foi validado em Windows 7 real. A v1.14.27 acrescenta validação automática de versão do Portable e do executável realmente instalado pelo Setup. O pipeline v1.14.32 verifica HTTP real do servidor usando Python 3.8 em runner Windows. Isso não comprova a interface gráfica, popup transitório ou compartilhamento LAN em Windows 7 real, que continuam dependentes de teste físico.
+
+## Alterações a partir da v1.14.33
+
+- Instalações novas ativam Web LAN por padrão, mas não abrem uma aba adicional no navegador por causa dessa opção. O modo janela do navegador no Win7 Legacy continua necessário para a interface principal.
+- Se o servidor LAN responder no IPv4 local, a janela Chrome/Chromium/Brave Legacy passa a abri-lo usando o IP da rede e a porta efetiva; em caso de ausência/falha, utiliza localhost.
+- O ícone do executável, da bandeja e dos atalhos agora inclui letras **APRS** de maior contraste.
+- A presença de usuários remotos pode destacar o IP do cabeçalho em laranja com texto preto. A presença requer heartbeat e expira automaticamente.
+- Regra de firewall continua sujeita ao UAC, restrita à sub-rede local. Não habilitar acesso pela Internet.

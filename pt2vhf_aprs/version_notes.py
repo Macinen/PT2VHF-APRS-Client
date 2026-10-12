@@ -3,6 +3,18 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.33": {
+        "title": "APRS maior, Web LAN pronta e indicação de presença remota",
+        "items": [
+            "Ícone APRS redesenhado em diversos tamanhos: Desktop, barra de tarefas e bandeja do Windows; identidade visual azul/âmbar preservada.",
+            "Ao abrir a interface Web manualmente, o navegador prefere IP LAN real e porta efetiva quando acessíveis; usa localhost como fallback.",
+            "Novas instalações: Web LAN ligada por padrão e navegador adicional ao iniciar desligado, preservando configurações já existentes.",
+            "IP/porta ampliados no cabeçalho; fica laranja com letras pretas enquanto houver sessões Web remotas ativas.",
+            "Detecção de presença por heartbeat da aba visível, diferente da evidência histórica de acesso remoto; expiração automática após 75 s.",
+            "Acesso LAN segue restrito à rede local, sujeito à autorização de firewall e sem port-forwarding automático.",
+            "Pacotes completos Windows, Win7 Legacy, Linux, macOS e manual PDF; testes físicos Win7 e regressão do updater Win11 continuam pendentes.",
+        ],
+    },
     "1.14.32": {
         "title": "Validação Web LAN e pacote completo Windows 7",
         "items": [
