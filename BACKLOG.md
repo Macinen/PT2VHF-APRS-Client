@@ -1,3 +1,53 @@
+## Novo — Cabeçalho Web: ainda mostra 127.0.0.1 e exibe `\n` literal
+
+### 1) Endereço exibido continua incorreto
+
+- **Falha confirmada na v1.14.27:** o cabeçalho continua exibindo **`Web local: 127.0.0.1:8080`** em vez do IPv4 real do host que está executando a aplicação.
+- Exemplo esperado em uma máquina cujo IPv4 LAN seja `192.168.10.2`:
+  - **`Web LAN: 192.168.10.2:8080`**
+- Revisar novamente toda a cadeia:
+  - `detect_lan_ipv4()`;
+  - `LocalServerHandle.lan_host`;
+  - `share_url`;
+  - `scope`;
+  - `runtime_info()`;
+  - payload de `/api/status`;
+  - `updateWebAccessStatus()` no frontend.
+- O frontend não deve priorizar `localInfo.url`/`127.0.0.1` quando existir `share_url` ou `display_host` LAN válido.
+- Quando o servidor estiver em modo LAN (`bind_host=0.0.0.0` ou IP LAN), o cabeçalho **nunca** deve mostrar `127.0.0.1` como endereço principal.
+- Se o acesso LAN estiver habilitado e o host possuir IPv4 LAN válido, `scope` deve ser `lan` e o endereço exibido deve ser o IPv4 concreto da interface.
+- Adicionar diagnóstico no log mostrando simultaneamente:
+  - `bind_host`;
+  - `host`;
+  - `lan_host`;
+  - `display_host`;
+  - `url`;
+  - `share_url`;
+  - `scope`.
+- Adicionar teste de regressão ponta a ponta simulando:
+  - bind `0.0.0.0`;
+  - LAN detectada `192.168.10.2`;
+  - porta `8080`;
+  - payload de `/api/status`;
+  - renderização final do cabeçalho como **`Web LAN: 192.168.10.2:8080`**.
+
+### 2) Texto literal `\n` aparece no cabeçalho
+
+- **Falha visual confirmada:** há um texto literal **`\n`** visível entre o endereço Web e o botão de copiar.
+- Isso não é quebra de linha válida; é texto escapado que acabou inserido no HTML/template.
+- Remover qualquer sequência literal `\n` introduzida no markup do cabeçalho.
+- Auditar especificamente a alteração que adicionou `webAccessCopyButton` para garantir que foi inserida uma quebra de linha real no HTML, e não os dois caracteres `\` + `n`.
+- Adicionar teste que falhe se o HTML renderizado contiver `\\n` entre os controles do cabeçalho.
+- **Critério de aceite visual:** o cabeçalho deve apresentar apenas o endereço e o botão de copiar, sem caracteres estranhos ou texto `\n`.
+
+### Critério de aceite geral
+
+Em uma máquina com IPv4 LAN `192.168.10.2` e porta `8080`, com acesso Web LAN habilitado, o cabeçalho deve aparecer de forma equivalente a:
+
+**`Web LAN: 192.168.10.2:8080  [copiar]`**
+
+sem `127.0.0.1`, sem `0.0.0.0` e sem `\n` literal.
+
 ## Implementado na v1.14.27 — Windows 7 Legacy v1.14.26: Portable fecha ao iniciar e Setup abre versão anterior
 
 ### 1) Portable v1.14.26 inicia e fecha imediatamente
