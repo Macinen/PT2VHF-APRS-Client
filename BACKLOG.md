@@ -1,3 +1,14 @@
+## Pendente — Novos padrões: acesso Web LAN ligado e abertura automática do navegador desligada (issue #79)
+
+- **Solicitação de 12/10/2026:** a opção **“Permitir acesso Web pela rede local (LAN)”** deve vir **ativada por padrão** (`web_lan_enabled=1`), enquanto a opção **“Abrir também no navegador ao iniciar”** deve permanecer **desativada por padrão** (`open_browser_on_start=0`).
+- **Estado encontrado no código:** `pt2vhf_aprs/database.py::DEFAULT_CONFIG` já traz `open_browser_on_start=0`, mas atualmente define `web_lan_enabled=0`. O schema SQL e a migração desse campo também usam `DEFAULT 0`; textos de ajuda da interface ainda informam “Desligado por padrão”.
+- **Persistência:** aplicar o novo default somente a configurações novas, sem sobrescrever a escolha de quem já habilitou ou desabilitou LAN no banco. A inicialização do servidor deve respeitar a configuração efetivamente persistida.
+- **Operação:** disponibilizar o backend Web na LAN sem disparar navegador/aba extra automaticamente; manter acesso manual pela bandeja, links e dispositivos na LAN. Preservar o modo app do Windows 7 Legacy, cuja janela baseada em navegador pode ser necessária para exibir a interface principal — não confundir com a opção de abrir uma aba adicional.
+- **Segurança:** não habilitar port-forward/UPnP nem acesso WAN; regras de firewall devem permanecer restritas à sub-rede local, sem conceder permissões administrativas silenciosamente. Exibir corretamente IP e porta reais, e permitir desativação simples da LAN.
+- **Verificações:** primeira instalação, atualização com preferências salvas, textos de configuração/i18n, Windows 7/10/11 e demais plataformas, testes de defaults e ausência de abertura automática de navegador.
+- **Relacionado:** [issue #78](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/78) — quando navegador for aberto explicitamente, preferir o IP LAN utilizável.
+- **Rastreamento:** [issue #79](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/79). **Ainda não implementado.**
+
 ## Pendente — Abrir navegador pelo IP real da LAN, não por 127.0.0.1 (issue #78)
 
 - **Pedido em 12/10/2026:** quando o PT2VHF APRS Client abrir a interface no navegador, priorizar o endereço IPv4 **real do computador na rede**, por exemplo `http://192.168.1.25:8080`, e não `http://127.0.0.1:8080`.
