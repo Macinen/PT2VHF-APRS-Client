@@ -62,7 +62,8 @@ def test_v1429_frontend_uses_display_url_or_lan_ip_even_when_scope_local():
 
     assert "localInfo.display_url || localInfo.share_url" in js
     assert "if (lanHost && localPort)" in js
-    assert "shareUrl = `http://${lanHost}:${localPort}`" in js
+    assert "if (scope === 'lan') shareUrl = lanCandidate;" in js
+    assert "if (scope !== 'lan') shareUrl = localUrl;" in js
     assert "lanHost ? ui('Web:', 'Web:')" in js
 
 
