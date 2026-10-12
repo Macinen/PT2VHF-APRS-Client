@@ -4,7 +4,7 @@ O PT2VHF APRS Client mantém um build separado para **Windows 7 SP1 x64**.
 
 ## Por que existe um build separado
 
-A edição moderna usa Python 3.12 e Microsoft Edge WebView2, componentes que não são adequados ao Windows 7. O build Legacy preserva o mesmo código funcional do cliente, mas usa uma cadeia de empacotamento compatível e abre a interface no navegador padrão.
+A edição moderna usa Python 3.12 e componentes recentes. O build Legacy preserva o mesmo código funcional do cliente, mas usa uma cadeia isolada compatível com Windows 7 e inicia em **janela desktop**, sem forçar o navegador externo.
 
 ## Runtime Legacy
 
@@ -13,8 +13,9 @@ A edição moderna usa Python 3.12 e Microsoft Edge WebView2, componentes que n�
 - Waitress 3.0.0.
 - Pillow 10.4.0.
 - psutil 6.1.1.
-- Sem dependência de pywebview/WebView2.
-- Interface servida pelo backend local Flask/Waitress e aberta no navegador padrão.
+- pywebview 4.4.1.
+- pythonnet 3.0.3.
+- O modo `--browser` permanece disponível apenas para diagnóstico/uso explícito.
 
 ## Artefatos
 
@@ -25,16 +26,23 @@ O instalador Legacy usa identidade separada da instalação moderna, evitando su
 
 ## Atualizações
 
-O build Legacy possui canal próprio. Uma instalação Win7 Legacy procura exclusivamente os assets Legacy da mesma versão e nunca baixa automaticamente um executável Windows moderno.
+O build Legacy possui canal próprio. Setup e Portable procuram exclusivamente os assets Legacy correspondentes. O Portable substitui o executável no mesmo caminho, preserva backup para rollback e relança a nova versão. O Setup baixa e executa somente o instalador Legacy.
+
+## Web LAN
+
+- O acesso LAN continua opt-in.
+- Quando habilitado, o servidor faz bind para a LAN e o cabeçalho exibe o IPv4 utilizável, nunca `0.0.0.0`.
+- Clicar no endereço abre o URL no navegador padrão; há ação separada para copiar.
+- No Windows, a Configuração oferece autorização explícita para criar uma regra TCP no Windows Firewall limitada ao perfil **Privado** e à porta efetiva.
+- O aplicativo não desabilita firewall/antivírus e não configura UPnP/port-forwarding.
 
 ## Requisitos e limites
 
 - Mínimo: **Windows 7 SP1 x64**.
-- Windows 8/8.1 x64 podem utilizar o mesmo build Legacy quando necessário.
+- Windows 8/8.1 x64 podem utilizar o build Legacy quando necessário.
 - Windows Vista e Windows XP não são suportados.
-- É necessário um navegador capaz de executar a interface HTML/CSS/JavaScript do cliente. Internet Explorer 11 não é alvo suportado.
-- Acesso Web pela LAN continua desligado por padrão; quando habilitado, pode exigir liberação da porta no Firewall do Windows.
+- A shell integrada depende de um renderer Web compatível disponível no sistema; falhas são diagnosticadas e o navegador externo não é aberto silenciosamente como comportamento padrão.
 
 ## Validação
 
-Antes da incorporação ao pipeline de produção, o build Legacy v1.14.24 foi executado com sucesso em uma máquina Windows 7 real, eliminando a falha `api-ms-win-core-path-l1-1-0.dll`.
+O build Legacy original foi validado em máquina Windows 7 real. A v1.14.26 adiciona regressões específicas para janela desktop, updater Setup/Portable, seleção de assets Legacy e Web LAN.
