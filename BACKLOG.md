@@ -1,6 +1,11 @@
-## Corrigido em main — Win7 v1.14.30: popup intermitente de console a cada poucos segundos (aguarda próxima release e teste físico)
+## Reaberto — Win7 v1.14.30: popup intermitente persiste mesmo após fechar acesso Web
 
 - **Relato em Win7 Legacy:** uma pequena janela/popup aparentemente vazio abre e fecha rapidamente a cada aproximadamente 5 segundos durante o funcionamento normal.
+- **Novo retorno do teste em Win7 real:** o usuário informou que fechou/desativou o acesso Web, mas a janela intermitente **continua aparecendo**. A hipótese `netsh` **não está confirmada** como causa exclusiva. Verificar se a mudança foi feita apenas na interface ou também aplicada após encerrar e reiniciar completamente o processo PT2VHF (o bind/configuração LAN só é lido na inicialização).
+- **Reclassificação:** problema **permanece aberto para diagnóstico**. A correção `CREATE_NO_WINDOW` é preventiva e deve ser mantida, porém não autoriza declarar o popup resolvido.
+- Se persistir após reinicialização com `web_lan_enabled=0` e `scope=local`, coletar a identificação real da janela/processo (Process Monitor/Process Explorer), hora e periodicidade; verificar se é console nativo, janela do Chromium em modo app, janela do próprio aplicativo ou notificação do Windows.
+- Auditar processos auxiliares e atividades periódicas independentemente do servidor LAN, sem mexer na frequência de recepção APRS ou no updater sem evidência.
+
 - **Causa provável identificada no código:** a UI chama `refreshStatus()` a cada 3 segundos; `/api/status` chama `lan_diagnostics()`; com Web LAN habilitada, `windows_firewall_rule_exists()` executava `netsh advfirewall firewall show rule` via `subprocess.run` **sem `CREATE_NO_WINDOW`**. Em Windows 7 com executável PyInstaller sem console isso pode abrir e fechar uma janela `cmd/netsh` em cada sondagem.
 - **Correção no main (ainda não publicada em release):**
   - executar `netsh` de diagnóstico com `creationflags=CREATE_NO_WINDOW`, sem abrir console visível;
