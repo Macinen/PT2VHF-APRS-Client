@@ -56,7 +56,7 @@ def test_lan_diagnostics_requires_real_ip_socket_probe(monkeypatch):
     calls = []
     monkeypatch.setattr(lan_access, "tcp_listening",
                         lambda port, host="127.0.0.1": calls.append(host) or host == "192.168.50.2")
-    monkeypatch.setattr(lan_access, "windows_firewall_rule_exists", lambda: None)
+    monkeypatch.setattr(lan_access, "windows_firewall_rule_exists", lambda port=None: None)
     runtime = {"bind_host": "0.0.0.0", "scope": "lan", "port": 8080,
                "lan_ip": "192.168.50.2", "share_url": "http://192.168.50.2:8080"}
     status = lan_access.lan_diagnostics(runtime, True)
