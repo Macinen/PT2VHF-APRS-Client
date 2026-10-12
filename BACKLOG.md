@@ -12,7 +12,10 @@
   - Itens AIS, quando aplicável;
   - Balões/Radiossondas, quando aplicável;
   - Tracklogs/posições históricas;
-  - demais entidades persistentes exibidas no mapa.
+  - Mensagens APRS;
+  - Boletins;
+  - Mensagens de grupo/grupos;
+  - demais entidades persistentes exibidas no mapa ou armazenadas no histórico.
 - Sugestão inicial de períodos:
   - **24 horas**;
   - **1 semana**;
@@ -66,6 +69,28 @@
   - duração da limpeza;
   - erro, se houver.
 - A retenção deve respeitar o modelo histórico já existente: nós/enlaces que estiverem configurados como **Permanente** não podem desaparecer por timeout visual ou limpeza automática.
+- **Enlaces devem ser independentes da retenção dos nós:** apagar/expirar uma estação, digi, iGate ou outro nó **não pode apagar automaticamente os enlaces históricos** em que esse nó participou.
+- O histórico de enlaces deve preservar pelo menos:
+  - origem/destino ou identificadores dos dois nós;
+  - tipo do enlace (RF/Internet/iGate);
+  - primeira e última observação;
+  - distância, quando conhecida;
+  - quantidade de ocorrências;
+  - demais métricas necessárias para rankings e estatísticas.
+- Se um nó já tiver expirado, o enlace deve continuar podendo aparecer em estatísticas/histórico usando o indicativo/identificador armazenado no próprio registro do enlace.
+- Não usar `ON DELETE CASCADE` ou lógica equivalente que elimine enlaces históricos apenas porque o registro atual do nó foi removido.
+- A limpeza de nós e a limpeza de enlaces devem obedecer **políticas de retenção distintas**.
+- Adicionar retenção específica para:
+  - **Mensagens individuais APRS**;
+  - **Boletins**;
+  - **Mensagens/grupos**.
+- Sugestão de padrões:
+  - Mensagens individuais: **3 meses**;
+  - Boletins: **1 mês**;
+  - Grupos: **3 meses**;
+  com opção **Permanente** para qualquer categoria.
+- A retenção de mensagens deve preservar a integridade de conversas, ACK/REJ, IDs e metadados necessários ao histórico enquanto os registros permanecerem dentro da política configurada.
+- A limpeza de boletins/grupos não deve apagar mensagens individuais fora da categoria correspondente.
 - Adicionar ação **“Aplicar retenção agora”** para permitir ao usuário executar manualmente a política configurada.
 - Adicionar opção **“Restaurar padrões de retenção”** sem alterar outras configurações da aplicação.
 - Persistir essas opções na configuração/banco e preservar os valores em atualizações futuras.
@@ -78,7 +103,7 @@
   - limpeza em lotes;
   - preservação de nós/enlaces permanentes;
   - atualização sem perda das configurações anteriores.
-- **Critério de aceite:** em Configuração, o usuário deve conseguir definir a retenção de cada categoria separadamente; a aplicação deve remover apenas os registros cuja idade exceda a política correspondente, impedir crescimento indefinido do SQLite, mostrar o tamanho atual do banco e executar manutenção sem interromper o recebimento APRS. Retenção não pode ser confundida com filtro/período de visualização.
+- **Critério de aceite:** em Configuração, o usuário deve conseguir definir retenção independente para nós, enlaces, mensagens, boletins, grupos e demais categorias. A expiração de um nó nunca deve apagar seus enlaces históricos; cada categoria deve seguir sua própria política. A aplicação deve impedir crescimento indefinido do SQLite, mostrar o tamanho atual do banco e executar manutenção sem interromper o recebimento APRS. Retenção não pode ser confundida com filtro/período de visualização.
 
 ## Implementado na v1.14.29 — Cabeçalho continua em 127.0.0.1: detectar IP LAN independentemente do bind
 
