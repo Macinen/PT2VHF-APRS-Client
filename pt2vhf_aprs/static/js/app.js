@@ -5644,10 +5644,26 @@
   }
 
   function updateWebAccessStatus(localInfo = {}) {
-    const scope = String(localInfo.scope || 'local') === 'lan' ? 'lan' : 'local';
-    const localHost = String(localInfo.display_host || localInfo.host || '');
+    const reportedScope = String(localInfo.scope || 'local') === 'lan' ? 'lan' : 'local';
+    const lanHost = String(localInfo.lan_ip || localInfo.lan_host || '').trim();
+    const displayHost = String(localInfo.display_host || '').trim();
+    const localHost = String(localInfo.host || '').trim();
     const localPort = Number(localInfo.port || 0);
-    const shareUrl = String(localInfo.share_url || localInfo.url || (localHost && localPort ? `http://${localHost}:${localPort}` : ''));
+
+    // A URL compartilhável do backend é autoritativa no modo LAN. Nunca
+    // substituí-la por 127.0.0.1 quando há um IPv4 LAN concreto publicado.
+    let shareUrl = String(localInfo.share_url || '').trim();
+    let scope = reportedScope;
+    if (reportedScope === 'lan' && lanHost && localPort) {
+      shareUrl = `http://${lanHost}:${localPort}`;
+    } else if (!shareUrl) {
+      const host = displayHost || localHost;
+      shareUrl = host && localPort ? `http://${host}:${localPort}` : '';
+    }
+    if (reportedScope === 'lan' && /\/\/(?:127\.|0\.0\.0\.0(?::|\/|$))/i.test(shareUrl)) {
+      shareUrl = lanHost && localPort ? `http://${lanHost}:${localPort}` : '';
+    }
+
     const compact = shareUrl.replace(/^https?:\/\//i, '');
 
     const configStatus = $('#localInterfaceStatus');
@@ -5658,16 +5674,11 @@
     const value = $('#webAccessUrl');
     if (header) {
       header.classList.toggle('lan', scope === 'lan');
-      header.dataset.url = shareUrl;
-      header.disabled = !shareUrl;
-      header.title = scope === 'lan'
-        ? ui('Abrir endereço LAN no navegador padrão', 'Open LAN address in the default browser')
-        : ui('Abrir endereço Web local no navegador padrão', 'Open local web address in the default browser');
-    }
-    const copyButton = $('#webAccessCopyButton');
-    if (copyButton) {
-      copyButton.dataset.url = shareUrl;
-      copyButton.disabled = !shareUrl;
+      header.title = shareUrl
+        ? (scope === 'lan'
+          ? ui('Endereço Web acessível pela rede local', 'Web address available on the local network')
+          : ui('Endereço Web local da aplicação', 'Local web address of the application'))
+        : '';
     }
     if (label) label.textContent = scope === 'lan' ? ui('Web LAN:', 'Web LAN:') : ui('Web local:', 'Local web:');
     if (value) value.textContent = compact || ui('indisponível', 'unavailable');
@@ -5679,35 +5690,6 @@
     if (firewallButton) firewallButton.disabled = scope !== 'lan';
     return { scope, shareUrl, compact, access };
   }
-
-  async function openWebAccessUrl(url) {
-    if (!url) return false;
-    try {
-      if (window.pywebview?.api?.open_external) {
-        return !!(await window.pywebview.api.open_external(url));
-      }
-    } catch (_) {}
-    const opened = window.open(url, '_blank', 'noopener,noreferrer');
-    return !!opened;
-  }
-
-  $('#webAccessStatus')?.addEventListener('click', async event => {
-    const url = String(event.currentTarget?.dataset?.url || '');
-    if (!url) return;
-    const ok = await openWebAccessUrl(url);
-    if (!ok) toast(ui('Não foi possível abrir o navegador.', 'Could not open the browser.'), 'error');
-  });
-
-  $('#webAccessCopyButton')?.addEventListener('click', async event => {
-    const url = String(event.currentTarget?.dataset?.url || '');
-    if (!url) return;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast(ui('Endereço Web copiado.', 'Web address copied.'), 'ok');
-    } catch (_) {
-      window.prompt(ui('Copie o endereço Web:', 'Copy the web address:'), url);
-    }
-  });
 
   $('#lanFirewallButton')?.addEventListener('click', async () => {
     if (!window.confirm(ui(
