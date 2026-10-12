@@ -1382,6 +1382,22 @@
         <div class="hint">Tema, idioma e preferências de fonte de Mensagens, Estações, Logs e Estatísticas são aplicados imediatamente e persistidos no banco local.</div>
       </div>
 
+      <div class="config-card full-card config-section config-section-app" id="retentionSettingsCard">
+        <h3>Retenção e tamanho do banco</h3>
+        <p class="hint">A retenção remove dados expirados do SQLite, independentemente do período exibido no mapa.
+          Enlaces históricos permanecem mesmo após a exclusão de uma estação. Permanente significa nunca apagar.</p>
+        <div class="form-grid two-cols" id="retentionPolicyGrid"></div>
+        <label class="check-field"><input id="retentionEnabled" type="checkbox">
+          <span>Aplicar retenção automaticamente em segundo plano (a cada 30 minutos)</span></label>
+        <div id="retentionDatabaseStatus" class="field-note">Carregando tamanho do banco…</div>
+        <div class="config-actions">
+          <button id="saveRetentionPolicy" type="button" class="btn primary">Salvar política</button>
+          <button id="applyRetentionNow" type="button" class="btn secondary">Aplicar retenção agora</button>
+          <button id="resetRetentionPolicy" type="button" class="btn secondary">Restaurar padrões</button>
+        </div>
+        <small id="retentionResultStatus" class="hint">Instalações antigas não têm registros apagados automaticamente até a ativação explícita.</small>
+      </div>
+
       <div class="config-card full-card config-section config-section-app">
         <h3>Atualizações</h3>
         <div class="form-grid two-cols">
