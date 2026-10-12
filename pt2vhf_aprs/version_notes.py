@@ -3,6 +3,18 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.30": {
+        "title": "Web LAN, atualizador Win7 e retenção SQLite",
+        "items": [
+            "Diagnóstico de Web LAN testa a porta pelo IPv4 real e distingue acesso local, reinício pendente e bind LAN confirmado; testes em outro computador continuam necessários.",
+            "A regra de Windows Firewall restringe acesso à sub-rede local e valida porta e executável atuais.",
+            "No Windows 7 Portable, saída zero do processo Chromium em modo app é tratada como transferência para uma instância existente, sem fallback duplicado.",
+            "Configuração ganha políticas independentes de retenção para estações, digis, iGates, enlaces RF e Internet, objetos, tracklogs, mensagens, boletins, grupos e logs.",
+            "O SQLite é limpo em pequenos lotes; enlaces mantêm origem/destino próprios e não são apagados ao expirar nós.",
+            "Enlaces RF, digis e iGates são permanentes por padrão; instalações existentes precisam ativar a primeira limpeza automática.",
+            "A aplicação exibe tamanho do banco e oferece manutenção manual com confirmação, preservando configurações e dados não expirados.",
+        ],
+    },
     "1.14.29": {
         "title": "IP LAN real exibido mesmo com bind local",
         "items": [
