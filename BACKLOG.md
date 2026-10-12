@@ -37,7 +37,7 @@
 
 ## Novo — Windows 7 Legacy: atualização pelo próprio programa não funciona
 
-- **Falha observada:** na versão **Windows 7 Legacy**, o mecanismo de atualização integrado não conclui a atualização pelo próprio programa.
+- **Falha observada:** na versão **Windows 7 Legacy**, o mecanismo de atualização integrado não conclui a atualização pelo próprio programa. A falha foi confirmada também na edição **Win7 Legacy Portable**.
 - Tratar como regressão específica do fluxo de update do build Legacy, separada do updater das versões Windows atuais.
 - Revisar todo o ciclo de atualização no Windows 7:
   - detecção da nova Release;
@@ -61,6 +61,7 @@
 - Revisar `current_update_mode()`, `desired_asset_name()`, `select_asset()` e `install_supported()` para o modo Legacy.
 - O modo `windows-legacy` não deve ficar permanentemente marcado como **não instalável** quando a atualização automática for oficialmente suportada.
 - Implementar helper compatível com Windows 7, evitando dependências de PowerShell/Win32 APIs ausentes nessa plataforma quando houver risco de incompatibilidade.
+- **Falha confirmada no Portable:** ao executar a versão `PT2VHF_APRS_Client_Win7_Legacy_Portable_x64`, a atualização pelo próprio aplicativo também não funciona.
 - Para **Portable**:
   - baixar o novo executável Legacy;
   - validar;
@@ -99,7 +100,7 @@
   - rollback;
   - ausência de asset Legacy;
   - reabertura automática após atualização.
-- **Critério de aceite:** em Windows 7 SP1 x64, ao detectar uma nova Release que contenha o asset Legacy correspondente, o usuário deve conseguir clicar em atualizar e concluir todo o processo pelo próprio PT2VHF APRS Client, terminando com a nova versão aberta e os dados/configurações preservados.
+- **Critério de aceite:** em Windows 7 SP1 x64, tanto no **Setup** quanto no **Portable**, ao detectar uma nova Release que contenha o asset Legacy correspondente, o usuário deve conseguir clicar em atualizar e concluir todo o processo pelo próprio PT2VHF APRS Client, terminando com a nova versão aberta e os dados/configurações preservados. No Portable, o executável deve ser substituído com backup/rollback seguro e relançamento automático.
 
 ## Novo — Menu superior/Web LAN: exibe 127.0.0.1 em vez do IPv4 real da rede
 
