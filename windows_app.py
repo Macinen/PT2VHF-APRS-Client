@@ -397,26 +397,29 @@ def _run_embedded_window(icon: pystray.Icon) -> int:
     )
     tray_thread.start()
 
+    gui = str(os.getenv("PT2VHF_WEBVIEW_GUI", "edgechromium") or "edgechromium").strip()
     try:
-        # EdgeChromium usa o Microsoft Edge WebView2 Runtime do Windows.
-        webview.start(gui="edgechromium", debug=False, private_mode=False)
+        webview.start(gui=gui, debug=False, private_mode=False)
         _shutdown_components()
         return 0
     except Exception as exc:
-        # Fallback de diagnóstico: mantém a aplicação utilizável mesmo se o
-        # WebView2 Runtime estiver ausente ou danificado.
+        legacy = os.getenv("PT2VHF_WIN7_LEGACY") == "1"
+        diag.log_event("embedded_window_failed", gui=gui, legacy=legacy, error=str(exc))
         try:
             if os.name == "nt":
-                ctypes.windll.user32.MessageBoxW(
-                    None,
+                message = (
                     "Não foi possível iniciar a janela integrada do PT2VHF APRS Client.\n\n"
-                    "A interface será aberta no navegador padrão.\n\n"
-                    f"Detalhes: {exc}",
-                    APP_NAME,
-                    0x30,
+                    + ("Windows 7 Legacy permanece em modo desktop; o navegador não será aberto automaticamente.\n\n"
+                       if legacy else
+                       "A interface será aberta no navegador padrão.\n\n")
+                    + f"Detalhes: {exc}"
                 )
+                ctypes.windll.user32.MessageBoxW(None, message, APP_NAME, 0x30)
         except Exception:
             pass
+        if legacy:
+            _shutdown_components()
+            return 3
         _open_browser()
         tray_thread.join()
         return 0
