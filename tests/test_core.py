@@ -2115,19 +2115,28 @@ def test_v1720_first_run_opens_configuration_and_focuses_callsign():
     assert "focusInitialConfigurationIfNeeded();" in boot_block
 
 
-def test_readme_has_current_versioned_production_downloads_and_no_download_counter_table():
+def test_readme_has_published_versioned_downloads_and_no_download_counter_table():
+    """A pending version must not advertise 404 downloads ahead of publication."""
+    import re
+
     root = Path(__file__).resolve().parent.parent
     readme = (root / "README.md").read_text(encoding="utf-8")
     version = (root / "VERSION").read_text(encoding="utf-8").strip()
-
-    assert "## Downloads da versão mais recente" in readme
-    assert f"releases/download/v{version}/PT2VHF_APRS_Client_Setup_x64_v{version}.exe" in readme
-    assert f"releases/download/v{version}/PT2VHF_APRS_Client_Portable_x64_v{version}.exe" in readme
-    assert f"releases/download/v{version}/PT2VHF_APRS_Client_Manual_v{version}.pdf" in readme
+    heading = re.search(r"## Downloads — versão (\d+\.\d+\.\d+)", readme)
+    assert heading, "Keep full direct download section visible at top of README"
+    download_version = heading.group(1)
+    assert tuple(map(int, download_version.split("."))) <= tuple(map(int, version.split(".")))
+    prefix = f"releases/download/v{download_version}/PT2VHF_APRS_Client_"
+    assert f"{prefix}Setup_x64_v{download_version}.exe" in readme
+    assert f"{prefix}Portable_x64_v{download_version}.exe" in readme
+    assert f"{prefix}Manual_v{download_version}.pdf" in readme
+    section = readme[heading.start():readme.index("## Novidades da v", heading.start())]
+    assert len(re.findall(r"releases/download/v" + re.escape(download_version), section)) >= 15
     assert "releases/latest/download/" not in readme
     assert "## Downloads por Release" not in readme
     assert "DOWNLOAD_STATS_START" not in readme
     assert "DOWNLOAD_STATS_END" not in readme
+
 
 
 def test_v1721_track_hover_metadata_and_update_cleanup(monkeypatch, tmp_path):

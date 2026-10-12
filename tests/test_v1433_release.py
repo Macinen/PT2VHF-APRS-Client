@@ -87,6 +87,8 @@ def test_web_presence_and_visible_alert_control():
 
 
 def test_windows_ico_has_real_per_size_aprs_variants(tmp_path, monkeypatch):
+    import pytest
+    pytest.importorskip('PIL')
     from PIL import Image
     from windows import make_icon as icon
     assert icon.SIZES == (16, 24, 32, 48, 64, 128, 256)
