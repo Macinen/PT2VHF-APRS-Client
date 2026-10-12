@@ -21,10 +21,11 @@ def _valid_port(port: Any) -> int:
     return value
 
 
-def tcp_listening(port: Any) -> bool:
+def tcp_listening(port: Any, host: str = "127.0.0.1") -> bool:
+    """Check a concrete socket, never infer LAN reachability from loopback."""
     value = _valid_port(port)
     try:
-        with socket.create_connection(("127.0.0.1", value), timeout=0.35):
+        with socket.create_connection((host, value), timeout=0.45):
             return True
     except OSError:
         return False
@@ -61,7 +62,7 @@ def request_windows_firewall_rule(port: Any) -> dict[str, Any]:
     add_args = (
         f'advfirewall firewall add rule name="{FIREWALL_RULE_NAME}" '
         f'dir=in action=allow protocol=TCP localport={value} profile=private '
-        f'program="{exe}" enable=yes'
+        f'program="{exe}" remoteip=localsubnet enable=yes'
     )
 
     try:
@@ -90,40 +91,48 @@ def request_windows_firewall_rule(port: Any) -> dict[str, Any]:
         return {"ok": False, "supported": True, "error": str(exc), "port": value}
 
 
-def lan_diagnostics(runtime: dict[str, Any]) -> dict[str, Any]:
+def lan_diagnostics(runtime: dict[str, Any],
+                    configured_enabled: bool | None = None) -> dict[str, Any]:
+    """Local LAN-bind probe. External reachability needs a second-device test."""
     port = int(runtime.get("port") or 0)
     scope = str(runtime.get("scope") or "local")
+    bind_host = str(runtime.get("bind_host") or "127.0.0.1")
     lan_ip = str(runtime.get("lan_ip") or "")
-    listening = tcp_listening(port) if port else False
+    listening_local = tcp_listening(port) if port else False
+    listening_lan = tcp_listening(port, lan_ip) if port and lan_ip else False
     firewall = windows_firewall_rule_exists() if scope == "lan" else None
+    expected_lan = bool(configured_enabled) if configured_enabled is not None else (scope == "lan")
+    mismatch = expected_lan != (scope == "lan")
 
-    if scope != "lan":
+    if mismatch:
+        state = "restart-required"
+        message = "Configuração LAN alterada. Reinicie o aplicativo para aplicar o bind."
+    elif scope != "lan" or bind_host.startswith("127."):
         state = "local-only"
-        message = "Acesso restrito à própria máquina."
+        message = "Servidor restrito a localhost. Habilite LAN nas Configurações e reinicie."
     elif not lan_ip:
         state = "no-lan-address"
-        message = "O endereço IPv4 da rede local não pôde ser determinado."
-    elif not listening:
-        state = "not-listening"
-        message = "A porta publicada não está em escuta."
+        message = "Não foi possível detectar o IPv4 LAN."
+    elif not listening_local or not listening_lan:
+        state = "lan-bind-failed"
+        message = "Servidor não responde no IPv4 LAN. Verifique bind e porta."
     elif os.name == "nt" and firewall is False:
         state = "firewall-not-confirmed"
-        message = "Servidor ativo; regra do Windows Firewall não confirmada."
+        message = "Bind LAN funcionando; regra de firewall não confirmada."
     else:
-        state = "lan-ready"
-        message = "Servidor em escuta na LAN."
+        state = "lan-bind-confirmed"
+        message = "Bind LAN confirmado no host. Teste a URL em outro dispositivo; firewall pode bloquear."
 
     return {
-        "state": state,
-        "message": message,
-        "platform": platform.system(),
-        "scope": scope,
-        "bind_host": str(runtime.get("bind_host") or ""),
+        "state": state, "message": message, "platform": platform.system(),
+        "scope": scope, "configured_web_lan_enabled": expected_lan,
+        "requested_bind_host": "0.0.0.0" if expected_lan else "127.0.0.1",
+        "actual_bind_host": bind_host, "bind_host": bind_host,
         "display_host": str(runtime.get("display_host") or ""),
-        "lan_ip": lan_ip,
-        "port": port,
+        "lan_ip": lan_ip, "port": port,
         "share_url": str(runtime.get("share_url") or ""),
-        "listening": listening,
+        "listening": listening_local, "listening_lan": listening_lan,
+        "external_access_confirmed": False, "restart_required": mismatch,
         "windows_firewall_rule": firewall,
         "firewall_rule_name": FIREWALL_RULE_NAME if os.name == "nt" else "",
     }
