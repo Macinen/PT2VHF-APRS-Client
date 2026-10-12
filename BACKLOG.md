@@ -1,4 +1,4 @@
-## Novo — Windows 7 Legacy v1.14.26: Portable fecha ao iniciar e Setup abre versão anterior
+## Implementado na v1.14.27 — Windows 7 Legacy v1.14.26: Portable fecha ao iniciar e Setup abre versão anterior
 
 ### 1) Portable v1.14.26 inicia e fecha imediatamente
 
