@@ -1,3 +1,12 @@
+## 1.14.32 - 2026-10-12
+
+- **Interface Web LAN:** validação real do usuário com dois computadores Windows 11; funcionou pelo loopback, pelo IP LAN do host e pelo acesso remoto na rede privada. Issue #76 encerrada neste cenário.
+- **Verificação automática de HTTP:** smoke real contra backend Flask/Waitress com HTML, JavaScript, ping da API/versionamento e endpoint de prova; integrado aos builds Windows modernos e Windows 7 Legacy em Python 3.8.
+- **Windows 7 Legacy:** preservado o runtime separado, instalador e Portable x64, provas de versão do executável e do aplicativo instalado, sem exigir WebView2.
+- **Documentação:** atualizado o procedimento de acesso Web LAN no Windows 7 e retirada a falsa classificação de falha de acesso no Win11.
+- **Pendências distintas preservadas:** janelas transitórias em Windows 7 e regressão de atualização/boot PyInstaller/pythonnet em Windows 11 exigem teste físico e diagnóstico adicional; **esta release não reivindica correção dessas ocorrências**.
+- **Pacote completo:** Windows x64/ARM64, Win7 SP1 x64 Legacy Setup/Portable, Linux x86_64/ARM64, macOS Intel/Apple Silicon e Manual PDF, sujeito à publicação do workflow após CI.
+
 ## 1.14.31 - 2026-10-12
 
 - **Windows 11/7 — acesso Web LAN:** a liberação do Firewall deixa de executar duas solicitações UAC concorrentes; usa uma única operação elevada que substitui a regra anterior e instala a porta TCP efetiva, limitada a `LocalSubnet`. A regra não fica mais vinculada ao caminho do EXE, que pode mudar no Windows Portable.

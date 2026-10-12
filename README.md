@@ -1,38 +1,45 @@
-# PT2VHF APRS Client - v1.14.31
+# PT2VHF APRS Client - v1.14.32
 
 Cliente APRS-IS multiplataforma para **Windows, Linux e macOS**, com mapa, mensagens, estações, tracklogs, topologia observada, Log TNC2, banco SQLite local e atualização integrada.
 
-A **v1.14.31** corrige a autorização de Firewall e melhora o compartilhamento Web LAN em Windows 11/7, com diagnóstico de acesso remoto real e janela transitória do Win7; mantém a retenção SQLite da v1.14.30.
+A **v1.14.32** consolida a validação real do acesso Web pela LAN em Windows 11 e acrescenta smoke HTTP nos builds Windows, inclusive no runtime Windows 7 Legacy. O popup transitório Win7 e a regressão de atualização Win11 continuam em investigação.
 
 ## Downloads da versão mais recente
 
-Os arquivos abaixo apontam diretamente para a **release v1.14.31**.
+Os arquivos abaixo apontam diretamente para a **release v1.14.32**.
 
 ### Windows
-- [Windows x64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_Setup_x64_v1.14.31.exe)
-- [Windows x64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_Portable_x64_v1.14.31.exe)
-- [Windows ARM64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_Setup_ARM64_v1.14.31.exe)
-- [Windows ARM64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_Portable_ARM64_v1.14.31.exe)
-- [Windows 7 SP1 x64 — Instalador Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v1.14.31.exe)
-- [Windows 7 SP1 x64 — Portable Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v1.14.31.exe)
+- [Windows x64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Setup_x64_v1.14.32.exe)
+- [Windows x64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Portable_x64_v1.14.32.exe)
+- [Windows ARM64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Setup_ARM64_v1.14.32.exe)
+- [Windows ARM64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Portable_ARM64_v1.14.32.exe)
+- [Windows 7 SP1 x64 — Instalador Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v1.14.32.exe)
+- [Windows 7 SP1 x64 — Portable Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v1.14.32.exe)
 
 > O build Windows 7 Legacy usa runtime separado e apresenta a interface em janela dedicada de Chrome/Chromium/Brave em modo app quando disponível. Sem navegador compatível, usa fallback para o navegador padrão sem encerrar o backend. Consulte [docs/WINDOWS7.md](docs/WINDOWS7.md).
 
 ### Linux
-- [Linux x86_64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_x86_64_v1.14.31.AppImage)
-- [Linux x86_64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/pt2vhf-aprs-client_1.14.31_amd64.deb)
-- [Linux x86_64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_Linux_x86_64_v1.14.31.tar.gz)
-- [Linux ARM64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_arm64_v1.14.31.AppImage)
-- [Linux ARM64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/pt2vhf-aprs-client_1.14.31_arm64.deb)
-- [Linux ARM64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_Linux_arm64_v1.14.31.tar.gz)
+- [Linux x86_64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_x86_64_v1.14.32.AppImage)
+- [Linux x86_64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/pt2vhf-aprs-client_1.14.32_amd64.deb)
+- [Linux x86_64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Linux_x86_64_v1.14.32.tar.gz)
+- [Linux ARM64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_arm64_v1.14.32.AppImage)
+- [Linux ARM64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/pt2vhf-aprs-client_1.14.32_arm64.deb)
+- [Linux ARM64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Linux_arm64_v1.14.32.tar.gz)
 
 ### macOS
-- [macOS — Apple Silicon](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_macOS_arm64_v1.14.31.dmg)
-- [macOS — Intel](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_macOS_x86_64_v1.14.31.dmg)
+- [macOS — Apple Silicon](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_macOS_arm64_v1.14.32.dmg)
+- [macOS — Intel](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_macOS_x86_64_v1.14.32.dmg)
 
 ### Documentação
-- [Manual PDF](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.31/PT2VHF_APRS_Client_Manual_v1.14.31.pdf)
+- [Manual PDF](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.32/PT2VHF_APRS_Client_Manual_v1.14.32.pdf)
 - [Notas da versão mais recente](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/latest)
+
+## Novidades da v1.14.32
+
+- **Web LAN validada:** interface aberta em 127.0.0.1, no IPv4 privado do host e num segundo computador Windows 11 na mesma LAN.
+- **Windows 7 incluído:** instalador e Portable Legacy x64 próprios, com runtime Python 3.8.10 e PyInstaller isolado.
+- **Smoke HTTP real no CI:** verificações de página HTML, arquivo JS, ping/versionamento e endpoint de prova Web, também para a cadeia Legacy.
+- **Testes físicos ainda necessários:** Windows 7 como host/cliente, janela transitória no Win7 e erro PyInstaller/pythonnet de atualização no Windows 11 não foram declarados resolvidos.
 
 ## Novidades da v1.14.31
 
