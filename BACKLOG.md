@@ -1,3 +1,16 @@
+## Corrigido em main — Win7 v1.14.30: popup intermitente de console a cada poucos segundos (aguarda próxima release e teste físico)
+
+- **Relato em Win7 Legacy:** uma pequena janela/popup aparentemente vazio abre e fecha rapidamente a cada aproximadamente 5 segundos durante o funcionamento normal.
+- **Causa provável identificada no código:** a UI chama `refreshStatus()` a cada 3 segundos; `/api/status` chama `lan_diagnostics()`; com Web LAN habilitada, `windows_firewall_rule_exists()` executava `netsh advfirewall firewall show rule` via `subprocess.run` **sem `CREATE_NO_WINDOW`**. Em Windows 7 com executável PyInstaller sem console isso pode abrir e fechar uma janela `cmd/netsh` em cada sondagem.
+- **Correção no main (ainda não publicada em release):**
+  - executar `netsh` de diagnóstico com `creationflags=CREATE_NO_WINDOW`, sem abrir console visível;
+  - memorizar o resultado da verificação por até **60 segundos**, por porta e caminho de executável, em vez de chamar `netsh` a cada `/api/status`;
+  - invalidar cache quando for solicitada nova regra de firewall;
+  - não alterar a coleta de status APRS nem a frequência da interface.
+- **Testes de regressão:** `tests/test_win7_firewall_popup.py` valida flag de console oculto, reaproveitamento da consulta e invalidação/alteração de porta.
+- **Validação ainda necessária:** testar no **Windows 7 real** com Web LAN habilitada, verificando ausência de janelas piscantes após vários minutos. Se persistir, identificar o processo pela ferramenta Process Monitor e auditar outros subprocessos periódicos (sem presumir que toda janela provenha do firewall).
+- **Critério de aceite:** nenhuma janela de console ou popup intermitente aparece durante funcionamento normal ou atualização automática de status, independentemente de Web LAN estar ligada ou desligada.
+
 > **v1.14.30 — implementação e validação:** adicionada verificação do socket no IP LAN real e detecção de reinício pendente, além de correção do handoff `exit=0` do Chromium. Os testes automatizados e o empacotamento não substituem o teste em duas máquinas na mesma rede nem uma atualização física do Win7 Portable.
 
 ## Em validação na v1.14.30 — Web LAN: teste em outra máquina da rede
