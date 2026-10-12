@@ -1,4 +1,4 @@
-## Novo — Cabeçalho Web: ainda mostra 127.0.0.1 e exibe `\n` literal
+## Novo — Cabeçalho Web: mostrar IP LAN real, sem botão de copiar e sem `\n` literal
 
 ### 1) Endereço exibido continua incorreto
 
@@ -31,22 +31,33 @@
   - payload de `/api/status`;
   - renderização final do cabeçalho como **`Web LAN: 192.168.10.2:8080`**.
 
-### 2) Texto literal `\n` aparece no cabeçalho
+### 2) Remover botão de copiar endereço
 
-- **Falha visual confirmada:** há um texto literal **`\n`** visível entre o endereço Web e o botão de copiar.
-- Isso não é quebra de linha válida; é texto escapado que acabou inserido no HTML/template.
-- Remover qualquer sequência literal `\n` introduzida no markup do cabeçalho.
-- Auditar especificamente a alteração que adicionou `webAccessCopyButton` para garantir que foi inserida uma quebra de linha real no HTML, e não os dois caracteres `\` + `n`.
-- Adicionar teste que falhe se o HTML renderizado contiver `\\n` entre os controles do cabeçalho.
-- **Critério de aceite visual:** o cabeçalho deve apresentar apenas o endereço e o botão de copiar, sem caracteres estranhos ou texto `\n`.
+- **Não deve existir botão de copiar URL** no cabeçalho.
+- Remover `webAccessCopyButton` e todo o JavaScript/CSS associado à ação de cópia.
+- O endereço Web no cabeçalho deve servir apenas como **indicador do endereço ativo**.
+- Não é necessário abrir o navegador ao clicar no endereço.
+- A abertura automática no navegador deve continuar sendo controlada exclusivamente pela opção já existente em **Configuração → “Abrir também no navegador ao iniciar”**.
+- Quando essa opção estiver habilitada, a aplicação deve abrir também o navegador usando o endereço efetivamente ativo.
+- Quando estiver desabilitada, a aplicação não deve abrir navegador automaticamente apenas por exibir o endereço no cabeçalho.
+
+### 3) Texto literal `\n` aparece no cabeçalho
+
+- **Falha visual confirmada:** há um texto literal **`\n`** visível no cabeçalho.
+- Isso não é quebra de linha válida; é texto escapado inserido no HTML/template.
+- Remover qualquer sequência literal `\n` do markup do cabeçalho.
+- Adicionar teste que falhe se o HTML renderizado contiver `\\n` junto aos controles do cabeçalho.
 
 ### Critério de aceite geral
 
-Em uma máquina com IPv4 LAN `192.168.10.2` e porta `8080`, com acesso Web LAN habilitado, o cabeçalho deve aparecer de forma equivalente a:
+Em uma máquina com IPv4 LAN `192.168.10.2` e porta `8080`, com acesso Web LAN habilitado, o cabeçalho deve apresentar apenas algo equivalente a:
 
-**`Web LAN: 192.168.10.2:8080  [copiar]`**
+**`Web LAN: 192.168.10.2:8080`**
 
-sem `127.0.0.1`, sem `0.0.0.0` e sem `\n` literal.
+Sem botão de copiar, sem `127.0.0.1`, sem `0.0.0.0` e sem `\n` literal.
+
+A opção **“Abrir também no navegador ao iniciar”** continua sendo a única responsável pela abertura automática da interface em navegador.
+
 
 ## Implementado na v1.14.27 — Windows 7 Legacy v1.14.26: Portable fecha ao iniciar e Setup abre versão anterior
 
