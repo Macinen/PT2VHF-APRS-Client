@@ -7,7 +7,8 @@
 - **Interface:** distingue URL informativa de URL realmente compartilhável, alerta para reinício total após habilitar LAN e orienta a testar portas/endereços disponíveis.
 - **Win7 Legacy:** mantém correção para executar `netsh` sem console visível e cache de 60 segundos. Acrescenta monitor nativo temporário `EnumWindows` que registra janelas transitórias dos processos filhos no diagnóstico para investigar o popup externo ainda não identificado.
 - **Banco SQLite:** preserva todas as políticas de retenção por categoria e o histórico de enlaces RF independentes da expiração dos nós.
-- **Testes:** operação única de Firewall, porta exata, cache, evidência externa, bind real em `0.0.0.0`, regressão Windows 7 e documentação. Testes físicos de Win7 e acesso entre dois computadores permanecem necessários antes de fechar as ocorrências de campo.
+- **Testes:** operação única de Firewall, porta exata, cache, evidência externa, bind real em `0.0.0.0`, regressão Windows 7 e documentação.
+- **Regressão histórica:** atualizado o teste da v1.14.28 para diferenciar o IP meramente detectado da URL compartilhável apenas em modo LAN. Testes físicos de Win7 e acesso entre dois computadores permanecem necessários antes de fechar as ocorrências de campo.
 - **Documentação:** manual PDF revisado com procedimentos para liberar a porta e testar a partir de outro computador na mesma LAN.
 - **Entrega completa:** Windows 11 x64/ARM64 (Setup e Portable), Windows 7 Legacy x64 (Setup e Portable), Linux x86_64/ARM64 (AppImage, DEB, TAR), macOS Intel/Apple Silicon (DMG), SBOM/licenças e Manual PDF.
 
