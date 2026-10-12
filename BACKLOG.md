@@ -1,4 +1,6 @@
-## Novo — Web LAN: acesso à interface por outra máquina da rede não funciona
+> **v1.14.30 — implementação e validação:** adicionada verificação do socket no IP LAN real e detecção de reinício pendente, além de correção do handoff `exit=0` do Chromium. Os testes automatizados e o empacotamento não substituem o teste em duas máquinas na mesma rede nem uma atualização física do Win7 Portable.
+
+## Em validação na v1.14.30 — Web LAN: teste em outra máquina da rede
 
 - **Falha confirmada:** mesmo quando o aplicativo identifica/exibe o IPv4 da máquina host, outra máquina na mesma rede local não consegue acessar a interface Web do PT2VHF APRS Client.
 - Tratar como falha funcional de **bind/acessibilidade LAN**, não apenas de exibição do endereço.
@@ -63,7 +65,7 @@
   - não afirmar que está acessível apenas porque o IP foi detectado.
 - **Critério de aceite:** com duas máquinas na mesma rede, ao habilitar **Permitir acesso Web pela rede local (LAN)** e reiniciar a aplicação, a segunda máquina deve conseguir abrir `http://<IP-LAN-do-host>:<porta>` e utilizar a interface Web normalmente, sem depender de `127.0.0.1` e sem desabilitar o firewall do sistema.
 
-## Novo — Win7 Legacy Portable: atualização conclui, mas relançamento da janela falha após update
+## Em validação na v1.14.30 — Win7 Legacy Portable: relançamento após update
 
 - **Falha confirmada em Windows 7 Portable após atualização integrada:** o aplicativo informa que a atualização foi concluída, por exemplo **v1.14.28 → v1.14.29**, mas durante o relançamento aparece a mensagem:
   - **“Não foi possível iniciar a janela dedicada do Windows 7 Legacy.”**
@@ -110,7 +112,7 @@
   - nova versão aberta e reportando a versão alvo.
 - **Critério de aceite:** no Windows 7 Portable, após atualizar pelo próprio aplicativo, a versão nova deve abrir automaticamente e permanecer operacional. Um `exit=0` do processo intermediário Chrome/Chromium/Brave não pode ser tratado como falha se a abertura tiver sido repassada corretamente para o navegador já existente. Não deve surgir alerta falso nem abrir fallback duplicado no navegador padrão.
 
-## Novo — Configuração: retenção independente por tipo de dado no mapa
+## Implementado na v1.14.30 — Configuração: retenção independente por tipo de dado no mapa
 
 - Adicionar em **Configuração** uma seção específica de **Retenção de dados do mapa**.
 - Permitir configurar por quanto tempo cada categoria permanece disponível para exibição/histórico no mapa e consultas relacionadas.
