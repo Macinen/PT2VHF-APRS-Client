@@ -1,3 +1,14 @@
+## Pendente — Popups/modais sob demanda para tarefas eventuais; agendamento de mensagens (issue #82)
+
+- **Pedido do mantenedor em 12/10/2026:** tarefas usadas esporadicamente (começando por **agendamento de mensagens**) devem usar uma janela/modal **visível apenas enquanto necessária**, mantendo a tela principal livre de formulários extensos.
+- **Situação atual:** o botão **Agendadas (N)** em Mensagens abre `#scheduledMessagesPanel` dentro do fluxo da própria aba; o painel exibe ao mesmo tempo formulário `#scheduledMessageForm`, listas de destinatários e tabela `#scheduledMessagesTable`, ocupando espaço precioso do chat e da lista.
+- **Novo comportamento:** o botão **Agendadas** abre um popup centralizado e responsivo, com lista/resumo dos agendamentos, botão **Novo**, ações de editar/ativar/desativar/executar/excluir e **formulários exibidos somente na ação Novo/Editar**. A gestão das listas de destinatários também deve aparecer somente quando solicitada.
+- **Fechamento:** `Fechar`, `Cancelar` e tecla `Esc`; confirmação ao descartar mudanças não salvas, foco gerenciado e devolvido ao botão de origem, acessibilidade (`role=dialog`, `aria-modal`), temas e traduções. Garantir rolagem interna/altura máxima em telas 1280×720 e Windows 7 Legacy.
+- **Persistência/execução:** o modal é somente apresentação: fechar/ocultar não cancela o trabalho agendado, não interrompe a thread/worker de envio, não limpa agendamentos salvos e não dispara envio imediato. O contador e a lista precisam refletir o SQLite.
+- **Arquitetura:** criar padrão reutilizável para outras operações eventuais complexas, sem converter controles cotidianos em popups, nem confundir com a janela **nativa intermitente** do Win7 que constitui um bug separado.
+- **Critérios de aceite:** a aba Mensagens mantém somente acesso compacto **Agendadas (N)** quando fechado; popup e subformulários aparecem sob demanda; operações de agendamento continuam funcionais; sem perda silenciosa de rascunhos; teste de teclado/responsividade/Windows 7 e 11.
+- **Rastreamento:** [issue #82](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/82). **Ainda não implementado.**
+
 ## Restaurado na v1.14.33 — Configuração: silenciar aviso de estação nova (issue #81)
 
 - **Regressão relatada em 12/10/2026:** sumiu da aba Configuração a opção para silenciar o aviso quando uma nova estação é recebida ou reaparece.
