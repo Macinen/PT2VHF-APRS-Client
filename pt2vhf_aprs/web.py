@@ -22,7 +22,7 @@ from . import retention
 from .aprs_service import full_callsign, service
 from .scheduled_messages import prepare_schedule_payload, service as scheduled_message_service
 from .local_server import runtime_info as local_server_runtime_info
-from .lan_access import lan_diagnostics, request_windows_firewall_rule
+from .lan_access import lan_diagnostics, request_windows_firewall_rule, note_remote_request
 from .tnc_service import (
     get_tnc_config,
     heard_stations,
@@ -771,6 +771,7 @@ def create_app() -> Flask:
 
     @app.before_request
     def diagnostics_request_start():
+        note_remote_request(request.remote_addr or "", request.path)
         g._pt2vhf_diag_request = diag.begin_request(request.method, request.path)
 
     @app.after_request
@@ -898,6 +899,19 @@ def create_app() -> Flask:
         local_info["access"] = lan_diagnostics(local_info, bool(db.get_config().get("web_lan_enabled")))
         payload["local_interface"] = local_info
         return jsonify(payload)
+
+    @app.get("/api/local-interface/remote-probe")
+    def api_local_interface_remote_probe():
+        """Open on the *second* device to prove HTTP reached this instance."""
+        info = local_server_runtime_info()
+        check = lan_diagnostics(info, bool(db.get_config().get("web_lan_enabled")))
+        return jsonify({
+            "ok": True, "server_received_request": True,
+            "remote_address": str(request.remote_addr or ""),
+            "lan_scope": check.get("scope"),
+            "port": check.get("port"),
+            "external_access_confirmed": bool(check.get("external_access_confirmed")),
+        })
 
     @app.get("/api/local-interface/test")
     def api_local_interface_test():
