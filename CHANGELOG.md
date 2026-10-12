@@ -1,3 +1,14 @@
+## 1.14.29 - 2026-10-11
+
+- **IP LAN independente do bind:** o cliente passa a detectar `lan_ip` mesmo quando o servidor está restrito a `127.0.0.1`.
+- **Novo `display_url`:** endereço informativo separado da URL interna e da URL realmente compartilhável.
+- **Cabeçalho:** quando existe IPv4 LAN válido, exibe o IP real da máquina, por exemplo `192.168.10.2:8080`, em vez de `127.0.0.1:8080`.
+- **Semântica preservada:** `share_url` só aponta para a LAN quando o servidor realmente está acessível pela LAN; `scope` continua indicando acessibilidade real.
+- **Instalações existentes:** a detecção do IP real não depende de recriar banco/configuração.
+- **Regressões:** testes cobrem bind localhost com IP LAN detectado e bind `0.0.0.0` com URL compartilhável.
+- Mantidas as correções da v1.14.28 e do Windows 7 Legacy.
+- Release completa para Windows x64/ARM64, Windows 7 SP1 x64 Legacy, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
+
 ## 1.14.28 - 2026-10-11
 
 - **Cabeçalho Web:** removido o texto literal `\\n` que aparecia entre o endereço e os controles.
