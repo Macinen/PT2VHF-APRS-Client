@@ -18,6 +18,7 @@ from . import __version__
 from . import database as db
 from . import diagnostics as diag
 from . import updater
+from . import retention
 from .aprs_service import full_callsign, service
 from .scheduled_messages import prepare_schedule_payload, service as scheduled_message_service
 from .local_server import runtime_info as local_server_runtime_info
@@ -758,6 +759,7 @@ def create_app() -> Flask:
     register_v142_routes(app)
     diag.configure(db.DB_PATH.parent)
     scheduled_message_service.start()
+    retention.start_worker()
     diag.log_event("flask_app_created", version=__version__)
     try:
         # Chegar até aqui confirma que a versão atual iniciou e abriu o banco.
@@ -893,9 +895,41 @@ def create_app() -> Flask:
         payload.update(db.summary_counts())
         payload["tnc"] = tnc_service.status()
         local_info = local_server_runtime_info()
-        local_info["access"] = lan_diagnostics(local_info)
+        local_info["access"] = lan_diagnostics(local_info, bool(db.get_config().get("web_lan_enabled")))
         payload["local_interface"] = local_info
         return jsonify(payload)
+
+    @app.get("/api/local-interface/test")
+    def api_local_interface_test():
+        info = local_server_runtime_info()
+        return jsonify(lan_diagnostics(info, bool(db.get_config().get("web_lan_enabled"))))
+
+    @app.get("/api/retention")
+    def api_retention_get():
+        return jsonify(retention.get_policy())
+
+    @app.post("/api/retention")
+    def api_retention_save():
+        try:
+            payload = request.get_json(force=True) or {}
+            result = retention.save_policy(payload.get("policies", {}),
+                                           bool(payload.get("enabled", False)))
+            return jsonify({"ok": True, **result})
+        except (ValueError, TypeError) as exc:
+            return jsonify({"ok": False, "error": str(exc)}), 400
+
+    @app.post("/api/retention/apply")
+    def api_retention_apply():
+        payload = request.get_json(silent=True) or {}
+        if payload.get("confirm") is not True:
+            return jsonify({"ok": False, "error": "Confirme a remoção de registros expirados."}), 400
+        result = retention.apply_retention()
+        return jsonify(result), (200 if result.get("ok") else 409)
+
+    @app.post("/api/retention/reset")
+    def api_retention_reset():
+        return jsonify({"ok": True, **retention.save_policy(
+            dict(retention.DEFAULT_DAYS), enabled=False)})
 
     @app.post("/api/local-interface/firewall/allow")
     def api_allow_local_interface_firewall():
