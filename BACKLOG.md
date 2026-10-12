@@ -1,4 +1,4 @@
-## Novo — Cabeçalho continua em 127.0.0.1: detectar IP LAN independentemente do bind
+## Implementado na v1.14.29 — Cabeçalho continua em 127.0.0.1: detectar IP LAN independentemente do bind
 
 - **Falha confirmada após a v1.14.28:** o cabeçalho continua mostrando `127.0.0.1` em vez do IPv4 real da máquina na rede, por exemplo `192.168.x.x`.
 - **Causa estrutural identificada:** atualmente `LocalServerHandle.lan_host` só chama `detect_lan_ipv4()` quando o servidor está ligado a `0.0.0.0`/modo LAN. Quando o bind está em `127.0.0.1`, `lan_host` fica vazio, `scope` permanece `local` e o frontend recebe apenas o loopback.
