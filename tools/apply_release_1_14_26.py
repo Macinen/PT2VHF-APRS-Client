@@ -46,7 +46,7 @@ checks = {
         "addr.is_loopback",
         "addr.is_unspecified",
         "addr.is_link_local",
-        "addr.is_private",
+        "is_private",
     ],
     "pt2vhf_aprs/lan_access.py": [
         "FIREWALL_RULE_NAME",
