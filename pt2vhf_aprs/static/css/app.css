@@ -2471,19 +2471,6 @@ html[data-theme="light"] .altitude-fallback-zero #altitudeSourceStatus {
   border-color: rgba(56,199,118,.42);
   background: rgba(56,199,118,.08);
 }
-.web-access-copy {
-  width: 32px;
-  min-width: 32px;
-  min-height: 32px;
-  padding: 4px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--panel-2);
-  color: var(--text);
-  cursor: pointer;
-}
-.web-access-copy:hover,
-.web-access-copy:focus-visible { border-color: rgba(59,166,255,.55); }
 .lan-access-actions {
   display: flex;
   align-items: center;
