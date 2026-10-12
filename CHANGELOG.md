@@ -1,3 +1,17 @@
+## 1.14.26 - 2026-10-11
+
+- **Windows 7 Legacy desktop:** removido o `--browser` forçado; Setup e Portable passam a iniciar como aplicação desktop com shell WebView empacotada.
+- **Runtime Legacy:** adicionados pywebview 4.4.1 e pythonnet 3.0.3 ao ambiente isolado do Windows 7, mantendo Python 3.8.10/PyInstaller 5.13.2.
+- **Updater Win7:** Setup e Portable reconhecem seus próprios modos e selecionam exclusivamente assets Legacy.
+- **Portable in-place:** a atualização substitui o executável atual no mesmo caminho, mantém backup para rollback e relança automaticamente a nova versão.
+- **Web LAN — IP real:** detecção prioriza IPv4 LAN válido e ignora loopback, endereço indefinido e link-local.
+- **Web LAN — abrir/copiar:** clicar no endereço abre exatamente o URL publicado no navegador padrão; copiar fica em botão separado.
+- **Firewall:** diagnóstico informa estado LAN/porta; no Windows, o usuário pode autorizar explicitamente uma regra de entrada TCP limitada ao perfil Privado e à porta efetiva.
+- **Segurança:** firewall/Defender nunca são desabilitados; não há UPnP, port-forwarding ou exposição automática à Internet/WAN.
+- **i18n:** novos controles e mensagens de Web LAN/firewall recebem cobertura nos dez idiomas.
+- **Regressões:** novos testes cobrem desktop Win7, updater Legacy, separação de assets, Web LAN, firewall e metadados da release.
+- Release completa para Windows x64/ARM64, Windows 7 SP1 x64 Legacy, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
+
 ## 1.14.25 - 2026-10-11
 
 - **Windows 7 Legacy:** Windows 7 SP1 x64 passa a ter Setup e Portable próprios, construídos com Python 3.8.10/PyInstaller 5.13.2 e interface no navegador, sem dependência de WebView2.
