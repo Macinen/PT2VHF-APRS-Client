@@ -26,6 +26,7 @@ from pt2vhf_aprs.tnc_service import service as tnc_service
 from pt2vhf_aprs.local_server import (
     configured_start_port,
     read_runtime_url,
+    read_runtime_browser_url,
     runtime_file_for,
     start_local_server,
 )
@@ -87,9 +88,18 @@ def _wait_for_server(timeout: float = 12.0) -> bool:
 
 
 def _current_url() -> str:
+    """Show the LAN IPv4 when reachable; keep localhost for internal checks."""
     if _server_handle is not None:
+        if _server_handle.scope == "lan" and _server_handle.lan_host:
+            try:
+                with socket.create_connection(
+                    (_server_handle.lan_host, _server_handle.port), timeout=0.35
+                ):
+                    return _server_handle.share_url
+            except OSError:
+                pass
         return _server_handle.url
-    discovered = read_runtime_url(db.DB_PATH.parent)
+    discovered = read_runtime_browser_url(db.DB_PATH.parent)
     return discovered or URL
 
 

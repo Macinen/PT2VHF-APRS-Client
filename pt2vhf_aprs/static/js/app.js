@@ -5643,6 +5643,36 @@
     button.title = detail ? ('APRS-IS — ' + view.label + ' — ' + detail) : ('APRS-IS — ' + view.label + ' — ' + view.hint);
   }
 
+  // Heartbeat is sent only from visible Web tabs. The backend excludes
+  // localhost and its own LAN addresses so local UI does not signal a guest.
+  const webPresenceSessionId = (() => {
+    try {
+      let id = sessionStorage.getItem('pt2vhf_web_presence_id');
+      if (!id) {
+        id = (window.crypto?.randomUUID?.() || (
+          Math.random().toString(36).slice(2) + Date.now().toString(36)
+        ));
+        sessionStorage.setItem('pt2vhf_web_presence_id', id);
+      }
+      return id;
+    } catch (_) { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+  })();
+
+  function sendWebPresence(active = true) {
+    const visible = document.visibilityState !== 'hidden';
+    fetch('/api/local-interface/presence', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: webPresenceSessionId, active: Boolean(active && visible) }),
+      cache: 'no-store', keepalive: !active
+    }).catch(() => {});
+  }
+
+  sendWebPresence(true);
+  setInterval(() => { if (document.visibilityState !== 'hidden') sendWebPresence(true); }, 20000);
+  document.addEventListener('visibilitychange', () => sendWebPresence(document.visibilityState !== 'hidden'));
+  window.addEventListener('pagehide', () => sendWebPresence(false));
+
   function updateWebAccessStatus(localInfo = {}) {
     const scope = String(localInfo.scope || 'local') === 'lan' ? 'lan' : 'local';
     const access = localInfo.access || {};
@@ -5663,15 +5693,20 @@
     const header = $('#webAccessStatus');
     const label = $('#webAccessLabel');
     const value = $('#webAccessUrl');
+    const remoteActive = scope === 'lan' && Boolean(access.remote_web_active);
     if (header) {
       header.classList.toggle('lan', scope === 'lan');
-      header.title = scope === 'lan'
+      header.classList.toggle('remote-active', remoteActive);
+      header.title = remoteActive
+        ? ui('Interface Web em uso por outro dispositivo.', 'Web interface in use from another device.')
+        : scope === 'lan'
         ? ui('Endereço LAN publicado; confirme no outro dispositivo.', 'Published LAN address; confirm from another device.')
         : ui('Endereço detectado; acesso LAN DESABILITADO. Use a URL localhost nesta máquina.',
              'Detected IP only; LAN access DISABLED. Use localhost on this computer.');
     }
-    if (label) label.textContent = scope === 'lan'
-      ? ui('Web LAN:', 'Web LAN:')
+    if (label) label.textContent = remoteActive
+      ? ui('Web em uso:', 'Web in use:')
+      : scope === 'lan' ? ui('Web LAN:', 'Web LAN:')
       : (lanHost ? ui('Web:', 'Web:') : ui('Web local:', 'Local web:'));
     if (value) value.textContent = compact || ui('indisponível', 'unavailable');
     const configStatus = $('#localInterfaceStatus');

@@ -397,6 +397,30 @@ def _remove_runtime_file(path: Path) -> None:
         pass
 
 
+def read_runtime_browser_url(data_dir: Path) -> str:
+    """Prefer the verified LAN IPv4 for user browser windows, not internal probes.
+
+    An advertised LAN IP is not enough: the server must have LAN bind and
+    the local socket must accept connections at that address and actual port.
+    """
+    fallback = read_runtime_url(data_dir)
+    if not fallback:
+        return ""
+    try:
+        payload = json.loads(runtime_file_for(data_dir).read_text(encoding="utf-8"))
+        if str(payload.get("scope") or "") != "lan":
+            return fallback
+        host = str(payload.get("lan_ip") or "").strip()
+        port = int(payload.get("port") or 0)
+        ip = ipaddress.ip_address(host)
+        if ip.version != 4 or ip.is_loopback or ip.is_unspecified or not (1 <= port <= 65535):
+            return fallback
+        with socket.create_connection((host, port), timeout=0.35):
+            return "http://{}:{}".format(host, port)
+    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
+        return fallback
+
+
 def read_runtime_url(data_dir: Path) -> str:
     path = runtime_file_for(data_dir)
     try:

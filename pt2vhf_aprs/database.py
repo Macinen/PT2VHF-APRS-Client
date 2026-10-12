@@ -140,7 +140,7 @@ DEFAULT_CONFIG = {
     "aprs_filter": BRAZIL_FILTER,
     "connect_on_start": 1,
     "open_browser_on_start": 0,
-    "web_lan_enabled": 0,
+    "web_lan_enabled": 1,
     "check_updates_on_start": 1,
     "update_check_minutes": 15,
     "auto_download_updates": 0,
@@ -278,7 +278,7 @@ def init_db() -> None:
                 aprs_filter TEXT NOT NULL DEFAULT 'p/PP/PQ/PR/PS/PT/PU/PV/PW/PX/PY/ZV/ZW/ZX/ZY/ZZ',
                 connect_on_start INTEGER NOT NULL DEFAULT 1,
                 open_browser_on_start INTEGER NOT NULL DEFAULT 0,
-                web_lan_enabled INTEGER NOT NULL DEFAULT 0,
+                web_lan_enabled INTEGER NOT NULL DEFAULT 1,
                 check_updates_on_start INTEGER NOT NULL DEFAULT 1,
                 update_check_minutes INTEGER NOT NULL DEFAULT 15,
                 auto_download_updates INTEGER NOT NULL DEFAULT 0,
@@ -612,7 +612,7 @@ def init_db() -> None:
         if "open_browser_on_start" not in config_columns:
             conn.execute("ALTER TABLE config ADD COLUMN open_browser_on_start INTEGER NOT NULL DEFAULT 0")
         if "web_lan_enabled" not in config_columns:
-            conn.execute("ALTER TABLE config ADD COLUMN web_lan_enabled INTEGER NOT NULL DEFAULT 0")
+            conn.execute("ALTER TABLE config ADD COLUMN web_lan_enabled INTEGER NOT NULL DEFAULT 1")
         if "language" not in config_columns:
             conn.execute("ALTER TABLE config ADD COLUMN language TEXT NOT NULL DEFAULT 'pt-BR'")
         if "map_type" not in config_columns:

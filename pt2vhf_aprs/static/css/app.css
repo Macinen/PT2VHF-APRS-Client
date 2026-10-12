@@ -2351,7 +2351,7 @@ html[data-theme="light"] .config-section-tab.active {
   .header-counters { white-space: normal; flex-wrap: wrap; }
   main { height: calc(100vh - 155px); }
   .connection-box { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-  .web-access-status { max-width: 175px; }
+  .web-access-status { max-width: 255px; }
   .web-access-status span { display: none; }
   .config-section-tabs { flex-direction: column; }
   .coordinate-dms-group { grid-template-columns: 1fr 1fr; }
@@ -2445,26 +2445,39 @@ html[data-theme="light"] .altitude-fallback-zero #altitudeSourceStatus {
 .web-access-status {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  max-width: 235px;
-  min-height: 32px;
-  padding: 5px 8px;
+  gap: 5px;
+  max-width: 300px;
+  min-height: 34px;
+  padding: 6px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel-2);
   color: var(--muted);
   cursor: default;
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 600;
   white-space: nowrap;
 }
 .web-access-status strong {
   overflow: hidden;
   color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
   text-overflow: ellipsis;
 }
 .web-access-status.lan {
   border-color: rgba(56,199,118,.42);
   background: rgba(56,199,118,.08);
+}
+.web-access-status.remote-active,
+.web-access-status.lan.remote-active {
+  background: #ffa726;
+  border-color: #c96f00;
+  color: #000;
+}
+.web-access-status.remote-active strong,
+.web-access-status.lan.remote-active strong {
+  color: #000;
 }
 .lan-access-actions {
   display: flex;

@@ -21,8 +21,8 @@ from . import updater
 from . import retention
 from .aprs_service import full_callsign, service
 from .scheduled_messages import prepare_schedule_payload, service as scheduled_message_service
-from .local_server import runtime_info as local_server_runtime_info
-from .lan_access import lan_diagnostics, request_windows_firewall_rule, note_remote_request
+from .local_server import runtime_info as local_server_runtime_info, lan_ipv4_candidates
+from .lan_access import lan_diagnostics, request_windows_firewall_rule, note_remote_request, mark_remote_web_presence
 from .tnc_service import (
     get_tnc_config,
     heard_stations,
@@ -899,6 +899,23 @@ def create_app() -> Flask:
         local_info["access"] = lan_diagnostics(local_info, bool(db.get_config().get("web_lan_enabled")))
         payload["local_interface"] = local_info
         return jsonify(payload)
+
+    @app.post("/api/local-interface/presence")
+    def api_local_interface_presence():
+        """Heartbeat for visible Web tabs from another LAN device."""
+        info = local_server_runtime_info()
+        if str(info.get("scope") or "local") != "lan":
+            return jsonify({"ok": True, "tracked": False})
+        data = request.get_json(silent=True) or {}
+        if not isinstance(data, dict):
+            return jsonify({"ok": False, "error": "Invalid presence payload"}), 400
+        tracked = mark_remote_web_presence(
+            request.remote_addr or "",
+            str(data.get("session_id") or ""),
+            bool(data.get("active", True)),
+            lan_ipv4_candidates(),
+        )
+        return jsonify({"ok": True, "tracked": tracked})
 
     @app.get("/api/local-interface/remote-probe")
     def api_local_interface_remote_probe():

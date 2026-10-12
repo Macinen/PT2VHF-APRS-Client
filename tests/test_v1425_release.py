@@ -27,7 +27,7 @@ def test_v1425_header_is_compact_and_theme_lives_in_settings():
 
 
 def test_v1425_lan_access_is_opt_in_and_runtime_has_safe_urls(monkeypatch):
-    assert db.DEFAULT_CONFIG["web_lan_enabled"] == 0
+    assert db.DEFAULT_CONFIG["web_lan_enabled"] == 1
     monkeypatch.setattr(local_server, "detect_lan_ipv4", lambda: "192.168.50.23")
     handle = local_server.LocalServerHandle(
         server=object(),

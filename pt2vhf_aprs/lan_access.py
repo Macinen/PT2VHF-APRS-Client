@@ -21,6 +21,53 @@ FIREWALL_RULE_NAME = "PT2VHF APRS Client Web LAN"
 _last_remote_lock = threading.Lock()
 _last_remote: dict[str, Any] = {"address": "", "path": "", "at": "", "when": 0.0}
 
+# A confirmed remote HTTP request proves *past* access (15 minutes). A browser
+# session heartbeat is instead required to claim the Web interface is in use.
+WEB_PRESENCE_TTL_SECONDS = 75
+_web_presence_lock = threading.Lock()
+_web_presence: dict[str, float] = {}
+
+
+def mark_remote_web_presence(
+    remote_addr: str, session_id: str, active: bool, host_addresses: list[str]
+) -> bool:
+    """Track a visible remote browser tab; never count the server's own NIC."""
+    try:
+        address = ipaddress.ip_address(str(remote_addr or "").strip())
+        local_addresses = {str(ipaddress.ip_address(value)) for value in host_addresses}
+    except (ValueError, TypeError):
+        return False
+    if (address.version != 4 or address.is_loopback or address.is_unspecified
+            or address.is_link_local or str(address) in local_addresses):
+        return False
+    sid = str(session_id or "").strip()
+    if not re.fullmatch(r"[a-zA-Z0-9_.-]{8,96}", sid):
+        return False
+    key = str(address) + ":" + sid
+    now = time.monotonic()
+    with _web_presence_lock:
+        for stale in [k for k, seen in _web_presence.items()
+                      if now - seen >= WEB_PRESENCE_TTL_SECONDS]:
+            _web_presence.pop(stale, None)
+        if active:
+            if len(_web_presence) >= 128 and key not in _web_presence:
+                return False
+            _web_presence[key] = now
+        else:
+            _web_presence.pop(key, None)
+    return True
+
+
+def remote_web_presence() -> dict[str, Any]:
+    now = time.monotonic()
+    with _web_presence_lock:
+        for stale in [k for k, seen in _web_presence.items()
+                      if now - seen >= WEB_PRESENCE_TTL_SECONDS]:
+            _web_presence.pop(stale, None)
+        count = len(_web_presence)
+    return {"remote_web_active": count > 0, "remote_web_active_count": count}
+
+
 
 def note_remote_request(remote_addr: str, path: str) -> None:
     """Evidence of an actual non-loopback HTTP request, not a local self-probe."""
@@ -184,6 +231,7 @@ def lan_diagnostics(runtime: dict[str, Any],
     listening_lan = tcp_listening(port, lan_ip) if port and lan_ip else False
     firewall = windows_firewall_rule_exists(port) if scope == "lan" and port else None
     remote = last_remote_request()
+    presence = remote_web_presence()
     expected_lan = bool(configured_enabled) if configured_enabled is not None else (scope == "lan")
     mismatch = expected_lan != (scope == "lan")
 
@@ -222,6 +270,8 @@ def lan_diagnostics(runtime: dict[str, Any],
         "listening": listening_local, "listening_lan": listening_lan,
         "external_access_confirmed": bool(remote["confirmed"]),
         "last_remote_access": remote,
+        "remote_web_active": bool(presence["remote_web_active"]) if scope == "lan" else False,
+        "remote_web_active_count": presence["remote_web_active_count"] if scope == "lan" else 0,
         "restart_required": mismatch,
         "windows_firewall_rule": firewall,
         "firewall_rule_name": FIREWALL_RULE_NAME if os.name == "nt" else "",
