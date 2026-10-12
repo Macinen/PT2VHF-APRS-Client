@@ -3,6 +3,17 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.27": {
+        "title": "Windows 7 Legacy estabilizado e empacotamento verificado",
+        "items": [
+            "O build Win7 Legacy remove pywebview/pythonnet, eliminando a regressão que fazia o Portable v1.14.26 encerrar logo após iniciar.",
+            "A interface Win7 usa Chrome/Chromium/Brave em modo app quando disponível, mantendo janela dedicada, backend e bandeja; fallback para navegador padrão não encerra o processo.",
+            "O instalador encerra qualquer processo Legacy antigo, inclusive Portable versionado, evitando que o mutex global traga uma versão anterior para frente.",
+            "O Setup passa a empacotar exclusivamente o Portable recém-gerado em dist-win7, nunca um binário residual de dist.",
+            "O pipeline apaga build/dist/dist-win7, verifica a versão embutida no Portable, instala o Setup em pasta temporária e verifica a versão do executável instalado antes de publicar.",
+            "O canal de atualização Legacy continua isolado e preserva os assets exclusivos de Setup e Portable.",
+        ],
+    },
     "1.14.26": {
         "title": "Win7 desktop, updater Legacy e Web LAN operacional",
         "items": [
