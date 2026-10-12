@@ -525,6 +525,15 @@ jobs:
           printf 'Uploading %s production assets\n' "${#files[@]}"
           gh release upload "$tag" "${files[@]}" --clobber
 
+      - name: Update README direct downloads after verifying published assets
+        shell: bash
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(tr -d '\r\n ' < VERSION)"
+          PT2VHF_RELEASE_VERSION="$version" python tools/sync_readme_release_downloads.py
+
           latest="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.tag_name')"
           echo "GitHub latest release: $latest"
           test "$latest" = "$tag"
