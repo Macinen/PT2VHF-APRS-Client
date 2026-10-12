@@ -8,6 +8,7 @@
 - **Capacidade:** tamanho do banco no painel, políticas salvas, limpeza manual confirmada e manutenção em pequenos lotes com worker em segundo plano; nenhuma compactação bloqueante automática.
 - **Migração conservadora:** bancos com dados existentes precisam de ativação explícita da primeira limpeza automática; novas instalações podem usar o agendamento padrão.
 - **Testes:** regressões SQLite, isolamento de categorias, proteção de enlaces, diagnóstico LAN e handoff Chromium no Windows 7. Acessibilidade entre duas máquinas depende também do firewall e da rede reais e permanece sujeita à validação física.
+- **Gate de release:** testes automatizados de retenção com nós expirados/enlaces preservados, diagnóstico de bind LAN, sintaxe JavaScript e handoff Win7; builds e manual condicionados a CI verde.
 - Release completa: Windows x64/ARM64, Windows 7 Legacy x64 Setup/Portable, Linux x86_64/ARM64, macOS Intel/Apple Silicon e Manual PDF.
 
 ## 1.14.29 - 2026-10-11
