@@ -31,6 +31,23 @@
   - Objetos: **1 mês**;
   - Tracklogs: **1 mês**.
 - A política de retenção deve controlar a **persistência no banco**, não apenas ocultar itens antigos da interface.
+- **Objetivo principal:** evitar crescimento indefinido do banco SQLite e manter uso previsível de disco, tempo de consulta e desempenho geral da aplicação.
+- A aplicação deve acompanhar o **tamanho total do banco** e registrar sua evolução ao longo do tempo.
+- Exibir em Configuração/diagnóstico pelo menos:
+  - tamanho atual do arquivo SQLite;
+  - quantidade aproximada de registros por categoria/tabela relevante;
+  - data/hora da última limpeza;
+  - quantidade de dados removidos na última manutenção.
+- Adicionar alerta quando o banco ultrapassar faixas configuráveis ou predefinidas de tamanho, sem bloquear a aplicação.
+- Sugestão de faixas de aviso:
+  - atenção: **500 MB**;
+  - alto: **1 GB**;
+  - crítico: **2 GB**;
+  com possibilidade de ajuste futuro.
+- A retenção deve ser aplicada também a tabelas auxiliares/históricas relacionadas às categorias, evitando que tabelas secundárias continuem crescendo mesmo quando a entidade principal for removida.
+- Após purgas relevantes, avaliar execução segura de manutenção SQLite (`PRAGMA optimize`, checkpoint WAL e, quando apropriado, compactação/VACUUM controlada), sem travar a aplicação durante recepção de tráfego.
+- Não executar `VACUUM` agressivamente a cada ciclo; usar somente quando houver ganho significativo de espaço e em momento seguro.
+- Prever um resumo do tipo **“Banco: 742 MB · crescimento 18 MB/dia · retenção ativa”** quando houver dados suficientes para estimativa.
 - Separar claramente:
   - **Período de visualização** do mapa (ex.: 1 h, 24 h, 7 d);
   - **Período de retenção** no banco.
@@ -61,7 +78,7 @@
   - limpeza em lotes;
   - preservação de nós/enlaces permanentes;
   - atualização sem perda das configurações anteriores.
-- **Critério de aceite:** em Configuração, o usuário deve conseguir definir a retenção de cada categoria do mapa separadamente e a aplicação deve remover apenas os registros cuja idade exceda a política daquela categoria, sem confundir retenção com filtro/período de visualização.
+- **Critério de aceite:** em Configuração, o usuário deve conseguir definir a retenção de cada categoria separadamente; a aplicação deve remover apenas os registros cuja idade exceda a política correspondente, impedir crescimento indefinido do SQLite, mostrar o tamanho atual do banco e executar manutenção sem interromper o recebimento APRS. Retenção não pode ser confundida com filtro/período de visualização.
 
 ## Implementado na v1.14.29 — Cabeçalho continua em 127.0.0.1: detectar IP LAN independentemente do bind
 
