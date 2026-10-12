@@ -1,3 +1,13 @@
+## Pendente — IP LAN maior no cabeçalho e destaque laranja/preto enquanto houver usuários Web remotos ativos (issue #80)
+
+- **Solicitação do mantenedor em 12/10/2026:** ampliar moderadamente o IP e a porta do endereço Web no cabeçalho, tornando-os mais visíveis; destacar o mesmo bloco com **fundo laranja e letras pretas quando houver alguém utilizando a interface Web pela rede**.
+- **Estados:** normal quando não há usuário remoto ativo; **laranja + preto + texto “Web em uso”** quando há sessão remota efetivamente ativa; indicar separadamente se LAN estiver desabilitada/indisponível. Preservar legibilidade em temas claro/escuro, resoluções pequenas e Windows 7 Legacy.
+- **Detecção de atividade:** não confundir “houve um acesso remoto há menos de 15 minutos” com “há alguém usando agora”. Hoje `lan_access.py::last_remote_request()` usa janela de 900 s para provar apenas acesso recente; acrescentar presença/heartbeat de sessões Web remotas e expirar por inatividade curta (recomendação: 60–120 s), excluindo verificações locais, probes/healthchecks e falsos positivos.
+- **Implementação:** atualizar `#webAccessStatus`, `#webAccessLabel`, `#webAccessUrl` em `pt2vhf_aprs/templates/index.html`; estilos de `.web-access-status` em `pt2vhf_aprs/static/css/app.css`; atualização dinâmica em `pt2vhf_aprs/static/js/app.js::updateWebAccessStatus()`; fornecer `remote_web_active` e contagem de sessões no diagnóstico da interface Web com atualização periódica e i18n.
+- **Aceite:** IP/porta um pouco maiores e sem truncar; cor laranja com texto preto apenas durante uso remoto; retorno automático ao visual normal em no máximo ~2 min após cessar atividade; modo LAN desativado não indica usuários ativos; testes em LAN com múltiplas sessões e navegador local, incluindo Windows 7/11.
+- **Relacionado:** [issue #78](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/78) (abertura por IP LAN) e [issue #79](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/79) (padrões de inicialização).
+- **Rastreamento:** [issue #80](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/80). **Ainda não implementado.**
+
 ## Pendente — Novos padrões: acesso Web LAN ligado e abertura automática do navegador desligada (issue #79)
 
 - **Solicitação de 12/10/2026:** a opção **“Permitir acesso Web pela rede local (LAN)”** deve vir **ativada por padrão** (`web_lan_enabled=1`), enquanto a opção **“Abrir também no navegador ao iniciar”** deve permanecer **desativada por padrão** (`open_browser_on_start=0`).
