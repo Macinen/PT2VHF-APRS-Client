@@ -7,6 +7,7 @@
 - **Instalações existentes:** a detecção do IP real não depende de recriar banco/configuração.
 - **Regressões:** testes cobrem bind localhost com IP LAN detectado e bind `0.0.0.0` com URL compartilhável.
 - Mantidas as correções da v1.14.28 e do Windows 7 Legacy.
+- **Gate de release:** publicação condicionada aos testes v1.14.29, incluindo bind localhost com `display_url` no IPv4 LAN real.
 - Release completa para Windows x64/ARM64, Windows 7 SP1 x64 Legacy, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
 
 ## 1.14.28 - 2026-10-11
