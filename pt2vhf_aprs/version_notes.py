@@ -3,6 +3,17 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.28": {
+        "title": "Cabeçalho Web corrigido e simplificado",
+        "items": [
+            "O cabeçalho deixa de exibir o texto literal \\n introduzido na v1.14.27.",
+            "Removido o botão de copiar endereço Web e toda a interação de clique associada.",
+            "O endereço passa a ser apenas informativo; a abertura no navegador continua controlada por Configuração → Abrir também no navegador ao iniciar.",
+            "No modo LAN, o frontend prioriza explicitamente lan_ip/share_url e impede fallback indevido para 127.0.0.1.",
+            "O runtime LAN continua publicando bind_host, display_host, lan_ip, share_url e scope para diagnóstico.",
+            "Mantidas as correções Win7 Legacy, updater e empacotamento da v1.14.27.",
+        ],
+    },
     "1.14.27": {
         "title": "Windows 7 Legacy estabilizado e empacotamento verificado",
         "items": [
