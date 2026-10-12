@@ -423,7 +423,7 @@ def _write_windows_cmd_helper(pending: dict[str, Any]) -> Path:
     ]
 
     if mode in {"windows-portable", "windows-legacy-portable"}:
-        destination = current.parent / downloaded.name
+        destination = current
         backup = _portable_backup_path(current)
         lines += [
             f'set "destination={_cmd_value(destination)}"',
