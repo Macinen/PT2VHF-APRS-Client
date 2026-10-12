@@ -6,12 +6,26 @@ import platform
 import socket
 import subprocess
 import sys
+import threading
+import time
 from pathlib import Path
 from typing import Any
 
 from . import diagnostics as diag
 
 FIREWALL_RULE_NAME = "PT2VHF APRS Client Web LAN"
+
+# /api/status atualiza a cada 3 s. Evite abrir netsh em cada consulta.
+FIREWALL_CHECK_CACHE_SECONDS = 60.0
+_firewall_cache_lock = threading.Lock()
+_firewall_cache: dict[str, Any] = {"key": None, "until": 0.0, "result": None}
+
+
+def _invalidate_firewall_cache() -> None:
+    with _firewall_cache_lock:
+        _firewall_cache["until"] = 0.0
+
+
 
 
 def _valid_port(port: Any) -> int:
@@ -32,8 +46,17 @@ def tcp_listening(port: Any, host: str = "127.0.0.1") -> bool:
 
 
 def windows_firewall_rule_exists(port: int | None = None) -> bool | None:
+    """Consult the firewall without showing a console window or polling netsh
+    at the same frequency as /api/status (every ~3 s).
+    """
     if os.name != "nt":
         return None
+    executable = str(Path(sys.executable).resolve())
+    key = (port, executable.lower())
+    now = time.monotonic()
+    with _firewall_cache_lock:
+        if _firewall_cache["key"] == key and now < float(_firewall_cache["until"]):
+            return _firewall_cache["result"]
     try:
         result = subprocess.run(
             ["netsh", "advfirewall", "firewall", "show", "rule", f"name={FIREWALL_RULE_NAME}"],
@@ -41,18 +64,22 @@ def windows_firewall_rule_exists(port: int | None = None) -> bool | None:
             text=True,
             timeout=8,
             check=False,
+            # GUI executables made with PyInstaller --noconsole must never
+            # spawn a visible console for periodic diagnostic commands.
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
-        if result.returncode != 0:
-            return False
         output = result.stdout.lower()
-        # "show rule" can return success for a stale rule from an older build.
+        rule_exists = result.returncode == 0
         if port is not None and str(_valid_port(port)) not in output:
-            return False
-        if str(Path(sys.executable).resolve()).lower() not in output:
-            return False
-        return True
+            rule_exists = False
+        if executable.lower() not in output:
+            rule_exists = False
     except Exception:
-        return None
+        rule_exists = None
+    with _firewall_cache_lock:
+        _firewall_cache.update(key=key, until=time.monotonic() + FIREWALL_CHECK_CACHE_SECONDS,
+                               result=rule_exists)
+    return rule_exists
 
 
 def request_windows_firewall_rule(port: Any) -> dict[str, Any]:
@@ -73,6 +100,7 @@ def request_windows_firewall_rule(port: Any) -> dict[str, Any]:
         f'program="{exe}" remoteip=localsubnet enable=yes'
     )
 
+    _invalidate_firewall_cache()
     try:
         # Delete old rule first so a port change does not leave stale exposure.
         ctypes.windll.shell32.ShellExecuteW(None, "runas", "netsh.exe", delete_args, None, 0)
