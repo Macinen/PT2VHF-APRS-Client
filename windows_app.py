@@ -3,6 +3,7 @@ from __future__ import annotations
 import ctypes
 import os
 import socket
+import subprocess
 import sys
 import threading
 import time
@@ -44,6 +45,7 @@ _tray_icon: pystray.Icon | None = None
 _browser_mode = False
 _quitting = False
 _server_handle = None
+_legacy_shell_process = None
 
 
 def _already_running() -> bool:
@@ -146,6 +148,9 @@ def _make_tray_image() -> Image.Image:
 
 def _show_native_window(*_args) -> None:
     global _window
+    if os.getenv("PT2VHF_WIN7_LEGACY") == "1" and not _browser_mode:
+        _launch_legacy_app_window()
+        return
     if _browser_mode or _window is None:
         _open_browser()
         return
@@ -364,6 +369,116 @@ class NativeApi:
 
 
 
+def _legacy_browser_candidates() -> list[Path]:
+    candidates: list[Path] = []
+    env_paths = [
+        os.getenv("PROGRAMFILES"),
+        os.getenv("PROGRAMFILES(X86)"),
+        os.getenv("LOCALAPPDATA"),
+    ]
+    relative = [
+        Path("Google/Chrome/Application/chrome.exe"),
+        Path("Chromium/Application/chrome.exe"),
+        Path("BraveSoftware/Brave-Browser/Application/brave.exe"),
+    ]
+    for base in env_paths:
+        if not base:
+            continue
+        for rel in relative:
+            path = Path(base) / rel
+            if path not in candidates:
+                candidates.append(path)
+    return candidates
+
+
+def _find_legacy_app_browser() -> Path | None:
+    for path in _legacy_browser_candidates():
+        try:
+            if path.is_file():
+                return path
+        except Exception:
+            continue
+    return None
+
+
+def _launch_legacy_app_window() -> bool:
+    global _legacy_shell_process
+    url = _current_url()
+    browser = _find_legacy_app_browser()
+    diag.log_event(
+        "win7_legacy_shell_probe",
+        version=__version__,
+        executable=str(sys.executable),
+        browser=str(browser or ""),
+        url=url,
+        argv=list(sys.argv),
+    )
+    if browser is None:
+        try:
+            ctypes.windll.user32.MessageBoxW(
+                None,
+                "O Windows 7 Legacy não encontrou Google Chrome/Chromium/Brave compatível para a janela dedicada.\n\n"
+                "A interface será aberta no navegador padrão, mantendo o PT2VHF APRS Client ativo na bandeja.",
+                APP_NAME,
+                0x30,
+            )
+        except Exception:
+            pass
+        diag.log_event("win7_legacy_shell_fallback_browser", reason="compatible_app_browser_not_found")
+        return bool(webbrowser.open(url, new=2))
+
+    profile_dir = db.DB_PATH.parent / "win7-shell-profile"
+    profile_dir.mkdir(parents=True, exist_ok=True)
+    args = [
+        str(browser),
+        f"--app={url}",
+        "--new-window",
+        "--disable-background-mode",
+        "--no-first-run",
+        "--disable-default-apps",
+        f"--user-data-dir={profile_dir}",
+    ]
+    try:
+        _legacy_shell_process = subprocess.Popen(
+            args,
+            close_fds=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        diag.log_event(
+            "win7_legacy_shell_started",
+            browser=str(browser),
+            pid=_legacy_shell_process.pid,
+            url=url,
+        )
+        time.sleep(0.8)
+        if _legacy_shell_process.poll() is not None:
+            raise RuntimeError(f"Shell encerrou imediatamente (exit={_legacy_shell_process.returncode}).")
+        return True
+    except Exception as exc:
+        diag.log_event("win7_legacy_shell_failed", browser=str(browser), error=str(exc), url=url)
+        try:
+            ctypes.windll.user32.MessageBoxW(
+                None,
+                "Não foi possível iniciar a janela dedicada do Windows 7 Legacy.\n\n"
+                "A interface será aberta no navegador padrão e o backend continuará ativo.\n\n"
+                f"Detalhes: {exc}",
+                APP_NAME,
+                0x30,
+            )
+        except Exception:
+            pass
+        return bool(webbrowser.open(url, new=2))
+
+
+def _run_legacy_app_shell(icon: pystray.Icon) -> int:
+    if not _launch_legacy_app_window():
+        diag.log_event("win7_legacy_shell_no_window", url=_current_url())
+    icon.run()
+    return 0
+
+
 def _run_browser_mode(icon: pystray.Icon) -> int:
     _open_browser()
     icon.run()
@@ -506,6 +621,9 @@ def main() -> int:
 
     if _browser_mode:
         return _run_browser_mode(_tray_icon)
+
+    if os.getenv("PT2VHF_WIN7_LEGACY") == "1":
+        return _run_legacy_app_shell(_tray_icon)
 
     return _run_embedded_window(_tray_icon)
 
