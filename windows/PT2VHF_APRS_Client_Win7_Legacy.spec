@@ -3,7 +3,7 @@ from pathlib import Path
 from PyInstaller.utils.hooks import collect_submodules
 
 ROOT = Path(SPECPATH).parent
-hiddenimports = collect_submodules("aprslib") + collect_submodules("webview") + ["clr"]
+hiddenimports = collect_submodules("aprslib")
 
 a = Analysis(
     [str(ROOT / "windows_legacy_app.py")],
@@ -19,7 +19,7 @@ a = Analysis(
     hiddenimports=hiddenimports,
     hookspath=[],
     runtime_hooks=[],
-    excludes=[],
+    excludes=["webview", "clr", "pythonnet"],
     noarchive=False,
 )
 
