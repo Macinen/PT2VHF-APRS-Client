@@ -151,7 +151,14 @@ def _make_tray_image() -> Image.Image:
     ]
     for logo in candidates:
         try:
-            return Image.open(logo).convert("RGBA").resize((64, 64), Image.Resampling.LANCZOS)
+            with Image.open(logo) as src:
+                if logo.suffix.lower() == ".ico" and hasattr(src, "ico"):
+                    sizes = src.ico.sizes()
+                    preferred = (32, 32) if (32, 32) in sizes else max(sizes)
+                    return src.ico.getimage(preferred).convert("RGBA").resize(
+                        (64, 64), Image.Resampling.LANCZOS
+                    )
+                return src.convert("RGBA").resize((64, 64), Image.Resampling.LANCZOS)
         except Exception:
             continue
     return Image.new("RGBA", (64, 64), (15, 23, 30, 255))

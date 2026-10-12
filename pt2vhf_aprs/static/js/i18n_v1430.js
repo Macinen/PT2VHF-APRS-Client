@@ -264,6 +264,33 @@
     "iGate（链路存在时保留）"
   ]
 };
+  // Traduções para o indicador de sessões Web da v1.14.33.
+  const webPresenceLabels = {
+    es: 'Web en uso:', fr: 'Web utilisée :', 'de-DE': 'Web in Benutzung:',
+    'it-IT': 'Web in uso:', 'ja-JP': 'Web使用中:',
+    'pl-PL': 'Web w użyciu:', 'nl-NL': 'Web in gebruik:',
+    'zh-CN': 'Web正在使用:'
+  };
+  const webPresenceTitles = {
+    es: 'La interfaz web está siendo utilizada desde otro dispositivo.',
+    fr: 'Interface Web utilisée depuis un autre appareil.',
+    'de-DE': 'Die Weboberfläche wird von einem anderen Gerät verwendet.',
+    'it-IT': 'Interfaccia Web in uso da un altro dispositivo.',
+    'ja-JP': '別のデバイスでWeb画面を使用しています。',
+    'pl-PL': 'Interfejs Web jest używany z innego urządzenia.',
+    'nl-NL': 'Webinterface wordt gebruikt vanaf een ander apparaat.',
+    'zh-CN': '另一个设备正在使用Web界面。'
+  };
+  Object.keys(webPresenceLabels).forEach(locale => {
+    window.PT2VHF_I18N[locale] = Object.assign(
+      window.PT2VHF_I18N[locale] || {},
+      {
+        'Web em uso:': webPresenceLabels[locale],
+        'Interface Web em uso por outro dispositivo.': webPresenceTitles[locale]
+      }
+    );
+  });
+
   for (const [locale, values] of Object.entries(translations)) {
     const patch = {};
     keys.forEach((key, i) => { patch[key] = values[i]; });
