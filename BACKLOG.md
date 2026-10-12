@@ -1,3 +1,18 @@
+## Pendente — Ícone Windows ampliado, APRS legível e identidade PT2VHF (issue #77)
+
+- **Relato do mantenedor em 12/10/2026:** os ícones usados no Windows parecem minúsculos tanto na Área de Trabalho quanto na barra de tarefas e na área de notificação (bandeja próxima ao relógio).
+- **Objetivo:** ícone com ocupação visual maior **dentro dos limites de tamanho impostos pelo próprio Windows**, contraste robusto, a palavra **APRS** em destaque e preservação da identidade visual do PT2VHF. Não modificar a logomarca do aplicativo na interface.
+- **Arte/resoluções:** projetar composições específicas para 16/24/32/48/64/128/256 px, evitando grandes margens transparentes e perda de legibilidade ao reduzir a imagem. Priorizar marca e texto APRS legíveis nos tamanhos pequenos; não simplesmente aumentar o canvas.
+- **Caminhos técnicos:** revisar `windows/make_icon.py`, `windows/aprs_taskbar_icon.png`, `windows_app.py::_make_tray_image`, `app_icon.ico`, todos os `*.spec` Windows e ícones de atalhos dos instaladores Inno Setup, abrangendo x64, ARM64 e Windows 7 Legacy.
+- **Aceite:** conferir visualmente, em máquinas reais, Área de Trabalho, barra de tarefas, bandeja, Alt+Tab e atalhos após instalar/atualizar; verificar transparência, cache de ícones, variações de DPI e ausência de regressão para Win7.
+- **Rastreamento:** [issue #77](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/77). **Ainda não implementado.**
+
+## Implementado — README GitHub com downloads diretos de todas as plataformas (12/10/2026)
+
+- A [página principal do projeto](https://github.com/alexpmr/PT2VHF-APRS-Client) voltou a mostrar, no topo, os links diretos de **todas** as opções publicadas na release v1.14.32: Windows x64/ARM64, Windows 7 Legacy, Linux x86_64/ARM64, macOS Intel/ARM64 e Manual PDF.
+- Os links foram comparados aos nomes reais dos 15 artefatos baixáveis da GitHub Release, evitando URLs antecipadas e o erro 404 da versão anterior.
+- Continuar privilegiando lista completa e visível de downloads no início do README nas releases futuras.
+
 ## Aberto — PRIORIDADE ALTA: Windows 11 não atualiza e falha ao iniciar após as versões recentes (PyInstaller _MEI / pythonnet .NET)
 
 - **Relato de campo em 12/10/2026:** usuário de **Windows 11** informou que, depois da penúltima atualização, não consegue mais concluir a atualização do PT2VHF APRS Client. Evidência fotográfica de **três erros distintos**. A versão exata de origem/destino e se a instalação é Portable ou Setup precisam ser confirmadas nos logs; não presumir sem prova.
