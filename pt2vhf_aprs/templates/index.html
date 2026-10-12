@@ -30,7 +30,7 @@
   </div>
   <div class="connection-box">
     <button id="headerSendBeaconButton" type="button" class="btn secondary beacon-icon-button" title="Enviar Beacon" aria-label="Enviar Beacon"><span aria-hidden="true">📡</span></button>
-    <button id="webAccessStatus" type="button" class="web-access-status" title="Copiar endereço Web" aria-label="Copiar endereço Web"><span id="webAccessLabel">Web local:</span> <strong id="webAccessUrl">detectando…</strong></button>
+    <button id="webAccessStatus" type="button" class="web-access-status" title="Abrir endereço Web no navegador" aria-label="Abrir endereço Web no navegador"><span id="webAccessLabel">Web local:</span> <strong id="webAccessUrl">detectando…</strong></button>\n    <button id="webAccessCopyButton" type="button" class="web-access-copy" title="Copiar endereço Web" aria-label="Copiar endereço Web">📋</button>
     <div id="languageQuickSwitch" class="language-quick-switch" aria-label="Idioma / Language">
       <button id="languageQuickCurrent" type="button" class="language-quick-current" aria-haspopup="menu" aria-expanded="false" title="Trocar idioma">
         <img id="languageQuickCurrentFlag" class="language-quick-img" src="{{ url_for('static', filename='img/flag_br.svg') }}" alt="Brasil">
@@ -1273,6 +1273,10 @@
           <div class="local-interface-info" title="Porta local escolhida automaticamente na inicialização">
             <strong>Interface local:</strong>
             <span id="localInterfaceStatus">detectando…</span>
+          </div>
+          <div class="lan-access-actions">
+            <button id="lanFirewallButton" type="button" class="btn secondary">Autorizar no Firewall do Windows</button>
+            <span id="lanAccessStatus" class="field-note">Diagnóstico LAN: aguardando…</span>
           </div>
         </div>
         <div class="appearance-grid">
