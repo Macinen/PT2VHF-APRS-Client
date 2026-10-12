@@ -1,3 +1,78 @@
+## Novo — Windows 7 Legacy v1.14.26: Portable fecha ao iniciar e Setup abre versão anterior
+
+### 1) Portable v1.14.26 inicia e fecha imediatamente
+
+- **Falha observada em Windows 7:** o executável `PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v1.14.26.exe` começa a carregar e encerra logo em seguida, sem manter a aplicação aberta.
+- Tratar como regressão crítica do runtime/shell desktop introduzida na v1.14.26.
+- Investigar prioritariamente:
+  - compatibilidade real do `pywebview 4.4.1` com Windows 7;
+  - compatibilidade do `pythonnet 3.0.3`/CLR/.NET disponível no sistema;
+  - renderer selecionado pelo `PT2VHF_WEBVIEW_GUI`;
+  - dependências nativas incluídas pelo PyInstaller;
+  - DLLs/runtime ausentes no Win7;
+  - exceções durante import de `webview`/`clr`;
+  - falha na criação da janela integrada;
+  - encerramento indevido do backend após falha da shell;
+  - comportamento do `console=False`, que pode ocultar a exceção real.
+- O build Legacy não deve depender de um renderer ou runtime que apenas funcione no runner do GitHub/Windows Server e falhe no Windows 7 real.
+- Adicionar um modo de diagnóstico que grave, antes de qualquer criação de janela:
+  - versão do Windows;
+  - arquitetura;
+  - versão Python embarcada;
+  - versão pywebview;
+  - versão pythonnet;
+  - runtime .NET/CLR detectado;
+  - renderer solicitado;
+  - renderer efetivamente iniciado;
+  - exceção completa/traceback.
+- Preservar o processo/backend em caso de falha da shell tempo suficiente para registrar diagnóstico e exibir mensagem compreensível ao usuário; não simplesmente encerrar.
+- Avaliar renderer alternativo realmente compatível com Windows 7 caso EdgeChromium/WebView2 não seja suportado nessa plataforma.
+- Se não existir shell embutida confiável em Win7 com o stack atual, priorizar uma solução desktop compatível de fato, em vez de manter uma dependência que só funciona no CI.
+
+### 2) Setup v1.14.26 abre uma versão anterior
+
+- **Falha observada:** após instalar a v1.14.26 pelo instalador Legacy, ao abrir o programa é iniciada uma versão anterior do PT2VHF APRS Client.
+- Tratar separadamente como falha de empacotamento/instalação/atalho.
+- Verificar:
+  - qual executável foi realmente incluído dentro do Setup;
+  - versão embutida no executável instalado;
+  - caminho de instalação utilizado pelo Inno Setup;
+  - coexistência de executáveis antigos no diretório;
+  - nome do executável instalado;
+  - destino do atalho do menu Iniciar/desktop;
+  - comportamento do `[Files]` com `DestName`;
+  - se o build do Setup está reutilizando um Portable antigo existente em `dist`;
+  - ordem do pipeline e possibilidade de artefato obsoleto ser empacotado.
+- O pipeline deve validar o executável **antes** de construir o Setup:
+  - executar/inspecionar a versão embutida;
+  - confirmar que corresponde exatamente à `VERSION`;
+  - confirmar hash/mtime do arquivo recém-gerado;
+  - impedir uso de artefato residual de build anterior.
+- Limpar explicitamente diretórios `dist`, `build` e `dist-win7` antes do build Legacy.
+- O instalador deve remover/substituir o executável anterior da instalação e nunca deixar dois binários concorrentes com atalhos diferentes.
+- O atalho deve apontar exatamente para o executável v1.14.26 instalado no diretório Legacy.
+- Após a instalação, a própria aplicação deve reportar a mesma versão do instalador.
+
+### Testes obrigatórios
+
+- Teste real em Windows 7 SP1 x64 para o Portable:
+  - abrir;
+  - manter processo ativo;
+  - exibir janela;
+  - backend permanecer funcional;
+  - nenhuma saída prematura.
+- Teste real em Windows 7 SP1 x64 para o Setup:
+  - instalar sobre versão anterior;
+  - abrir pelo atalho;
+  - confirmar versão exibida = versão recém-instalada;
+  - confirmar caminho do executável;
+  - confirmar ausência de binário antigo sendo lançado.
+- Adicionar smoke test de empacotamento que falhe se:
+  - o executável Legacy produzido não contiver a versão corrente;
+  - o Setup incluir binário de versão diferente;
+  - o atalho apontar para nome/caminho diferente do executável recém-gerado.
+- **Critério de aceite:** no Windows 7 real, tanto o Portable quanto o Setup da próxima release devem abrir e permanecer em execução. O Setup deve iniciar exatamente a versão recém-instalada, nunca uma versão anterior.
+
 ## Implementado na v1.14.26 — Windows 7 Legacy Setup: ao abrir, inicia o navegador em vez da aplicação desktop
 
 - **Falha observada:** na versão **Windows 7 Legacy instalada (Setup)**, ao iniciar o PT2VHF APRS Client o executável abre o navegador com a interface Web em vez de abrir a aplicação desktop propriamente dita.
