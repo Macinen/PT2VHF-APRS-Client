@@ -3,6 +3,17 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.26": {
+        "title": "Win7 desktop, updater Legacy e Web LAN operacional",
+        "items": [
+            "Windows 7 Legacy deixa de forçar modo browser e volta a iniciar como aplicação desktop, com shell WebView empacotada.",
+            "Setup e Portable Win7 Legacy passam a usar o canal de atualização integrado com assets Legacy exclusivos, backup/rollback e relançamento automático.",
+            "O Portable atualiza o próprio executável em uso, preservando nome/caminho e atalhos.",
+            "Web LAN passa a publicar o IPv4 real da interface, abrir o URL no navegador padrão ao clicar e manter ação separada para copiar.",
+            "Diagnóstico de LAN informa bind, porta em escuta e estado de firewall; no Windows há autorização explícita para regra TCP no perfil Privado.",
+            "Novos textos de LAN/firewall são cobertos pelos dez idiomas suportados.",
+        ],
+    },
     "1.14.25": {
         "title": "Windows 7 Legacy, Web LAN e interface mais consistente",
         "items": [
