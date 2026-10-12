@@ -5644,7 +5644,7 @@
   }
 
   function updateWebAccessStatus(localInfo = {}) {
-    const reportedScope = String(localInfo.scope || 'local') === 'lan' ? 'lan' : 'local';
+    const scope = String(localInfo.scope || 'local') === 'lan' ? 'lan' : 'local';
     const lanHost = String(localInfo.lan_ip || localInfo.lan_host || '').trim();
     const displayHost = String(localInfo.display_host || '').trim();
     const localHost = String(localInfo.host || '').trim();
@@ -5652,16 +5652,15 @@
 
     // A URL compartilhável do backend é autoritativa no modo LAN. Nunca
     // substituí-la por 127.0.0.1 quando há um IPv4 LAN concreto publicado.
-    let shareUrl = String(localInfo.share_url || '').trim();
-    let scope = reportedScope;
-    if (reportedScope === 'lan' && lanHost && localPort) {
+    let shareUrl = String(localInfo.display_url || localInfo.share_url || '').trim();
+    if (lanHost && localPort) {
       shareUrl = `http://${lanHost}:${localPort}`;
     } else if (!shareUrl) {
       const host = displayHost || localHost;
       shareUrl = host && localPort ? `http://${host}:${localPort}` : '';
     }
-    if (reportedScope === 'lan' && /\/\/(?:127\.|0\.0\.0\.0(?::|\/|$))/i.test(shareUrl)) {
-      shareUrl = lanHost && localPort ? `http://${lanHost}:${localPort}` : '';
+    if (lanHost && localPort && /\/\/(?:127\.|0\.0\.0\.0(?::|\/|$))/i.test(shareUrl)) {
+      shareUrl = `http://${lanHost}:${localPort}`;
     }
 
     const compact = shareUrl.replace(/^https?:\/\//i, '');
@@ -5680,7 +5679,7 @@
           : ui('Endereço Web local da aplicação', 'Local web address of the application'))
         : '';
     }
-    if (label) label.textContent = scope === 'lan' ? ui('Web LAN:', 'Web LAN:') : ui('Web local:', 'Local web:');
+    if (label) label.textContent = scope === 'lan' ? ui('Web LAN:', 'Web LAN:') : (lanHost ? ui('Web:', 'Web:') : ui('Web local:', 'Local web:'));
     if (value) value.textContent = compact || ui('indisponível', 'unavailable');
 
     const access = localInfo.access || {};
