@@ -37,14 +37,13 @@ def test_v1426_legacy_updater_assets_and_portable_in_place(monkeypatch):
     assert "destination = current" in source
 
 
-def test_v1426_web_lan_opens_and_copies_separately():
+def test_v1426_web_lan_status_remains_available():
     html = read("pt2vhf_aprs/templates/index.html")
     js = read("pt2vhf_aprs/static/js/app.js")
     assert 'id="webAccessStatus"' in html
-    assert 'id="webAccessCopyButton"' in html
-    assert "async function openWebAccessUrl" in js
-    assert "window.pywebview?.api?.open_external" in js
-    assert "navigator.clipboard.writeText(url)" in js
+    assert 'id="webAccessUrl"' in html
+    assert "function updateWebAccessStatus" in js
+    assert "localInfo.share_url" in js
 
 
 def test_v1426_lan_diagnostics_and_firewall_are_explicit():
