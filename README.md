@@ -1,46 +1,47 @@
-# PT2VHF APRS Client - v1.14.29
+# PT2VHF APRS Client - v1.14.30
 
 Cliente APRS-IS multiplataforma para **Windows, Linux e macOS**, com mapa, mensagens, estações, tracklogs, topologia observada, Log TNC2, banco SQLite local e atualização integrada.
 
-A **v1.14.29** corrige definitivamente a identificação de rede no cabeçalho: o IPv4 LAN real é detectado e exibido mesmo quando o backend interno continua usando `127.0.0.1`.
+A **v1.14.30** acrescenta retenção configurável para controlar o tamanho do SQLite e preservar enlaces históricos; melhora o diagnóstico de acessibilidade Web LAN e o relançamento após atualização do Win7 Legacy Portable.
 
 ## Downloads da versão mais recente
 
-Os arquivos abaixo apontam diretamente para a **release v1.14.29**.
+Os arquivos abaixo apontam diretamente para a **release v1.14.30**.
 
 ### Windows
-- [Windows x64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_Setup_x64_v1.14.29.exe)
-- [Windows x64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_Portable_x64_v1.14.29.exe)
-- [Windows ARM64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_Setup_ARM64_v1.14.29.exe)
-- [Windows ARM64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_Portable_ARM64_v1.14.29.exe)
-- [Windows 7 SP1 x64 — Instalador Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v1.14.29.exe)
-- [Windows 7 SP1 x64 — Portable Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v1.14.29.exe)
+- [Windows x64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_Setup_x64_v1.14.30.exe)
+- [Windows x64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_Portable_x64_v1.14.30.exe)
+- [Windows ARM64 — Instalador](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_Setup_ARM64_v1.14.30.exe)
+- [Windows ARM64 — Portable](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_Portable_ARM64_v1.14.30.exe)
+- [Windows 7 SP1 x64 — Instalador Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v1.14.30.exe)
+- [Windows 7 SP1 x64 — Portable Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v1.14.30.exe)
 
 > O build Windows 7 Legacy usa runtime separado e apresenta a interface em janela dedicada de Chrome/Chromium/Brave em modo app quando disponível. Sem navegador compatível, usa fallback para o navegador padrão sem encerrar o backend. Consulte [docs/WINDOWS7.md](docs/WINDOWS7.md).
 
 ### Linux
-- [Linux x86_64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_x86_64_v1.14.29.AppImage)
-- [Linux x86_64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/pt2vhf-aprs-client_1.14.29_amd64.deb)
-- [Linux x86_64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_Linux_x86_64_v1.14.29.tar.gz)
-- [Linux ARM64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_arm64_v1.14.29.AppImage)
-- [Linux ARM64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/pt2vhf-aprs-client_1.14.29_arm64.deb)
-- [Linux ARM64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_Linux_arm64_v1.14.29.tar.gz)
+- [Linux x86_64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_x86_64_v1.14.30.AppImage)
+- [Linux x86_64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/pt2vhf-aprs-client_1.14.30_amd64.deb)
+- [Linux x86_64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_Linux_x86_64_v1.14.30.tar.gz)
+- [Linux ARM64 — AppImage](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_arm64_v1.14.30.AppImage)
+- [Linux ARM64 — DEB](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/pt2vhf-aprs-client_1.14.30_arm64.deb)
+- [Linux ARM64 — TAR.GZ](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_Linux_arm64_v1.14.30.tar.gz)
 
 ### macOS
-- [macOS — Apple Silicon](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_macOS_arm64_v1.14.29.dmg)
-- [macOS — Intel](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_macOS_x86_64_v1.14.29.dmg)
+- [macOS — Apple Silicon](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_macOS_arm64_v1.14.30.dmg)
+- [macOS — Intel](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_macOS_x86_64_v1.14.30.dmg)
 
 ### Documentação
-- [Manual PDF](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.29/PT2VHF_APRS_Client_Manual_v1.14.29.pdf)
+- [Manual PDF](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.30/PT2VHF_APRS_Client_Manual_v1.14.30.pdf)
 - [Notas da versão mais recente](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/latest)
 
-## Novidades da v1.14.29
+## Novidades da v1.14.30
 
-- **IP LAN real:** detectado independentemente do bind interno.
-- **Cabeçalho:** exibe o IPv4 real da máquina sempre que disponível.
-- **display_url:** separado de `share_url` para não confundir identidade de rede com acessibilidade LAN.
-- **Sem regressão:** permanecem removidos o botão de copiar e o `\\n` literal.
-- **Produção:** Windows x64/ARM64, Win7 Legacy x64, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
+- **Retenção por categoria:** políticas para estações, digis, iGates, enlaces, objetos, posições, mensagens, boletins, grupos e logs; períodos de 24 horas a 1 ano, ou Permanente.
+- **SQLite:** manutenção automática opcional e em pequenos lotes, com tamanho atual do banco e aplicação manual sob confirmação.
+- **Enlaces:** independentes dos nós; RF permanente por padrão, mesmo quando a estação expira.
+- **Web LAN:** diagnóstico pelo IPv4 real, status de reinício pendente e verificação de firewall/porta. Habilitar LAN em Configuração e reiniciar para permitir outro dispositivo da rede.
+- **Win7 Portable:** saída `exit=0` do Chrome/Chromium em modo app não gera alerta falso ou fallback duplicado.
+- **Plataformas:** Windows x64/ARM64, Win7 Legacy, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
 
 ## Novidades da v1.14.18
 
