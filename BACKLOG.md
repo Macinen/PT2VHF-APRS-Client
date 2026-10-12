@@ -1,3 +1,39 @@
+## Novo — Cabeçalho continua em 127.0.0.1: detectar IP LAN independentemente do bind
+
+- **Falha confirmada após a v1.14.28:** o cabeçalho continua mostrando `127.0.0.1` em vez do IPv4 real da máquina na rede, por exemplo `192.168.x.x`.
+- **Causa estrutural identificada:** atualmente `LocalServerHandle.lan_host` só chama `detect_lan_ipv4()` quando o servidor está ligado a `0.0.0.0`/modo LAN. Quando o bind está em `127.0.0.1`, `lan_host` fica vazio, `scope` permanece `local` e o frontend recebe apenas o loopback.
+- Separar definitivamente dois conceitos:
+  1. **endereço de bind** — onde o servidor está escutando;
+  2. **endereço do host na LAN** — IPv4 real da máquina, que deve ser detectado independentemente do bind.
+- `detect_lan_ipv4()` deve ser executado/publicado mesmo quando o servidor estiver restrito a localhost.
+- O runtime deve sempre publicar, quando disponível:
+  - `host`: endereço usado para acesso local interno;
+  - `bind_host`: endereço real de bind do servidor;
+  - `lan_ip`: IPv4 real da máquina na LAN, mesmo se o bind atual for `127.0.0.1`;
+  - `display_host`: preferencialmente `lan_ip` quando houver;
+  - `url`: URL local interna;
+  - `share_url`: URL LAN somente quando o servidor estiver realmente acessível pela LAN;
+  - `scope`: refletir acessibilidade (`local` ou `lan`), não a capacidade de detectar o IP.
+- O cabeçalho deve mostrar o **IPv4 real da máquina** quando ele existir, independentemente de `scope`.
+- Exemplo:
+  - bind local: `127.0.0.1:8080`;
+  - IP real da máquina: `192.168.10.2`;
+  - cabeçalho: **`Web: 192.168.10.2:8080`**.
+- Se o servidor ainda estiver restrito a localhost, o diagnóstico/configuração deve deixar claro que o endereço foi detectado, mas o acesso LAN ainda não está habilitado; não usar `127.0.0.1` como identidade de rede do host.
+- Se `web_lan_enabled=1`, usar o mesmo `lan_ip` detectado para `share_url` e acessibilidade LAN.
+- Em instalações existentes, não depender de recriar o banco/configuração para que o IP real seja detectado.
+- Adicionar teste cobrindo explicitamente:
+  - bind `127.0.0.1`;
+  - `detect_lan_ipv4() -> 192.168.10.2`;
+  - runtime com `lan_ip=192.168.10.2`;
+  - cabeçalho exibindo `192.168.10.2:8080`, mesmo com `scope=local`.
+- Adicionar teste adicional:
+  - bind `0.0.0.0`;
+  - `lan_ip=192.168.10.2`;
+  - `scope=lan`;
+  - `share_url=http://192.168.10.2:8080`.
+- **Critério de aceite:** em qualquer máquina com IPv4 LAN válido, o cabeçalho não deve usar `127.0.0.1` como endereço principal. O loopback pode continuar sendo usado internamente para a janela local, mas o usuário deve ver o IPv4 real do host.
+
 ## Implementado na v1.14.28 — Cabeçalho Web: mostrar IP LAN real, sem botão de copiar e sem `\n` literal
 
 ### 1) Endereço exibido continua incorreto
