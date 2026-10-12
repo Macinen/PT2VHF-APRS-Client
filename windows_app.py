@@ -620,6 +620,9 @@ def main() -> int:
         return 2
 
     diag.start_watchdog(URL)
+    if os.getenv("PT2VHF_WIN7_LEGACY") == "1":
+        diag.start_legacy_window_diagnostics()
+
 
     if not _browser_mode:
         try:
