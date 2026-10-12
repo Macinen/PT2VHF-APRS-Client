@@ -1,3 +1,68 @@
+## Novo — Web LAN: acesso à interface por outra máquina da rede não funciona
+
+- **Falha confirmada:** mesmo quando o aplicativo identifica/exibe o IPv4 da máquina host, outra máquina na mesma rede local não consegue acessar a interface Web do PT2VHF APRS Client.
+- Tratar como falha funcional de **bind/acessibilidade LAN**, não apenas de exibição do endereço.
+- Revisar o ciclo completo do modo Web LAN:
+  - leitura/persistência de `web_lan_enabled`;
+  - necessidade de reinício após alteração;
+  - seleção de `server_host`;
+  - bind efetivo do servidor Waitress/Werkzeug;
+  - porta efetivamente utilizada;
+  - regra do Windows Defender Firewall;
+  - escopo/perfil de rede do Windows;
+  - URL publicada no runtime;
+  - diagnóstico de porta em escuta;
+  - acesso a partir de outro host da mesma sub-rede.
+- Quando **Permitir acesso Web pela rede local (LAN)** estiver habilitado:
+  - o backend deve fazer bind em `0.0.0.0` ou na interface LAN apropriada;
+  - não pode permanecer preso a `127.0.0.1`;
+  - `scope` deve ser `lan`;
+  - `share_url` deve usar o IPv4 LAN real;
+  - a porta deve estar em escuta em endereço acessível externamente.
+- Confirmar o bind real usando inspeção do socket/servidor, e não apenas a configuração desejada.
+- Adicionar ao diagnóstico:
+  - `configured_web_lan_enabled`;
+  - `requested_bind_host`;
+  - `actual_bind_host`;
+  - `lan_ip`;
+  - `port`;
+  - `scope`;
+  - `share_url`;
+  - estado da porta em escuta;
+  - regra de firewall correspondente;
+  - perfil de rede Windows atual (Privado/Público/Domínio), quando detectável.
+- Em Windows, revisar a regra criada pelo botão de firewall:
+  - entrada TCP;
+  - porta efetivamente em uso;
+  - executável correto da edição atual;
+  - perfil Privado;
+  - compatibilidade com Setup e Portable;
+  - compatibilidade com Win7 Legacy;
+  - regra antiga não pode apontar para binário/caminho de versão anterior.
+- Se a porta mudar por fallback automático, a regra de firewall deve refletir a porta real.
+- O aplicativo deve informar claramente:
+  - **Acessível na LAN**;
+  - **Servidor restrito a localhost**;
+  - **Firewall sem regra/possivelmente bloqueado**;
+  - **Perfil de rede incompatível**;
+  - **Porta não está em escuta**;
+  - **Não foi possível confirmar externamente**.
+- Não considerar como sucesso apenas conseguir conectar em `127.0.0.1` a partir da própria máquina.
+- Adicionar teste local que verifique que, em modo LAN, o servidor aceita conexão pelo IPv4 LAN detectado e não apenas pelo loopback.
+- Adicionar teste de regressão para:
+  - `web_lan_enabled=0` → bind localhost;
+  - `web_lan_enabled=1` → bind LAN;
+  - porta fallback mantendo URL/regra corretas;
+  - Setup Windows;
+  - Portable Windows;
+  - Win7 Legacy Setup;
+  - Win7 Legacy Portable.
+- Adicionar um teste/diagnóstico de conectividade orientado ao usuário:
+  - exibir a URL a testar em outro dispositivo;
+  - informar se o servidor está corretamente configurado para aceitar LAN;
+  - não afirmar que está acessível apenas porque o IP foi detectado.
+- **Critério de aceite:** com duas máquinas na mesma rede, ao habilitar **Permitir acesso Web pela rede local (LAN)** e reiniciar a aplicação, a segunda máquina deve conseguir abrir `http://<IP-LAN-do-host>:<porta>` e utilizar a interface Web normalmente, sem depender de `127.0.0.1` e sem desabilitar o firewall do sistema.
+
 ## Novo — Win7 Legacy Portable: atualização conclui, mas relançamento da janela falha após update
 
 - **Falha confirmada em Windows 7 Portable após atualização integrada:** o aplicativo informa que a atualização foi concluída, por exemplo **v1.14.28 → v1.14.29**, mas durante o relançamento aparece a mensagem:
