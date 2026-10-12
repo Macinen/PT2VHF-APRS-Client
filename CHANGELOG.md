@@ -1,5 +1,6 @@
 ## 1.14.33 - 2026-10-12
 
+- Configuração: restaurado o controle visível para silenciar ou reativar avisos de estação nova (station_appeared), preservando salvamento imediato no backend.
 - Windows: ícone multirresolução APRS com lettering grande e contraste, incluindo bandeja de notificação e atalhos.
 - Web: abertura do navegador pelo IP da rede local e porta efetiva quando LAN está ativa e acessível; fallback seguro em localhost.
 - Novas instalações: acesso Web LAN habilitado por padrão; opção de abrir uma aba adicional no navegador permanece desligada. Preferências já gravadas preservadas.

@@ -6,6 +6,7 @@ VERSION_NOTES: dict[str, dict[str, Any]] = {
     "1.14.33": {
         "title": "APRS maior, Web LAN pronta e indicação de presença remota",
         "items": [
+            "Opção de silenciar alerta de nova estação restaurada na grade da aba Configuração, com preferência persistente.",
             "Ícone APRS redesenhado em diversos tamanhos: Desktop, barra de tarefas e bandeja do Windows; identidade visual azul/âmbar preservada.",
             "Ao abrir a interface Web manualmente, o navegador prefere IP LAN real e porta efetiva quando acessíveis; usa localhost como fallback.",
             "Novas instalações: Web LAN ligada por padrão e navegador adicional ao iniciar desligado, preservando configurações já existentes.",

@@ -1,3 +1,11 @@
+## Restaurado na v1.14.33 — Configuração: silenciar aviso de estação nova (issue #81)
+
+- **Regressão relatada em 12/10/2026:** sumiu da aba Configuração a opção para silenciar o aviso quando uma nova estação é recebida ou reaparece.
+- **Causa encontrada:** o checkbox `station_appeared` ainda existia em `pt2vhf_aprs/static/js/v190.js`, mas seu cartão dinâmico “Backup completo, grupos e alertas” era anexado fora de `#configForm`, após o rodapé Salvar configuração; dificultava a localização.
+- **Correção no código-fonte:** recolocar o cartão na grade principal de Configuração, antes de “Retenção e tamanho do banco”, com título **Alertas e notificações de estações** e instrução “Desmarque Estação apareceu para silenciar os avisos de novas estações”. Preservar `station_appeared` e o salvamento imediato/persistente via `/api/v190/alerts/settings`.
+- **Teste pendente de validação física:** abrir Configuração nas edições Windows 7/11, desmarcar e confirmar que não aparecem alertas de estação nova/reentrada; reiniciar e validar estado persistido. Sem interferir nos demais alertas.
+- **Rastreamento:** [issue #81](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/81). Implementado no código da versão em preparação; manter aberta até conclusão dos testes e publicação.
+
 ## Pendente — IP LAN maior no cabeçalho e destaque laranja/preto enquanto houver usuários Web remotos ativos (issue #80)
 
 - **Solicitação do mantenedor em 12/10/2026:** ampliar moderadamente o IP e a porta do endereço Web no cabeçalho, tornando-os mais visíveis; destacar o mesmo bloco com **fundo laranja e letras pretas quando houver alguém utilizando a interface Web pela rede**.
