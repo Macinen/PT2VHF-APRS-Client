@@ -28,9 +28,24 @@
 
 > **v1.14.30 — implementação e validação:** adicionada verificação do socket no IP LAN real e detecção de reinício pendente, além de correção do handoff `exit=0` do Chromium. Os testes automatizados e o empacotamento não substituem o teste em duas máquinas na mesma rede nem uma atualização física do Win7 Portable.
 
-## Em validação na v1.14.30 — Web LAN: teste em outra máquina da rede
+## Reaberto — Web LAN não acessível em Windows 11 e Windows 7, mesmo habilitado
 
 - **Falha confirmada:** mesmo quando o aplicativo identifica/exibe o IPv4 da máquina host, outra máquina na mesma rede local não consegue acessar a interface Web do PT2VHF APRS Client.
+- **Novo relato (Windows 11 e Windows 7):** o acesso/compartilhamento da interface Web continua **sem funcionar em ambas as versões do Windows, mesmo com a opção habilitada**. Tratar como bug multiplataforma Windows ainda **não corrigido**; o diagnóstico de bind introduzido na v1.14.30 não constitui prova de acesso remoto efetivo.
+- **Escopo:** Windows 11 Setup/Portable x64 e Windows 7 Legacy Setup/Portable x64; confirmar também ARM64 Windows quando viável. Reproduzir em duas máquinas distintas na mesma LAN real, por cabo e/ou Wi-Fi, sem pressupor que a opção de compartilhamento aplica o bind antes de reiniciar.
+- **Investigação discriminante** (registrar resultados e erro de conexão):
+  1. Confirmar `web_lan_enabled=1` salvo em `/api/config` e reiniciar completamente o PT2VHF, encerrando também a instância da bandeja.
+  2. Confirmar `bind_host=0.0.0.0` e `scope=lan` no runtime de `/api/status` após o reinício. `lan_ip` exibido não comprova bind LAN.
+  3. Na máquina host, testar tanto `http://127.0.0.1:<porta>` quanto `http://<IPv4-LAN>:<porta>`; distinguir conexão recusada, timeout, erro HTTP ou página carregada parcialmente.
+  4. Na segunda máquina, testar exatamente `http://<IPv4-LAN-do-host>:<porta-efetiva>` (incluindo porta de fallback) e registrar resultado; conferir que ambos os computadores estão na mesma rede e não há isolamento de clientes/AP isolation.
+  5. Confirmar socket TCP com `netstat -ano` no Windows 7/11 e correlacionar `LISTENING`, endereço local, PID, executável e porta. Não declarar LAN disponível a partir de mera detecção de IPv4.
+  6. Verificar regras de entrada do Windows Firewall, perfil de rede ativo (Privado/Público/Domínio), porta real e edição Portable/Setup. Detectar regras antigas apontando para executáveis anteriores e permitir correção com consentimento/UAC.
+  7. Conferir escolha do IPv4 correto com interfaces múltiplas (Wi-Fi, Ethernet, VPN, adaptadores virtuais, IPv4 APIPA) e publicar apenas um endereço realmente compartilhável. Em modo localhost, não apresentar o IP informativo como URL acessível de outra máquina.
+  8. Verificar se a regra de firewall está de fato instalada/ativa; solicitação de UAC não equivale a sucesso de instalação da regra.
+- **Experiência de usuário:** após habilitar a opção e salvar, informar claramente que é necessário reiniciar (ou oferecer reinício controlado). Depois de iniciar, exibir **URL real para outro dispositivo**, estado de bind, estado do firewall e instruções objetivas de teste remoto. Se o servidor estiver somente em localhost, mostrar **Não compartilhável** em vez de divulgar um endereço LAN como funcional.
+- **Segurança obrigatória:** Web LAN desligada por padrão; não abrir porta no roteador/Internet nem desabilitar firewall. Revisar autenticação/autorização e proteção de endpoints que expõem configurações, passcode APRS-IS e ações de TX antes de afirmar que o compartilhamento está seguro; acesso remoto não pode implicar controle irrestrito da estação sem proteção.
+- **Testes de regressão:** comportamento localhost desabilitado, LAN habilitada após reinício, retenção do estado entre versões, portas alternativas, múltiplos adaptadores IPv4, firewall negado/autorizado, Windows 11 e Win7 Portable/Setup, conexão real de segundo dispositivo e confirmação da interface completa (HTML, JS, API e WebSocket, se houver).
+- **Critério de aceite reforçado:** em Windows 11 **e** Windows 7, com acesso LAN ligado e servidor reiniciado, outro computador da mesma rede deve abrir e utilizar a interface Web pelo IP/porta efetivos sem desativar o firewall; com acesso desligado, somente o próprio host pode acessar a interface. Registrar evidência e logs dos dois sistemas.
 - Tratar como falha funcional de **bind/acessibilidade LAN**, não apenas de exibição do endereço.
 - Revisar o ciclo completo do modo Web LAN:
   - leitura/persistência de `web_lan_enabled`;
