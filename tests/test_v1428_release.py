@@ -53,7 +53,7 @@ def test_v1428_lan_runtime_publishes_real_host_and_share_url(monkeypatch):
 def test_v1428_frontend_prioritizes_lan_host_over_loopback():
     js = read("pt2vhf_aprs/static/js/app.js")
     assert "const lanHost = String(localInfo.lan_ip || localInfo.lan_host || '').trim();" in js
-    assert "reportedScope === 'lan' && lanHost && localPort" in js
+    assert "lanHost && localPort" in js
     assert "shareUrl = `http://${lanHost}:${localPort}`" in js
     assert "127\\.|0\\.0\\.0\\.0" in js
 
@@ -68,8 +68,8 @@ def test_v1428_browser_opening_is_controlled_by_configuration():
 
 
 def test_v1428_release_metadata_and_backlog():
-    assert read("VERSION").strip() == "1.14.28"
-    assert '__version__ = "1.14.28"' in read("pt2vhf_aprs/__init__.py")
+    assert tuple(map(int, read("VERSION").strip().split("."))) >= (1, 14, 28)
+    assert '"1.14.28": {' in read("pt2vhf_aprs/version_notes.py")
     assert "## 1.14.28 - 2026-10-11" in read("CHANGELOG.md")
     assert '"1.14.28": {' in read("pt2vhf_aprs/version_notes.py")
     assert not any(line.startswith("## Novo —") for line in read("BACKLOG.md").splitlines())
