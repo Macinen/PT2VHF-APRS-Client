@@ -31,7 +31,7 @@ def tcp_listening(port: Any, host: str = "127.0.0.1") -> bool:
         return False
 
 
-def windows_firewall_rule_exists() -> bool | None:
+def windows_firewall_rule_exists(port: int | None = None) -> bool | None:
     if os.name != "nt":
         return None
     try:
@@ -42,7 +42,15 @@ def windows_firewall_rule_exists() -> bool | None:
             timeout=8,
             check=False,
         )
-        return result.returncode == 0
+        if result.returncode != 0:
+            return False
+        output = result.stdout.lower()
+        # "show rule" can return success for a stale rule from an older build.
+        if port is not None and str(_valid_port(port)) not in output:
+            return False
+        if str(Path(sys.executable).resolve()).lower() not in output:
+            return False
+        return True
     except Exception:
         return None
 
@@ -100,7 +108,7 @@ def lan_diagnostics(runtime: dict[str, Any],
     lan_ip = str(runtime.get("lan_ip") or "")
     listening_local = tcp_listening(port) if port else False
     listening_lan = tcp_listening(port, lan_ip) if port and lan_ip else False
-    firewall = windows_firewall_rule_exists() if scope == "lan" else None
+    firewall = windows_firewall_rule_exists(port) if scope == "lan" and port else None
     expected_lan = bool(configured_enabled) if configured_enabled is not None else (scope == "lan")
     mismatch = expected_lan != (scope == "lan")
 
