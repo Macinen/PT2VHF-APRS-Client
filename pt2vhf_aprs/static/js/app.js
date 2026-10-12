@@ -5661,23 +5661,67 @@
       header.dataset.url = shareUrl;
       header.disabled = !shareUrl;
       header.title = scope === 'lan'
-        ? ui('Copiar endereço para acesso por outro dispositivo da rede local', 'Copy address for access from another device on the LAN')
-        : ui('Copiar endereço Web local', 'Copy local web address');
+        ? ui('Abrir endereço LAN no navegador padrão', 'Open LAN address in the default browser')
+        : ui('Abrir endereço Web local no navegador padrão', 'Open local web address in the default browser');
+    }
+    const copyButton = $('#webAccessCopyButton');
+    if (copyButton) {
+      copyButton.dataset.url = shareUrl;
+      copyButton.disabled = !shareUrl;
     }
     if (label) label.textContent = scope === 'lan' ? ui('Web LAN:', 'Web LAN:') : ui('Web local:', 'Local web:');
     if (value) value.textContent = compact || ui('indisponível', 'unavailable');
-    return { scope, shareUrl, compact };
+
+    const access = localInfo.access || {};
+    const accessStatus = $('#lanAccessStatus');
+    if (accessStatus) accessStatus.textContent = access.message || ui('Diagnóstico LAN indisponível.', 'LAN diagnostics unavailable.');
+    const firewallButton = $('#lanFirewallButton');
+    if (firewallButton) firewallButton.disabled = scope !== 'lan';
+    return { scope, shareUrl, compact, access };
+  }
+
+  async function openWebAccessUrl(url) {
+    if (!url) return false;
+    try {
+      if (window.pywebview?.api?.open_external) {
+        return !!(await window.pywebview.api.open_external(url));
+      }
+    } catch (_) {}
+    const opened = window.open(url, '_blank', 'noopener,noreferrer');
+    return !!opened;
   }
 
   $('#webAccessStatus')?.addEventListener('click', async event => {
-    const button = event.currentTarget;
-    const url = String(button?.dataset?.url || '');
+    const url = String(event.currentTarget?.dataset?.url || '');
+    if (!url) return;
+    const ok = await openWebAccessUrl(url);
+    if (!ok) toast(ui('Não foi possível abrir o navegador.', 'Could not open the browser.'), 'error');
+  });
+
+  $('#webAccessCopyButton')?.addEventListener('click', async event => {
+    const url = String(event.currentTarget?.dataset?.url || '');
     if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
       toast(ui('Endereço Web copiado.', 'Web address copied.'), 'ok');
     } catch (_) {
       window.prompt(ui('Copie o endereço Web:', 'Copy the web address:'), url);
+    }
+  });
+
+  $('#lanFirewallButton')?.addEventListener('click', async () => {
+    if (!window.confirm(ui(
+      'Autorizar o PT2VHF APRS Client no Windows Firewall para a rede Privada? O Windows solicitará confirmação de administrador.',
+      'Allow PT2VHF APRS Client through Windows Firewall on the Private network? Windows will request administrator approval.'
+    ))) return;
+    try {
+      const result = await api('/api/local-interface/firewall/allow', { method: 'POST' });
+      toast(result?.requested
+        ? ui('Solicitação enviada ao Windows. Confirme a janela do UAC.', 'Request sent to Windows. Confirm the UAC prompt.')
+        : ui('Regra de firewall processada.', 'Firewall rule processed.'), 'ok');
+      setTimeout(() => { void refreshStatus(); }, 1800);
+    } catch (err) {
+      toast(String(err?.message || err || ui('Falha ao configurar firewall.', 'Failed to configure firewall.')), 'error');
     }
   });
 
