@@ -108,23 +108,43 @@ def _delete_batch(conn, category: str, days: int, limit: int) -> int:
     if days == 0:
         return 0
     cutoff = _cutoff(days)
-    # Para digi/iGate, excluir somente os nós com papel comprovado e não
-    # protegidos por outra categoria permanente. Nunca adivinhar papel por
-    # participação genérica em RF.
-    if category in ("digis", "igates"):
-        return 0
-    if category == "stations":
-        # Preserva nós referenciados por enlaces, para manter apresentação
-        # histórica mesmo sob limpeza agressiva. Enlaces são independentes.
-        sql = """DELETE FROM stations WHERE rowid IN
-            (SELECT s.rowid FROM stations s
-             WHERE s.last_heard < ?
-               AND NOT EXISTS (SELECT 1 FROM topology_edges e
-                               WHERE e.source=s.callsign OR e.target=s.callsign
-                                  OR e.igate=s.callsign)
-             ORDER BY s.last_heard LIMIT ?)"""
-        args = (cutoff, limit)
-    elif category in ("rf_links", "internet_links"):
+    if category in ("stations", "digis", "igates"):
+        # Classificação coerente com o ranking de infraestrutura: pacote
+        # próprio e evidência observada na topologia, não um WIDE genérico.
+        candidates = conn.execute(
+            """SELECT rowid,callsign,raw,info,symbol FROM stations
+               WHERE last_heard < ? ORDER BY last_heard LIMIT ?""",
+            (cutoff, min(2000, limit * 10)),
+        ).fetchall()
+        selected: list[int] = []
+        for row in candidates:
+            call = str(row["callsign"] or "").upper().strip()
+            meta = db.aprs_map_device_metadata(
+                str(row["raw"] or ""), str(row["info"] or ""),
+                str(row["symbol"] or ""))
+            role = str(meta.get("map_role") or "").lower()
+            if role not in {"digi", "igate"}:
+                is_igate = conn.execute(
+                    "SELECT 1 FROM topology_edges WHERE igate=? LIMIT 1",
+                    (call,)).fetchone() is not None
+                is_digi = conn.execute(
+                    """SELECT 1 FROM topology_edges WHERE kind='rf'
+                       AND target=? AND igate IS NULL LIMIT 1""",
+                    (call,)).fetchone() is not None
+                role = "igate" if is_igate else ("digi" if is_digi else "station")
+            classified = {"station":"stations", "digi":"digis",
+                          "igate":"igates"}[role if role in {"digi", "igate"} else "station"]
+            if classified == category:
+                selected.append(int(row["rowid"]))
+                if len(selected) >= limit:
+                    break
+        if not selected:
+            return 0
+        placeholders = ",".join("?" for _ in selected)
+        return max(0, int(conn.execute(
+            "DELETE FROM stations WHERE rowid IN (" + placeholders + ")", selected
+        ).rowcount or 0))
+    if category in ("rf_links", "internet_links"):
         kind = "rf" if category == "rf_links" else "igate"
         sql = """DELETE FROM topology_edges WHERE rowid IN
             (SELECT rowid FROM topology_edges WHERE kind=? AND last_seen < ?
