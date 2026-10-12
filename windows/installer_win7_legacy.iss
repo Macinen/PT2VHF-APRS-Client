@@ -59,7 +59,7 @@ begin
   { Encerra qualquer edição Legacy, inclusive Portable com versão no nome. }
   Exec(
     ExpandConstant('{sys}\taskkill.exe'),
-    '/F /T /IM "PT2VHF_APRS_Client_Win7_Legacy*.exe"',
+    '/F /T /FI "IMAGENAME eq PT2VHF_APRS_Client_Win7_Legacy*" /IM *',
     '',
     SW_HIDE,
     ewWaitUntilTerminated,
