@@ -1,3 +1,32 @@
+## Novo — PRIORIDADE ALTA: Windows 11 não atualiza e falha ao iniciar após as versões recentes (PyInstaller _MEI / pythonnet .NET)
+
+- **Relato de campo em 12/10/2026:** usuário de **Windows 11** informou que, depois da penúltima atualização, não consegue mais concluir a atualização do PT2VHF APRS Client. Evidência fotográfica de **três erros distintos**. A versão exata de origem/destino e se a instalação é Portable ou Setup precisam ser confirmadas nos logs; não presumir sem prova.
+- **Erro 1 — PyInstaller bootstrap:**
+  - janela `Unhandled exception in script`;
+  - `Failed to execute script 'pyiboot01_bootstrap' due to unhandled exception: [Errno 2] No such file or directory`;
+  - caminho transitório `C:\Users\rotor\AppData\Local\Temp\_MEI...\base...` (diretório temporário PyInstaller `_MEI`, sufixo parcialmente visível);
+  - `Failed to obtain/convert traceback!`.
+- **Erro 2 — cleanup:** janela `Failed to remove temporary directory: C:\Users\rotor\AppData\Local\Temp\_MEI...`, sugerindo arquivo ainda bloqueado, extração interrompida, concorrência de processos, antivírus ou interrupção do bootstrap; diagnóstico necessário antes de definir causa.
+- **Erro 3 — WebView/.NET:** `Não foi possível iniciar a janela integrada do PT2VHF APRS Client. A interface será aberta no navegador padrão.` Detalhes: `Failed to create a default .NET runtime, which would have been 'netfx' on this system. Either install a compatible runtime or configure it explicitly via 'set_runtime' or the 'PYTHONNET_*' environment variables`.
+- **Classificação:** **regressão impeditiva de atualização/inicialização no Windows 11**. Não confundir o erro de bootstrap `_MEI` com erro de .NET: ambos podem ser independentes e exigem testes separados.
+- **Investigar PyInstaller one-file / atualização:**
+  - confirmar se o executável afetado é o **Portable (one-file)** ou **Setup/on-directory** e origem/destino da atualização;
+  - testar execução direta sem updater e execução após atualização para isolar empacotamento versus instalador;
+  - conferir `_MEIPASS`, `sys._MEIPASS`, `sys.executable`, `TEMP/TMP`, extração `_MEI*`, permissões, antivírus/Defender e arquivos ausentes da extração;
+  - revisar a sequência do `apply_update.cmd`: helper pronto, solicitação de saída, encerramento integral do processo e filhos WebView/Chromium, arquivo EXE liberado, backup íntegro, substituição atômica e relançamento **uma vez**;
+  - evitar iniciar um EXE substituído ainda em extração, concorrência entre duas instâncias e limpeza de `_MEI` pertencente a um processo ativo;
+  - conferir integridade da transferência (tamanho, SHA-256, assinatura quando disponível), e não iniciar arquivo parcial/corrompido;
+  - quando a atualização falhar ou a nova versão não confirmar inicialização/saúde, fazer rollback seguro para a anterior, **sem apagar `SQLite`, configurações, logs, mensagens ou arquivos do usuário**;
+  - registrar no `update_apply.log`/diagnóstico: versão origem/destino, modo Portable/Setup, caminho do EXE, PID origem/helper/destino, etapa, código de saída, caminho TEMP/`_MEI`, hashes e resultado do rollback (sem expor senhas/APRS passcodes).
+- **Investigar pywebview/pythonnet/.NET no Windows 11:**
+  - verificar runtime `.NET Framework`/compatibilidade com `pythonnet`, WebView2 Runtime e dependências nativas presentes no empacotamento;
+  - considerar variáveis `PYTHONNET_*` e seleção `set_runtime` somente após identificar runtime compatível e disponível;
+  - tratar falta/incompatibilidade do `.NET` como falha **somente da janela integrada**, mantendo backend e interface acessível no navegador padrão **sem interromper recebimento APRS**;
+  - registrar diagnóstico legível ao usuário (runtime encontrado/ausente, GUI selecionada, exceção e orientação), com fallback sem loop de janelas.
+- **Plano de testes:** Windows 11 x64 Setup/Portable em instalação limpa e após upgrade de pelo menos duas versões anteriores; atualização com aplicativo e WebView abertos/fechados; concorrência de processo anterior; TEMP com caminho contendo espaços/acentos; interferência de Defender; disco cheio/permissão negada; runtime .NET disponível/ausente; rollback; integridade dos dados APRS.
+- **Critério de aceite:** no **Windows 11 real**, um usuário na versão anterior deve conseguir usar **Atualizar pelo aplicativo** e terminar com a versão nova operacional, uma única instância, janela integrada funcional ou fallback previsível, sem popup PyInstaller `_MEI`, erro de cleanup ou exceção não tratada de runtime .NET; caso falhe, recuperar automaticamente a versão anterior e preservar dados.
+- **Mitigação até correção:** recomendar download manual do instalador/Portable correto pela página oficial Releases, encerrar o aplicativo inclusive na bandeja antes de iniciar, manter backup de dados e preservar os logs `updates/update_apply.log` e `diagnostics.log`; evitar apagar `AppData` de dados do Client como tentativa de correção.
+
 ## Reaberto — Win7 v1.14.30: popup intermitente persiste mesmo após fechar acesso Web
 
 - **Relato em Win7 Legacy:** uma pequena janela/popup aparentemente vazio abre e fecha rapidamente a cada aproximadamente 5 segundos durante o funcionamento normal.
