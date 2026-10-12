@@ -1,3 +1,13 @@
+## Pendente — Abrir navegador pelo IP real da LAN, não por 127.0.0.1 (issue #78)
+
+- **Pedido em 12/10/2026:** quando o PT2VHF APRS Client abrir a interface no navegador, priorizar o endereço IPv4 **real do computador na rede**, por exemplo `http://192.168.1.25:8080`, e não `http://127.0.0.1:8080`.
+- **Escopo:** inicialização com navegador, opção de abrir a interface pela bandeja, reabertura quando já existe instância e modo navegador do Windows 7 Legacy. A porta deve ser a que foi **realmente reservada** pelo backend, não uma constante presumida.
+- **Segurança/compatibilidade:** preferir endereço LAN somente se `web_lan_enabled` estiver ativado, o servidor estiver escutando em endereço da rede e o IP/porta forem acessíveis. Não habilitar compartilhamento, firewall nem exposição externa silenciosamente. Se o servidor aceitar apenas loopback ou a interface LAN estiver indisponível, utilizar `127.0.0.1` como fallback para não abrir página inacessível.
+- **Infraestrutura existente:** `LocalServerHandle.share_url` e `lan_host` em `pt2vhf_aprs/local_server.py` oferecem o caminho de URL compartilhável quando LAN está ativa; `windows_app.py::_current_url()` ainda prioriza `handle.url` (loopback), assim como `read_runtime_url` na reabertura.
+- **Multi-interface:** tratamento de Ethernet/Wi-Fi/VPN/adaptadores virtuais; registrar diagnóstico do IP escolhido e do fallback. Preservar `127.0.0.1` para watchdog e verificações internas que não precisam da URL externa.
+- **Aceite:** teste em Windows 7 Legacy e Windows 11, com LAN ativada/desativada, porta alternativa e reabertura pela bandeja/segunda instância.
+- **Rastreamento:** [issue #78](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/78). **Ainda não implementado.**
+
 ## Pendente — Ícone Windows ampliado, APRS legível e identidade PT2VHF (issue #77)
 
 - **Relato do mantenedor em 12/10/2026:** os ícones usados no Windows parecem minúsculos tanto na Área de Trabalho quanto na barra de tarefas e na área de notificação (bandeja próxima ao relógio).
