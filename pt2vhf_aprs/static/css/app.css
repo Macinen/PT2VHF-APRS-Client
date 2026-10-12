@@ -2453,14 +2453,9 @@ html[data-theme="light"] .altitude-fallback-zero #altitudeSourceStatus {
   border-radius: 8px;
   background: var(--panel-2);
   color: var(--muted);
-  cursor: pointer;
+  cursor: default;
   font-size: 10px;
   white-space: nowrap;
-}
-.web-access-status:hover,
-.web-access-status:focus-visible {
-  border-color: rgba(59,166,255,.55);
-  color: var(--text);
 }
 .web-access-status strong {
   overflow: hidden;
