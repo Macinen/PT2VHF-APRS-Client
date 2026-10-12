@@ -1,4 +1,4 @@
-## Novo — Cabeçalho Web: mostrar IP LAN real, sem botão de copiar e sem `\n` literal
+## Implementado na v1.14.28 — Cabeçalho Web: mostrar IP LAN real, sem botão de copiar e sem `\n` literal
 
 ### 1) Endereço exibido continua incorreto
 
