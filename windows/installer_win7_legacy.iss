@@ -1,5 +1,5 @@
 #define MyAppName "PT2VHF APRS Client - Windows 7 Legacy"
-#define MyAppVersion "1.14.26"
+#define MyAppVersion "1.14.27"
 #define MyAppPublisher "Alex, PT2VHF"
 #define MyAppExeName "PT2VHF_APRS_Client_Win7_Legacy_x64.exe"
 
@@ -26,7 +26,7 @@ LicenseFile=..\LICENSE
 InfoBeforeFile=PRIVACY_INSTALL.txt
 SetupIconFile=app_icon.ico
 CloseApplications=yes
-CloseApplicationsFilter={#MyAppExeName}
+CloseApplicationsFilter=PT2VHF_APRS_Client_Win7_Legacy*.exe
 RestartApplications=no
 
 [Languages]
@@ -38,7 +38,7 @@ Name: "desktopicon"; Description: "Criar atalho na área de trabalho"; GroupDesc
 Name: "startup"; Description: "Iniciar com o Windows"; GroupDescription: "Inicialização:"; Flags: unchecked
 
 [Files]
-Source: "..\dist\PT2VHF_APRS_Client_Win7_Legacy_Portable_x64.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion
+Source: "..\dist-win7\PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v{#MyAppVersion}.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\PT2VHF APRS Client Win7 Legacy"; Filename: "{app}\{#MyAppExeName}"
@@ -56,15 +56,16 @@ procedure StopPreviousVersion();
 var
   ResultCode: Integer;
 begin
+  { Encerra qualquer edição Legacy, inclusive Portable com versão no nome. }
   Exec(
     ExpandConstant('{sys}\taskkill.exe'),
-    '/F /T /IM "{#MyAppExeName}"',
+    '/F /T /IM "PT2VHF_APRS_Client_Win7_Legacy*.exe"',
     '',
     SW_HIDE,
     ewWaitUntilTerminated,
     ResultCode
   );
-  Sleep(500);
+  Sleep(900);
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
