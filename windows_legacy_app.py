@@ -1,12 +1,28 @@
 from __future__ import annotations
 
 import os
+import sys
+from pathlib import Path
 
-# Windows 7 Legacy uses an isolated runtime/build, but it is still a desktop
-# application. Never force --browser here. The embedded window uses the
-# Windows renderer selected below; browser mode remains an explicit CLI option.
 os.environ["PT2VHF_WIN7_LEGACY"] = "1"
-os.environ.setdefault("PT2VHF_WEBVIEW_GUI", "edgechromium")
+
+
+def _version_probe() -> bool:
+    if "--write-version" not in sys.argv:
+        return False
+    try:
+        idx = sys.argv.index("--write-version")
+        target = Path(sys.argv[idx + 1]).expanduser()
+    except Exception:
+        return True
+    from pt2vhf_aprs import __version__
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(__version__ + "\n", encoding="utf-8")
+    return True
+
+
+if _version_probe():
+    raise SystemExit(0)
 
 from windows_app import main
 
