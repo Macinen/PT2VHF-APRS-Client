@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ipaddress
 import json
 import os
 import socket
@@ -63,11 +64,22 @@ def detect_lan_ipv4() -> str:
         candidates.extend(addresses)
     except OSError:
         pass
+    normalized: list[str] = []
     for value in candidates:
         value = str(value or "").strip()
-        if value and not value.startswith("127.") and value != "0.0.0.0":
-            return value
-    return ""
+        try:
+            addr = ipaddress.ip_address(value)
+        except ValueError:
+            continue
+        if addr.version != 4 or addr.is_loopback or addr.is_unspecified or addr.is_link_local:
+            continue
+        if value not in normalized:
+            normalized.append(value)
+
+    # Prefer RFC1918/private addresses. The first candidate normally comes from
+    # the OS routing table and therefore wins over VPN/virtual adapters.
+    normalized.sort(key=lambda value: (not ipaddress.ip_address(value).is_private, candidates.index(value) if value in candidates else 9999))
+    return normalized[0] if normalized else ""
 
 
 def _default_server_factory(app: Any, host: str, port: int, threads: int) -> tuple[str, Any]:
