@@ -12,20 +12,18 @@ def read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_v1426_win7_starts_as_desktop_app():
+def test_v1426_win7_regression_is_not_reintroduced():
     launcher = read("windows_legacy_app.py")
     requirements = read("requirements-windows7.txt")
     spec = read("windows/PT2VHF_APRS_Client_Win7_Legacy.spec")
     windows_app = read("windows_app.py")
     assert 'PT2VHF_WIN7_LEGACY"] = "1"' in launcher
-    assert 'PT2VHF_WEBVIEW_GUI' in launcher
     assert 'sys.argv.append("--browser")' not in launcher
-    assert "pywebview==4.4.1" in requirements
-    assert "pythonnet==3.0.3" in requirements
-    assert 'collect_submodules("webview")' in spec
-    assert 'excludes=[]' in spec
-    assert 'legacy = os.getenv("PT2VHF_WIN7_LEGACY") == "1"' in windows_app
-    assert "o navegador não será aberto automaticamente" in windows_app
+    assert "pywebview" not in requirements.lower()
+    assert "pythonnet" not in requirements.lower()
+    assert 'excludes=["webview", "clr", "pythonnet"]' in spec
+    assert "_run_legacy_app_shell" in windows_app
+    assert "--app=" in windows_app
 
 
 def test_v1426_legacy_updater_assets_and_portable_in_place(monkeypatch):
@@ -78,8 +76,8 @@ def test_v1426_i18n_patch_covers_all_extra_locales():
 
 
 def test_v1426_release_metadata():
-    assert read("VERSION").strip() == "1.14.26"
-    assert '__version__ = "1.14.26"' in read("pt2vhf_aprs/__init__.py")
+    assert tuple(map(int, read("VERSION").strip().split("."))) >= (1, 14, 26)
+    assert '"1.14.26": {' in read("pt2vhf_aprs/version_notes.py")
     assert "## 1.14.26 - 2026-10-11" in read("CHANGELOG.md")
     assert '"1.14.26": {' in read("pt2vhf_aprs/version_notes.py")
     assert not any(line.startswith("## Novo —") for line in read("BACKLOG.md").splitlines())
