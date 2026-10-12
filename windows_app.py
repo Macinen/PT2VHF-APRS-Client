@@ -457,8 +457,15 @@ def _launch_legacy_app_window() -> bool:
             url=url,
         )
         time.sleep(0.8)
-        if _legacy_shell_process.poll() is not None:
-            raise RuntimeError(f"Shell encerrou imediatamente (exit={_legacy_shell_process.returncode}).")
+        exit_code = _legacy_shell_process.poll()
+        if exit_code == 0:
+            # Chromium may forward --app to an existing browser process and exit
+            # the short-lived launcher successfully. This is not an update error.
+            diag.log_event("win7_legacy_shell_handoff", exit_code=0, browser=str(browser),
+                           profile_dir=str(profile_dir), url=url, pid=_legacy_shell_process.pid)
+            return True
+        if exit_code is not None:
+            raise RuntimeError(f"Shell encerrou imediatamente (exit={exit_code}).")
         return True
     except Exception as exc:
         diag.log_event("win7_legacy_shell_failed", browser=str(browser), error=str(exc), url=url)
