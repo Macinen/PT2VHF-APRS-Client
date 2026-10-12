@@ -1,3 +1,15 @@
+## 1.14.28 - 2026-10-11
+
+- **Cabeçalho Web:** removido o texto literal `\\n` que aparecia entre o endereço e os controles.
+- **Sem botão de copiar:** removidos `webAccessCopyButton`, handler de clipboard e CSS relacionado.
+- **Indicador passivo:** o endereço Web deixa de ser botão/click target e passa a ser apenas informativo.
+- **IP LAN autoritativo:** quando `scope=lan`, o frontend usa `lan_ip` e a porta publicada para montar o endereço e não aceita `127.0.0.1`/`0.0.0.0` como URL principal.
+- **Browser:** a abertura automática continua sendo controlada exclusivamente por **Configuração → Abrir também no navegador ao iniciar**.
+- **Diagnóstico:** preservados `bind_host`, `display_host`, `lan_ip`, `share_url` e `scope` no runtime.
+- **Regressões:** testes específicos impedem o retorno do botão de copiar, clique no endereço, `\\n` literal e fallback LAN para loopback.
+- Mantidas integralmente as correções de Windows 7 Legacy, updater e empacotamento da v1.14.27.
+- Release completa para Windows x64/ARM64, Windows 7 SP1 x64 Legacy, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
+
 ## 1.14.27 - 2026-10-11
 
 - **Win7 Portable:** removidas as dependências `pywebview` e `pythonnet` do runtime Legacy após a regressão da v1.14.26 em Windows 7 real.
