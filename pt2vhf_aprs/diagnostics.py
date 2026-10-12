@@ -248,6 +248,86 @@ def stop_watchdog() -> None:
     log_event("watchdog_stopped")
 
 
+def start_legacy_window_diagnostics(duration_seconds: int = 180) -> bool:
+    """Trace short-lived taskbar windows spawned by Win7 Legacy.
+
+    Runs only on Windows with the Legacy flag. No subprocess or console is
+    created; native EnumWindows checks short-lived visible child-process
+    windows during the first three minutes. Events stay in diagnostics.log.
+    """
+    if sys.platform != "win32" or os.getenv("PT2VHF_WIN7_LEGACY") != "1":
+        return False
+
+    def _probe() -> None:
+        try:
+            import ctypes
+            from ctypes import wintypes
+            user32 = ctypes.windll.user32
+            enum_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+            get_pid = user32.GetWindowThreadProcessId
+            get_pid.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+            get_pid.restype = wintypes.DWORD
+            user32.EnumWindows.argtypes = [enum_type, wintypes.LPARAM]
+            user32.EnumWindows.restype = wintypes.BOOL
+            user32.IsWindowVisible.argtypes = [wintypes.HWND]
+            user32.IsWindowVisible.restype = wintypes.BOOL
+            previous: set[tuple[int, int]] = set()
+            seen = 0
+            deadline = time.monotonic() + max(15, min(int(duration_seconds), 600))
+            log_event("win7_window_probe_started", duration_seconds=duration_seconds)
+
+            while time.monotonic() < deadline:
+                # Only our process tree is traced; unrelated desktop windows
+                # and their titles are never recorded.
+                child_pids = {os.getpid()}
+                if psutil is not None:
+                    try:
+                        child_pids.update(p.pid for p in psutil.Process(os.getpid()).children(recursive=True))
+                    except Exception:
+                        pass
+                current: set[tuple[int, int]] = set()
+                captured: list[tuple[int, int, str]] = []
+
+                def _collect(hwnd: int, _arg: int) -> bool:
+                    if not user32.IsWindowVisible(hwnd):
+                        return True
+                    pid = wintypes.DWORD(0)
+                    get_pid(hwnd, ctypes.byref(pid))
+                    value = int(pid.value)
+                    if value not in child_pids:
+                        return True
+                    key = (int(hwnd), value)
+                    current.add(key)
+                    if key not in previous:
+                        length = min(160, max(0, user32.GetWindowTextLengthW(hwnd)))
+                        buffer = ctypes.create_unicode_buffer(length + 1)
+                        user32.GetWindowTextW(hwnd, buffer, len(buffer))
+                        captured.append((int(hwnd), value, buffer.value[:120]))
+                    return True
+
+                cb = enum_type(_collect)
+                user32.EnumWindows(cb, 0)
+                if previous:
+                    for hwnd, pid, title in captured[:10]:
+                        pname = ""
+                        if psutil is not None:
+                            try:
+                                pname = psutil.Process(pid).name()
+                            except Exception:
+                                pass
+                        log_event("win7_transient_window_seen", pid=pid, hwnd=hwnd,
+                                  process=pname, title=title)
+                        seen += 1
+                previous = current
+                time.sleep(0.18)
+            log_event("win7_window_probe_finished", new_windows=seen)
+        except Exception as exc:
+            log_event("win7_window_probe_error", error=str(exc))
+
+    threading.Thread(target=_probe, name="pt2vhf-win7-window-diagnostics", daemon=True).start()
+    return True
+
+
 def system_metrics() -> dict[str, Any]:
     """CPU/RAM do processo principal somadas aos processos filhos do WebView2."""
     global _metrics_prev_wall, _metrics_prev_cpu
