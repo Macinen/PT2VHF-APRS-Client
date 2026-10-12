@@ -27,9 +27,9 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Validate v1.14.31 production release
+      - name: Validate v1.14.32 production release
         shell: pwsh
-        run: python tools\apply_release_1_14_31.py
+        run: python tools\apply_release_1_14_32.py
 
       - name: Install Python dependencies
         shell: pwsh
@@ -55,6 +55,9 @@ jobs:
       - name: Run tests
         shell: pwsh
         run: python -m pytest -q
+      - name: Smoke HTTP real on Windows
+        shell: pwsh
+        run: python tools\\smoke_web_http.py
 
       - name: Generate Windows icon
         shell: pwsh
@@ -113,9 +116,9 @@ jobs:
           architecture: 'arm64'
           cache: 'pip'
 
-      - name: Validate v1.14.31 production release
+      - name: Validate v1.14.32 production release
         shell: pwsh
-        run: python tools\apply_release_1_14_31.py
+        run: python tools\apply_release_1_14_32.py
 
       - name: Install Python dependencies
         shell: pwsh
@@ -140,6 +143,9 @@ jobs:
       - name: Run tests
         shell: pwsh
         run: python -m pytest -q
+      - name: Smoke HTTP real on Windows
+        shell: pwsh
+        run: python tools\\smoke_web_http.py
 
       - name: Generate Windows icon
         shell: pwsh
@@ -198,9 +204,9 @@ jobs:
           cache: 'pip'
           cache-dependency-path: requirements-windows7.txt
 
-      - name: Validate v1.14.31 release metadata
+      - name: Validate v1.14.32 release metadata
         shell: pwsh
-        run: python tools\apply_release_1_14_31.py
+        run: python tools\apply_release_1_14_32.py
 
       - name: Install Win7 Legacy dependencies
         shell: pwsh
@@ -214,6 +220,7 @@ jobs:
           python -m compileall -q pt2vhf_aprs windows_app.py windows_legacy_app.py
           python -c "import pkgutil,importlib,pt2vhf_aprs; [importlib.import_module(m.name) for m in pkgutil.iter_modules(pt2vhf_aprs.__path__, pt2vhf_aprs.__name__+'.')]; print('PT2VHF runtime imports OK on Python 3.8')"
           python -c "from pt2vhf_aprs.web import create_app; app=create_app(); print('Flask routes:', len(list(app.url_map.iter_rules())))"
+          python tools\\smoke_web_http.py
 
       - name: Generate Windows icon
         shell: pwsh
@@ -288,9 +295,9 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Validate v1.14.31 production release
+      - name: Validate v1.14.32 production release
         shell: bash
-        run: python tools/apply_release_1_14_31.py
+        run: python tools/apply_release_1_14_32.py
 
       - name: Build Linux packages
         shell: bash
@@ -329,7 +336,7 @@ jobs:
       - name: Core smoke tests
         shell: bash
         run: |
-          python tools/apply_release_1_14_31.py
+          python tools/apply_release_1_14_32.py
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest
@@ -359,9 +366,9 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Validate v1.14.31 production release
+      - name: Validate v1.14.32 production release
         shell: bash
-        run: python tools/apply_release_1_14_31.py
+        run: python tools/apply_release_1_14_32.py
 
       - name: Build macOS DMG
         shell: bash
@@ -397,9 +404,9 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate v1.14.31 production release
+      - name: Validate v1.14.32 production release
         shell: bash
-        run: python tools/apply_release_1_14_31.py
+        run: python tools/apply_release_1_14_32.py
 
       - name: Generate versioned PDF manual
         shell: bash
