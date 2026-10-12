@@ -3,6 +3,16 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.29": {
+        "title": "IP LAN real exibido mesmo com bind local",
+        "items": [
+            "lan_ip passa a ser detectado independentemente do endereço de bind do servidor.",
+            "display_url é separado de share_url: o cabeçalho mostra o IP real do host, enquanto share_url continua refletindo a acessibilidade efetiva.",
+            "Quando o servidor está em 127.0.0.1, o cabeçalho pode mostrar 192.168.x.x sem afirmar que o serviço está acessível pela LAN.",
+            "Quando o acesso LAN está habilitado, display_url e share_url convergem para o mesmo IPv4 real e porta.",
+            "Mantidas as correções de cabeçalho passivo, sem botão de copiar e sem \\n literal da v1.14.28.",
+        ],
+    },
     "1.14.28": {
         "title": "Cabeçalho Web corrigido e simplificado",
         "items": [
