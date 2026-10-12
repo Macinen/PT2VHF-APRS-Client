@@ -19,7 +19,7 @@ def test_firewall_diagnostic_uses_hidden_console_and_cache(monkeypatch):
 
     def fake_run(args, **kwargs):
         calls.append((args, kwargs))
-        return SimpleNamespace(returncode=0, stdout=f"Porta local: 8080\nPrograma: {exe}\n")
+        return SimpleNamespace(returncode=0, stdout=f"Porta local: 8080\nProtocolo: TCP\nIP Remoto: LocalSubnet\n")
 
     monkeypatch.setattr(lan_access.subprocess, "run", fake_run)
     assert lan_access.windows_firewall_rule_exists(8080) is True
@@ -42,7 +42,7 @@ def test_firewall_probe_cache_does_not_cross_port_changes(monkeypatch):
     calls = []
     def fake_run(args, **kwargs):
         calls.append(1)
-        return SimpleNamespace(returncode=0, stdout=f"LocalPort: 8080\nProgram: {exe}\n")
+        return SimpleNamespace(returncode=0, stdout=f"LocalPort: 8080\nProtocol: TCP\nRemoteIP: LocalSubnet\n")
     monkeypatch.setattr(lan_access.subprocess, "run", fake_run)
     assert lan_access.windows_firewall_rule_exists(8080) is True
     assert lan_access.windows_firewall_rule_exists(8081) is False
