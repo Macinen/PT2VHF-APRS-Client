@@ -9,12 +9,43 @@ import sys
 import threading
 import time
 import re
+import ipaddress
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from . import diagnostics as diag
 
 FIREWALL_RULE_NAME = "PT2VHF APRS Client Web LAN"
+
+_last_remote_lock = threading.Lock()
+_last_remote: dict[str, Any] = {"address": "", "path": "", "at": "", "when": 0.0}
+
+
+def note_remote_request(remote_addr: str, path: str) -> None:
+    """Evidence of an actual non-loopback HTTP request, not a local self-probe."""
+    try:
+        addr = ipaddress.ip_address(str(remote_addr or "").strip())
+        if addr.is_loopback or addr.is_unspecified:
+            return
+    except ValueError:
+        return
+    with _last_remote_lock:
+        _last_remote.update(
+            address=str(addr), path=str(path or "")[:120],
+            at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            when=time.monotonic(),
+        )
+
+
+def last_remote_request() -> dict[str, Any]:
+    with _last_remote_lock:
+        data = dict(_last_remote)
+    recent = bool(data["when"]) and time.monotonic() - float(data["when"]) < 900
+    return {"confirmed": recent, "address": data["address"] if recent else "",
+            "timestamp": data["at"] if recent else "", "path": data["path"] if recent else ""}
+
+
 
 # /api/status atualiza a cada 3 s. Evite abrir netsh em cada consulta.
 FIREWALL_CHECK_CACHE_SECONDS = 60.0
@@ -148,6 +179,7 @@ def lan_diagnostics(runtime: dict[str, Any],
     listening_local = tcp_listening(port) if port else False
     listening_lan = tcp_listening(port, lan_ip) if port and lan_ip else False
     firewall = windows_firewall_rule_exists(port) if scope == "lan" and port else None
+    remote = last_remote_request()
     expected_lan = bool(configured_enabled) if configured_enabled is not None else (scope == "lan")
     mismatch = expected_lan != (scope == "lan")
 
@@ -166,9 +198,12 @@ def lan_diagnostics(runtime: dict[str, Any],
     elif os.name == "nt" and firewall is False:
         state = "firewall-not-confirmed"
         message = "Bind LAN funcionando; regra de firewall não confirmada."
+    elif remote["confirmed"]:
+        state = "remote-confirmed"
+        message = "Acesso por outro dispositivo confirmado pelo servidor."
     else:
         state = "lan-bind-confirmed"
-        message = "Bind LAN confirmado no host. Teste a URL em outro dispositivo; firewall pode bloquear."
+        message = "Servidor responde no IP LAN deste host; teste em outra máquina para validar firewall/rede."
 
     return {
         "state": state, "message": message, "platform": platform.system(),
@@ -179,7 +214,9 @@ def lan_diagnostics(runtime: dict[str, Any],
         "lan_ip": lan_ip, "port": port,
         "share_url": str(runtime.get("share_url") or ""),
         "listening": listening_local, "listening_lan": listening_lan,
-        "external_access_confirmed": False, "restart_required": mismatch,
+        "external_access_confirmed": bool(remote["confirmed"]),
+        "last_remote_access": remote,
+        "restart_required": mismatch,
         "windows_firewall_rule": firewall,
         "firewall_rule_name": FIREWALL_RULE_NAME if os.name == "nt" else "",
     }
