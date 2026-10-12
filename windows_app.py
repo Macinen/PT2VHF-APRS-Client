@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ctypes
 import os
+import platform
 import socket
 import subprocess
 import sys
@@ -412,6 +413,9 @@ def _launch_legacy_app_window() -> bool:
         browser=str(browser or ""),
         url=url,
         argv=list(sys.argv),
+        windows=platform.platform(),
+        machine=platform.machine(),
+        python=sys.version,
     )
     if browser is None:
         try:
