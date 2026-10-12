@@ -1,3 +1,18 @@
+## 1.14.27 - 2026-10-11
+
+- **Win7 Portable:** removidas as dependências `pywebview` e `pythonnet` do runtime Legacy após a regressão da v1.14.26 em Windows 7 real.
+- **Shell Win7 estável:** Chrome/Chromium/Brave são usados em modo `--app` quando disponíveis, criando uma janela dedicada sem abas/barra de endereço; o backend e o ícone de bandeja permanecem ativos.
+- **Fallback seguro:** se não houver navegador compatível para modo app, a interface abre no navegador padrão sem encerrar o processo, com diagnóstico registrado.
+- **Diagnóstico:** inicialização Legacy registra versão, executável, argumentos, URL, navegador selecionado e falhas de shell.
+- **Setup × versão anterior:** o instalador encerra qualquer processo `PT2VHF_APRS_Client_Win7_Legacy*.exe`, inclusive Portable versionado ainda aberto.
+- **Empacotamento limpo:** `build`, `dist` e `dist-win7` são removidos antes do build Legacy para impedir reutilização de artefatos antigos.
+- **Setup usa artefato fresco:** o Inno Setup passa a incluir o Portable versionado recém-copiado para `dist-win7`.
+- **Version probe:** o executável Legacy aceita `--write-version` para validação automatizada sem iniciar a interface.
+- **Smoke do Portable:** o pipeline executa o Portable recém-gerado e confirma que a versão embutida coincide com `VERSION`.
+- **Smoke do Setup:** o instalador é executado silenciosamente em diretório temporário; o executável instalado é então consultado e precisa reportar exatamente a mesma versão.
+- **Updater Legacy:** mantida a seleção exclusiva dos assets Windows 7 Setup/Portable, atualização in-place do Portable e rollback.
+- Release completa para Windows x64/ARM64, Windows 7 SP1 x64 Legacy, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
+
 ## 1.14.26 - 2026-10-11
 
 - **Windows 7 Legacy desktop:** removido o `--browser` forçado; Setup e Portable passam a iniciar como aplicação desktop com shell WebView empacotada.
