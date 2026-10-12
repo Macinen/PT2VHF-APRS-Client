@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import os
-import sys
 
-# The Windows 7 build intentionally avoids WebView2. The existing local
-# Flask/Waitress UI is opened in the user's default browser instead.
+# Windows 7 Legacy uses an isolated runtime/build, but it is still a desktop
+# application. Never force --browser here. The embedded window uses the
+# Windows renderer selected below; browser mode remains an explicit CLI option.
 os.environ["PT2VHF_WIN7_LEGACY"] = "1"
-
-if "--browser" not in sys.argv:
-    sys.argv.append("--browser")
+os.environ.setdefault("PT2VHF_WEBVIEW_GUI", "edgechromium")
 
 from windows_app import main
 
