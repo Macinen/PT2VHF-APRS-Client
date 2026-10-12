@@ -5690,6 +5690,130 @@
     return { scope, shareUrl, compact, access };
   }
 
+  const retentionCategories = [
+    ['stations', 'Estações', 'Stations'],
+    ['digis', 'Digipeaters (preservados enquanto houver enlaces)', 'Digipeaters (preserved while links exist)'],
+    ['igates', 'iGates (preservados enquanto houver enlaces)', 'iGates (preserved while links exist)'],
+    ['rf_links', 'Enlaces RF', 'RF links'],
+    ['internet_links', 'Enlaces Internet / iGate', 'Internet / iGate links'],
+    ['objects', 'Objetos APRS, AIS e radiossondas', 'APRS objects, AIS and radiosondes'],
+    ['tracks', 'Tracklogs e posições', 'Tracklogs and positions'],
+    ['messages', 'Mensagens individuais', 'Individual messages'],
+    ['bulletins', 'Boletins', 'Bulletins'],
+    ['groups', 'Mensagens de grupo', 'Group messages'],
+    ['packets', 'Pacotes recebidos', 'Received packets'],
+    ['aprs_log', 'Log APRS', 'APRS log'],
+    ['topology_events', 'Eventos de topologia', 'Topology events']
+  ];
+  const retentionPeriods = [
+    [1, '24 horas', '24 hours'], [7, '1 semana', '1 week'],
+    [30, '1 mês', '1 month'], [90, '3 meses', '3 months'],
+    [180, '6 meses', '6 months'], [365, '1 ano', '1 year'],
+    [0, 'Permanente', 'Permanent']
+  ];
+  let retentionLoaded = false;
+
+  function buildRetentionSelectors() {
+    const grid = $('#retentionPolicyGrid');
+    if (!grid || grid.children.length) return;
+    for (const [key, pt, en] of retentionCategories) {
+      const label = document.createElement('label');
+      label.className = 'field';
+      const text = document.createElement('span');
+      text.textContent = ui(pt, en);
+      const select = document.createElement('select');
+      select.dataset.retentionCategory = key;
+      // Campos independentes do formulário principal, sem atributo name.
+      for (const [days, labelPt, labelEn] of retentionPeriods) {
+        const option = document.createElement('option');
+        option.value = String(days);
+        option.textContent = ui(labelPt, labelEn);
+        select.appendChild(option);
+      }
+      label.append(text, select);
+      grid.appendChild(label);
+    }
+  }
+
+  async function loadRetentionInfo() {
+    try {
+      buildRetentionSelectors();
+      const info = await api('/api/retention');
+      for (const select of $('#retentionPolicyGrid select[data-retention-category]')) {
+        const days = info.policies?.[select.dataset.retentionCategory];
+        select.value = String(days ?? 0);
+      }
+      if ($('#retentionEnabled')) $('#retentionEnabled').checked = !!info.enabled;
+      if ($('#retentionDatabaseStatus')) {
+        $('#retentionDatabaseStatus').textContent =
+          ui('Banco de dados: ', 'Database: ') + Number(info.db_megabytes || 0).toLocaleString('pt-BR') +
+          ' MB · ' + (info.enabled ? ui('retenção automática ativa', 'automatic retention active') :
+            ui('retenção automática desativada', 'automatic retention disabled')) +
+          (info.last_run ? ' · ' + ui('Última manutenção: ', 'Last maintenance: ') + info.last_run : '');
+      }
+      retentionLoaded = true;
+      return info;
+    } catch (err) {
+      if ($('#retentionResultStatus')) $('#retentionResultStatus').textContent = String(err?.message || err);
+      return null;
+    }
+  }
+
+  function retentionFormPayload() {
+    const policies = {};
+    for (const el of $('#retentionPolicyGrid select[data-retention-category]'))
+      policies[el.dataset.retentionCategory] = Number(el.value);
+    return { policies, enabled: !!$('#retentionEnabled')?.checked };
+  }
+
+  $('#saveRetentionPolicy')?.addEventListener('click', async () => {
+    try {
+      const answer = await api('/api/retention', {
+        method: 'POST', headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify(retentionFormPayload())
+      });
+      if ($('#retentionResultStatus')) $('#retentionResultStatus').textContent =
+        ui('Políticas de retenção salvas. Limpeza automática conforme ativação.', 'Retention settings saved.');
+      await loadRetentionInfo();
+    } catch (err) { toast(String(err?.message || err), 'error'); }
+  });
+
+  $('#applyRetentionNow')?.addEventListener('click', async () => {
+    if (!window.confirm(ui(
+      'Eliminar agora os registros expirados pelas políticas selecionadas? Salve as alterações antes de continuar. Enlaces RF permanentes serão preservados.',
+      'Delete expired records using the saved policies? Save settings first. Permanent RF links are preserved.'
+    ))) return;
+    try {
+      const answer = await api('/api/retention/apply', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({confirm:true})
+      });
+      if ($('#retentionResultStatus')) $('#retentionResultStatus').textContent =
+        ui('Registros removidos nesta passagem: ', 'Records removed this cycle: ') + Number(answer.deleted || 0);
+      await loadRetentionInfo();
+    } catch (err) { toast(String(err?.message || err), 'error'); }
+  });
+
+  $('#resetRetentionPolicy')?.addEventListener('click', async () => {
+    if (!window.confirm(ui('Restaurar os padrões de retenção? A limpeza automática ficará desligada até confirmação.',
+                           'Restore retention defaults? Automatic cleanup will be disabled.'))) return;
+    try {
+      await api('/api/retention/reset', {method:'POST'});
+      await loadRetentionInfo();
+    } catch (err) { toast(String(err?.message || err), 'error'); }
+  });
+
+  $('#testLanAccessButton')?.addEventListener('click', async () => {
+    try {
+      const info = await api('/api/local-interface/test');
+      const lines = [info.message, 'bind=' + info.actual_bind_host,
+        'IP LAN=' + (info.lan_ip || '-'), 'porta=' + info.port,
+        'LAN socket=' + (info.listening_lan ? 'OK' : 'FALHA'),
+        'URL=' + (info.share_url || '-')];
+      if ($('#lanAccessStatus')) $('#lanAccessStatus').textContent = lines.join(' · ');
+    } catch (err) { toast(String(err?.message || err), 'error'); }
+  });
+
   $('#lanFirewallButton')?.addEventListener('click', async () => {
     if (!window.confirm(ui(
       'Autorizar o PT2VHF APRS Client no Windows Firewall para a rede Privada? O Windows solicitará confirmação de administrador.',
@@ -7812,6 +7936,7 @@
       // Uma resposta GET lenta nunca pode apagar/rebaselinar uma edição local.
       state.configBaseline = configSnapshotFromConfig(cfg);
       state.configLoaded = true;
+      if (!retentionLoaded) void loadRetentionInfo();
       state.configDirty = configFormSnapshot() !== state.configBaseline;
 
       if (firstConfigLoad) {
