@@ -65,6 +65,7 @@
 
 ## Aberto — PRIORIDADE ALTA: Windows 11 não atualiza e falha ao iniciar após as versões recentes (PyInstaller _MEI / pythonnet .NET)
 
+- **Novo relato fotográfico — PP5UA, 12/10/2026:** erros ao tentar atualizar, com duas evidências: (1) janela integrada indisponível por `Failed to create a default .NET runtime ... 'netfx'`, com fallback previsto para navegador; (2) erro PyInstaller `Failed to remove temporary directory` em `%LOCALAPPDATA%\\Temp\\_MEI000012282`. Os dois sintomas **não comprovam a mesma causa**; correlacionar com falha pré-existente `pyiboot01_bootstrap` somente após obter `diagnostics.log` e `updates/update_apply.log`. O sistema Windows, versão de origem/destino e edição Setup/Portable deste relato específico ainda requerem confirmação. **Issue de rastreamento:** [#83 — PP5UA: pythonnet/netfx + PyInstaller _MEI](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/83). **Pendente; não declarar solucionado pelo simples sucesso do pipeline CI.**
 - **Relato de campo em 12/10/2026:** usuário de **Windows 11** informou que, depois da penúltima atualização, não consegue mais concluir a atualização do PT2VHF APRS Client. Evidência fotográfica de **três erros distintos**. A versão exata de origem/destino e se a instalação é Portable ou Setup precisam ser confirmadas nos logs; não presumir sem prova.
 - **Erro 1 — PyInstaller bootstrap:**
   - janela `Unhandled exception in script`;
