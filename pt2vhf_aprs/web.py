@@ -1156,7 +1156,8 @@ def create_app() -> Flask:
                 service.reconnect()
                 reconnected = True
 
-            return jsonify({"ok": True, "config": saved, "reconnected": reconnected})
+            return jsonify({"ok": True, "config": saved, "reconnected": reconnected,
+                            "restart_required": before.get("web_lan_enabled") != saved.get("web_lan_enabled")})
         except Exception as exc:
             return jsonify({"ok": False, "error": str(exc)}), 400
 
