@@ -1,3 +1,40 @@
+## Novo — Windows 7 Legacy Setup: ao abrir, inicia o navegador em vez da aplicação desktop
+
+- **Falha observada:** na versão **Windows 7 Legacy instalada (Setup)**, ao iniciar o PT2VHF APRS Client o executável abre o navegador com a interface Web em vez de abrir a aplicação desktop propriamente dita.
+- Tratar como regressão específica do entrypoint/launcher do build Legacy instalado.
+- Revisar o fluxo de inicialização entre `windows_legacy_app.py`, `windows_app.py`, PyInstaller spec e instalador Win7.
+- A versão **Setup Win7 Legacy** deve abrir a aplicação como aplicativo desktop, com sua janela própria, comportamento equivalente ao cliente Windows normal dentro das limitações do runtime compatível com Windows 7.
+- Não forçar `--browser` no entrypoint da versão instalada.
+- O modo navegador deve ser utilizado somente quando:
+  - o usuário solicitar explicitamente;
+  - o ambiente desktop/WebView não estiver disponível e houver fallback documentado;
+  - ou existir opção específica de execução em modo Web.
+- Separar claramente os modos de inicialização:
+  - **Win7 Legacy Setup:** desktop por padrão;
+  - **Win7 Legacy Portable:** desktop por padrão;
+  - **modo browser:** somente por argumento/configuração explícita ou fallback controlado.
+- Se o Windows 7 não suportar o mesmo WebView usado nas versões modernas, implementar uma shell desktop compatível com Win7 ou outro mecanismo embutido compatível, em vez de simplesmente abrir o navegador externo como comportamento padrão.
+- O navegador externo pode permanecer como fallback de emergência, mas nesse caso:
+  - informar claramente ao usuário que houve fallback;
+  - registrar a causa no diagnóstico;
+  - não tratar esse comportamento como inicialização normal.
+- Revisar atalhos criados pelo instalador para garantir que não incluam parâmetros como `--browser`.
+- Revisar o nome/target do executável instalado para garantir que o Setup não esteja apontando para um launcher de teste.
+- Adicionar diagnóstico de inicialização contendo:
+  - modo detectado;
+  - executável/entrypoint;
+  - argumentos recebidos;
+  - desktop shell disponível;
+  - browser fallback acionado ou não;
+  - motivo do fallback.
+- Adicionar testes de regressão para:
+  - Win7 Legacy Setup abrindo em modo desktop;
+  - Win7 Legacy Portable abrindo em modo desktop;
+  - ausência de `--browser` no atalho/linha de comando padrão;
+  - browser somente quando solicitado explicitamente;
+  - fallback controlado e diagnosticado quando a shell desktop não puder iniciar.
+- **Critério de aceite:** ao iniciar o **PT2VHF APRS Client Win7 Legacy instalado via Setup**, deve abrir a janela da aplicação desktop. O navegador externo não deve ser aberto por padrão.
+
 ## Novo — Windows 7 Legacy: atualização pelo próprio programa não funciona
 
 - **Falha observada:** na versão **Windows 7 Legacy**, o mecanismo de atualização integrado não conclui a atualização pelo próprio programa.
