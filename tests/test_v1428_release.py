@@ -54,8 +54,8 @@ def test_v1428_frontend_prioritizes_lan_host_over_loopback():
     js = read("pt2vhf_aprs/static/js/app.js")
     assert "const lanHost = String(localInfo.lan_ip || localInfo.lan_host || '').trim();" in js
     assert "lanHost && localPort" in js
-    assert "shareUrl = `http://${lanHost}:${localPort}`" in js
-    assert "127\\.|0\\.0\\.0\\.0" in js
+    assert "if (scope === 'lan') shareUrl = lanCandidate;" in js
+    assert "if (scope !== 'lan') shareUrl = localUrl;" in js
 
 
 def test_v1428_browser_opening_is_controlled_by_configuration():
