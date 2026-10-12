@@ -38,6 +38,7 @@ jobs:
         run: |
           python -m compileall -q pt2vhf_aprs windows_app.py linux_app.py macos_app.py tools
           node --check pt2vhf_aprs\static\js\app.js
+          node --check pt2vhf_aprs\static\js\i18n_v1430.js
           node --check pt2vhf_aprs\static\js\tnc.js
           node --check pt2vhf_aprs\static\js\i18n_de.js
           node --check pt2vhf_aprs\static\js\i18n_it.js
@@ -127,6 +128,7 @@ jobs:
         run: |
           python -m compileall -q pt2vhf_aprs windows_app.py tools
           node --check pt2vhf_aprs\static\js\app.js
+          node --check pt2vhf_aprs\static\js\i18n_v1430.js
           node --check pt2vhf_aprs\static\js\tnc.js
           node --check pt2vhf_aprs\static\js\i18n_de.js
           node --check pt2vhf_aprs\static\js\i18n_it.js
