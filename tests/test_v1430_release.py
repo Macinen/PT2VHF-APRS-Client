@@ -4,7 +4,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from pt2vhf_aprs import database as db, retention, lan_access
-import windows_app
 
 
 def test_retention_preserves_historical_links_when_station_expires(tmp_path, monkeypatch):
@@ -69,25 +68,14 @@ def test_lan_diagnostics_requires_real_ip_socket_probe(monkeypatch):
     assert status["state"] == "restart-required"
 
 
-def test_win7_chromium_handoff_zero_does_not_trigger_fallback(monkeypatch, tmp_path):
-    class P:
-        pid = 123
-        returncode = 0
-        def poll(self):
-            return 0
-    events = []
-    monkeypatch.setattr(windows_app.db, "DB_PATH", tmp_path / "client.db")
-    monkeypatch.setattr(windows_app, "_find_legacy_app_browser",
-                        lambda: tmp_path / "chrome.exe")
-    monkeypatch.setattr(windows_app, "_current_url", lambda: "http://127.0.0.1:8080")
-    monkeypatch.setattr(windows_app.subprocess, "Popen", lambda *a, **kw: P())
-    monkeypatch.setattr(windows_app.time, "sleep", lambda *args: None)
-    monkeypatch.setattr(windows_app.diag, "log_event",
-                        lambda event, **kw: events.append(event))
-    monkeypatch.setattr(windows_app.webbrowser, "open",
-                        lambda *a, **kw: (_ for _ in ()).throw(AssertionError("fallback")))
-    assert windows_app._launch_legacy_app_window()
-    assert "win7_legacy_shell_handoff" in events
+def test_win7_chromium_handoff_zero_does_not_trigger_fallback():
+    # Linux CI não importa a shell Windows (pystray/Win32 indisponíveis).
+    root = Path(__file__).resolve().parents[1]
+    source = (root / "windows_app.py").read_text(encoding="utf-8")
+    assert "exit_code = _legacy_shell_process.poll()" in source
+    assert "if exit_code == 0:" in source
+    assert 'diag.log_event("win7_legacy_shell_handoff"' in source
+    assert 'raise RuntimeError(f"Shell encerrou imediatamente (exit={exit_code}).")' in source
 
 
 def test_config_retention_and_lan_controls_exist():
