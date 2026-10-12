@@ -8,6 +8,7 @@
 - **Diagnóstico:** preservados `bind_host`, `display_host`, `lan_ip`, `share_url` e `scope` no runtime.
 - **Regressões:** testes específicos impedem o retorno do botão de copiar, clique no endereço, `\\n` literal e fallback LAN para loopback.
 - Mantidas integralmente as correções de Windows 7 Legacy, updater e empacotamento da v1.14.27.
+- **Gate de release:** publicação condicionada aos testes v1.14.28, incluindo ausência de botão de copiar/`\\n` literal e prioridade do IPv4 LAN no frontend.
 - Release completa para Windows x64/ARM64, Windows 7 SP1 x64 Legacy, Linux x86_64/ARM64, macOS ARM64/Intel e Manual PDF.
 
 ## 1.14.27 - 2026-10-11
