@@ -104,9 +104,10 @@ def test_v1425_win7_legacy_build_files_and_pins_are_present():
     assert "pyinstaller==5.13.2" in requirements
     assert "Pillow==10.4.0" in requirements
     assert "psutil==6.1.1" in requirements
-    assert "pywebview==4.4.1" in requirements.lower()
+    assert "pywebview" not in requirements.lower()
+    assert "pythonnet" not in requirements.lower()
     assert 'PT2VHF_WIN7_LEGACY"] = "1"' in launcher
-    assert "collect_submodules(\"webview\")" in spec
+    assert 'excludes=["webview", "clr", "pythonnet"]' in spec
     assert "MinVersion=6.1sp1" in installer
     assert "windows-win7-legacy:" in workflow
     assert "python-version: '3.8.10'" in workflow
