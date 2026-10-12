@@ -3,6 +3,19 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.31": {
+        "title": "Compartilhamento Web LAN Windows e diagnóstico Win7",
+        "items": [
+            "A autorização do Windows Firewall passa a ocorrer em uma única operação elevada, sem a corrida de duas janelas UAC.",
+            "Regra TCP na porta efetiva restrita a LocalSubnet, independente do caminho do Portable/Setup e compatível com perfis de rede do Windows 7 e 11.",
+            "Diagnóstico informa URLs alternativas de IPv4 (Wi-Fi/Ethernet/VPN) e disponibiliza endpoint de confirmação a partir de outro computador.",
+            "O aplicativo só declara acesso remoto confirmado após receber requisição HTTP real de endereço não-loopback; IP detectado não comprova acesso.",
+            "O cabeçalho separa URL informativa e URL compartilhável, avisando quando o servidor ainda está restrito a localhost.",
+            "Windows 7 Legacy: correção de janelas netsh sem console e instrumentação de janelas transitórias de processos filhos nos primeiros 3 minutos.",
+            "Preserva retenção SQLite independente da v1.14.30 e os enlaces históricos permanentes; testes regressivos de LAN, Win7 e retenção.",
+            "O compartilhamento deve ser habilitado só em LAN confiável, com autorização do Windows Firewall e reinício completo do aplicativo.",
+        ],
+    },
     "1.14.30": {
         "title": "Web LAN, atualizador Win7 e retenção SQLite",
         "items": [
