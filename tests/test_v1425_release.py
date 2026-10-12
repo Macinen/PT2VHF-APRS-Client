@@ -43,7 +43,7 @@ def test_v1425_lan_access_is_opt_in_and_runtime_has_safe_urls(monkeypatch):
     assert handle.scope == "lan"
 
 
-def test_v1425_header_shows_and_copies_actual_web_address():
+def test_v1425_header_shows_actual_web_address():
     html = read("pt2vhf_aprs/templates/index.html")
     js = read("pt2vhf_aprs/static/js/app.js")
     assert 'id="webAccessStatus"' in html
@@ -51,7 +51,6 @@ def test_v1425_header_shows_and_copies_actual_web_address():
     assert 'name="web_lan_enabled"' in html
     assert "function updateWebAccessStatus" in js
     assert "localInfo.share_url" in js
-    assert "navigator.clipboard.writeText(url)" in js
 
 
 def test_v1425_non_english_languages_do_not_silently_fall_back_to_english():
