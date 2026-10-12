@@ -4,6 +4,7 @@
 - **Esclarecimento sobre a natureza da janela:** não se trata de modal, toast ou popup HTML dentro da interface do PT2VHF. É **uma janela independente do Windows 7**, visível por um instante **também na barra de tarefas**, antes de desaparecer. Priorizar diagnóstico de criação/encerramento de processos e de janelas nativas; não alterar modal/UI Web com base nesse sintoma.
 
 - **Teste de isolamento confirmado pelo usuário:** com o PT2VHF APRS Client completamente fechado, a janela intermitente também deixa de aparecer. Com o aplicativo aberto, reaparece. Isso estabelece correlação direta com a execução do Client (ou seus processos filhos), mas não identifica ainda o processo que cria a janela.
+- **Instrumentação da v1.14.31:** monitor nativo `EnumWindows` ativado apenas no Win7 Legacy durante os primeiros 180 segundos, registrando em `diagnostics.log` novas janelas visíveis pertencentes ao processo ou aos filhos, com PID, nome do processo e título. Não cria janelas ou subprocessos adicionais. Manter o problema aberto até reproduzir e identificar a origem real; correção preventiva do `netsh` em main foi empacotada.
 - **Prioridade de diagnóstico:** instrumentar/identificar processo filho ou janela nativa transitória durante a execução Win7 Legacy, considerando explicitamente a shell Chromium `--app`, subprocessos Windows e eventos periódicos. Correlacionar `PID`, `PPID` e horário da janela antes de promover uma correção como definitiva. **Não atribuir causalidade exclusiva ao netsh enquanto não houver evidência**.
 - **Observação do código:** o watchdog interno executa sondagens HTTP a cada aproximadamente 3 segundos, mas não inicia subprocessos diretamente; esse intervalo semelhante, por si só, não prova que ele gera a janela.
 
@@ -28,9 +29,12 @@
 
 > **v1.14.30 — implementação e validação:** adicionada verificação do socket no IP LAN real e detecção de reinício pendente, além de correção do handoff `exit=0` do Chromium. Os testes automatizados e o empacotamento não substituem o teste em duas máquinas na mesma rede nem uma atualização física do Win7 Portable.
 
-## Reaberto — Web LAN não acessível em Windows 11 e Windows 7, mesmo habilitado
+## Em validação na v1.14.31 — Web LAN Windows 11/7: autorização e acesso remoto real
 
 - **Falha confirmada:** mesmo quando o aplicativo identifica/exibe o IPv4 da máquina host, outra máquina na mesma rede local não consegue acessar a interface Web do PT2VHF APRS Client.
+- **Correções de código na v1.14.31:** regra de Firewall criada por uma única operação elevada com UAC; substitui regras antigas de mesmo nome; porta TCP efetiva, sem vínculo ao caminho mutável do executável Portable; `remoteip=localsubnet` com `profile=any` para permitir acesso de outro host local também quando o Windows classifica a rede como Pública (sem roteamento à Internet). O usuário deve autorizar explicitamente o UAC e utilizar apenas LAN confiável.
+- **Diagnóstico de conectividade aprimorado:** alternativas IPv4 em hosts com múltiplos adaptadores, URL de teste `/api/local-interface/remote-probe`, confirmação de acesso externo somente após a aplicação receber HTTP de outro endereço IP, jamais apenas por `localhost` ou IP detectado.
+- **Validação física em aberto:** reproduzir Windows 11/Windows 7 em máquinas reais com outro equipamento da LAN e firewall habilitado. Se faltar acesso externo apesar da regra, investigar isolamento de Wi-Fi, rede convidada, VPN e perfis da rede. Não declarar resolvido só pelo CI.
 - **Novo relato (Windows 11 e Windows 7):** o acesso/compartilhamento da interface Web continua **sem funcionar em ambas as versões do Windows, mesmo com a opção habilitada**. Tratar como bug multiplataforma Windows ainda **não corrigido**; o diagnóstico de bind introduzido na v1.14.30 não constitui prova de acesso remoto efetivo.
 - **Escopo:** Windows 11 Setup/Portable x64 e Windows 7 Legacy Setup/Portable x64; confirmar também ARM64 Windows quando viável. Reproduzir em duas máquinas distintas na mesma LAN real, por cabo e/ou Wi-Fi, sem pressupor que a opção de compartilhamento aplica o bind antes de reiniciar.
 - **Investigação discriminante** (registrar resultados e erro de conexão):
