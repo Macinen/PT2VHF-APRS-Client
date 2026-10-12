@@ -2,7 +2,7 @@
 
 Cliente APRS-IS multiplataforma para **Windows, Linux e macOS**, com mapa, mensagens, estações, tracklogs, topologia observada, Log TNC2, banco SQLite local e atualização integrada.
 
-A **v1.14.33** acrescenta o ícone Windows com a palavra **APRS** ampliada, preferência pelo IP LAN real ao abrir o navegador, LAN ativa por padrão apenas em instalações novas e indicação laranja/preto durante sessões Web remotas. O padrão de abertura automática de aba adicional permanece desativado. A validação física do popup transitório Win7 e do atualizador Win11 continua pendente.
+A **v1.14.33** acrescenta o ícone Windows com a palavra **APRS** ampliada, preferência pelo IP LAN real ao abrir o navegador, LAN ativa por padrão apenas em instalações novas, indicação laranja/preto durante sessões Web remotas e o controle para silenciar o alerta de nova estação restaurado na aba Configuração. O padrão de abertura automática de aba adicional permanece desativado. A validação física do popup transitório Win7 e do atualizador Win11 continua pendente.
 
 ## Downloads — versão 1.14.32 (última publicada)
 
