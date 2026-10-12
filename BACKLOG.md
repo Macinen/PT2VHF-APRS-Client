@@ -1,4 +1,4 @@
-## Novo — Windows 7 Legacy Setup: ao abrir, inicia o navegador em vez da aplicação desktop
+## Implementado na v1.14.26 — Windows 7 Legacy Setup: ao abrir, inicia o navegador em vez da aplicação desktop
 
 - **Falha observada:** na versão **Windows 7 Legacy instalada (Setup)**, ao iniciar o PT2VHF APRS Client o executável abre o navegador com a interface Web em vez de abrir a aplicação desktop propriamente dita.
 - Tratar como regressão específica do entrypoint/launcher do build Legacy instalado.
@@ -35,7 +35,7 @@
   - fallback controlado e diagnosticado quando a shell desktop não puder iniciar.
 - **Critério de aceite:** ao iniciar o **PT2VHF APRS Client Win7 Legacy instalado via Setup**, deve abrir a janela da aplicação desktop. O navegador externo não deve ser aberto por padrão.
 
-## Novo — Windows 7 Legacy: atualização pelo próprio programa não funciona
+## Implementado na v1.14.26 — Windows 7 Legacy: atualização pelo próprio programa não funciona
 
 - **Falha observada:** na versão **Windows 7 Legacy**, o mecanismo de atualização integrado não conclui a atualização pelo próprio programa. A falha foi confirmada também na edição **Win7 Legacy Portable**.
 - Tratar como regressão específica do fluxo de update do build Legacy, separada do updater das versões Windows atuais.
@@ -102,7 +102,7 @@
   - reabertura automática após atualização.
 - **Critério de aceite:** em Windows 7 SP1 x64, tanto no **Setup** quanto no **Portable**, ao detectar uma nova Release que contenha o asset Legacy correspondente, o usuário deve conseguir clicar em atualizar e concluir todo o processo pelo próprio PT2VHF APRS Client, terminando com a nova versão aberta e os dados/configurações preservados. No Portable, o executável deve ser substituído com backup/rollback seguro e relançamento automático.
 
-## Novo — Menu superior/Web LAN: exibe 127.0.0.1 em vez do IPv4 real da rede
+## Implementado na v1.14.26 — Menu superior/Web LAN: exibe 127.0.0.1 em vez do IPv4 real da rede
 
 - **Falha observada:** o indicador Web no menu/barra superior está exibindo o endereço de loopback `127.0.0.1`, mesmo quando a máquina possui um endereço IPv4 válido na rede local, por exemplo `192.168.10.2`.
 - O endereço mostrado ao usuário deve refletir o **IPv4 real da interface LAN utilizável por outros dispositivos da mesma rede**, e não o endereço interno de loopback.
