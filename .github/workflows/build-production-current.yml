@@ -222,19 +222,30 @@ jobs:
         shell: pwsh
         run: python windows\make_icon.py
 
-      - name: Build Win7 Legacy Portable
+      - name: Build and verify Win7 Legacy Portable
         shell: pwsh
         run: |
+          Remove-Item -Recurse -Force build, dist, dist-win7 -ErrorAction SilentlyContinue
           pyinstaller --noconfirm --clean windows\PT2VHF_APRS_Client_Win7_Legacy.spec
           $version = (Get-Content VERSION -Raw).Trim()
           New-Item -ItemType Directory -Force dist-win7 | Out-Null
-          Copy-Item dist\PT2VHF_APRS_Client_Win7_Legacy_Portable_x64.exe "dist-win7\PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v$version.exe" -Force
+          $source = "dist\PT2VHF_APRS_Client_Win7_Legacy_Portable_x64.exe"
+          $portable = "dist-win7\PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v$version.exe"
+          if (!(Test-Path $source)) { throw "Win7 Portable não foi gerado." }
+          Copy-Item $source $portable -Force
+          $probe = "dist-win7\portable-version.txt"
+          $process = Start-Process -FilePath $portable -ArgumentList @("--write-version", $probe) -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Probe do Portable retornou exit code $($process.ExitCode)." }
+          if (!(Test-Path $probe)) { throw "Portable não gravou o version probe." }
+          $embedded = (Get-Content $probe -Raw).Trim()
+          if ($embedded -ne $version) { throw "Portable contém versão $embedded; esperado $version." }
+          Get-FileHash $portable -Algorithm SHA256 | Format-List
 
       - name: Install Inno Setup
         shell: pwsh
         run: choco install innosetup --no-progress -y
 
-      - name: Build Win7 Legacy installer
+      - name: Build and verify Win7 Legacy installer
         shell: pwsh
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
@@ -242,6 +253,21 @@ jobs:
           $installerScript = $installerScript -replace '#define MyAppVersion "[^"]+"', "#define MyAppVersion `"$version`""
           Set-Content windows\installer_win7_legacy.iss -Value $installerScript -Encoding UTF8
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" windows\installer_win7_legacy.iss
+          $installer = "dist-win7\PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v$version.exe"
+          if (!(Test-Path $installer)) { throw "Instalador Win7 não foi gerado." }
+          $smokeDir = Join-Path $PWD "dist-win7\smoke-install"
+          Remove-Item -Recurse -Force $smokeDir -ErrorAction SilentlyContinue
+          $args = @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=$smokeDir")
+          $setupProcess = Start-Process -FilePath $installer -ArgumentList $args -Wait -PassThru
+          if ($setupProcess.ExitCode -ne 0) { throw "Instalador smoke retornou exit code $($setupProcess.ExitCode)." }
+          $installedExe = Join-Path $smokeDir "PT2VHF_APRS_Client_Win7_Legacy_x64.exe"
+          if (!(Test-Path $installedExe)) { throw "Executável instalado não encontrado no smoke test." }
+          $installedProbe = "dist-win7\installed-version.txt"
+          $installedProcess = Start-Process -FilePath $installedExe -ArgumentList @("--write-version", $installedProbe) -Wait -PassThru
+          if ($installedProcess.ExitCode -ne 0) { throw "Probe do executável instalado falhou." }
+          $installedVersion = (Get-Content $installedProbe -Raw).Trim()
+          if ($installedVersion -ne $version) { throw "Setup instalou versão $installedVersion; esperado $version." }
+          Get-FileHash $installer -Algorithm SHA256 | Format-List
 
       - name: Upload Win7 Legacy artifacts
         uses: actions/upload-artifact@v4
