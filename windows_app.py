@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.request import urlopen
 from urllib.parse import urlparse
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import pystray
 from pystray import MenuItem as Item
 
@@ -145,23 +145,87 @@ def _resource_path(*parts: str) -> Path:
 
 
 def _make_tray_image() -> Image.Image:
-    candidates = [
+    """Opaque, high-contrast APRS badge for the Windows notification area.
+
+    ICO frames used for executable shortcuts are often rescaled by pystray.
+    Draw a dedicated notification image so transparent padding or a missing
+    resource cannot turn the running application's indicator invisible.
+    """
+    side = 64
+    try:
+        img = Image.new("RGBA", (side, side), (12, 35, 53, 255))
+        d = ImageDraw.Draw(img)
+        d.rounded_rectangle((1, 1, 62, 62), radius=12,
+                            fill=(11, 35, 53, 255),
+                            outline=(117, 227, 255, 255), width=5)
+        d.rectangle((9, 7, 54, 14), fill=(255, 196, 53, 255))
+        chosen = None
+        for font_size in range(29, 13, -1):
+            for path in ("arialbd.ttf", "segoeuib.ttf",
+                         "DejaVuSans-Bold.ttf"):
+                try:
+                    font = ImageFont.truetype(path, font_size)
+                    left, top, right, bottom = d.textbbox(
+                        (0, 0), "APRS", font=font
+                    )
+                    if right - left <= 55 and bottom - top <= 34:
+                        chosen = (font, left, top, right, bottom)
+                        break
+                except OSError:
+                    pass
+            if chosen:
+                break
+        if chosen:
+            font, left, top, right, bottom = chosen
+            x = (side - (right - left)) // 2 - left
+            y = 21 + (32 - (bottom - top)) // 2 - top
+            d.text((x, y), "APRS", font=font, fill=(255, 255, 255, 255))
+        else:
+            # Deliberately visible fallback, even without system fonts.
+            font = ImageFont.load_default()
+            d.text((11, 28), "APRS", font=font, fill=(255, 255, 255, 255))
+        diag.log_event("tray_icon_loaded", source="drawn_aprs_badge",
+                       size="64x64", alpha="opaque")
+        return img
+    except Exception as exc:
+        diag.log_event("tray_icon_generation_failed", error=str(exc))
+
+    for logo in (
         _resource_path("windows", "app_icon.ico"),
         _resource_path("pt2vhf_aprs", "static", "img", "app_logo.png"),
-    ]
-    for logo in candidates:
+    ):
         try:
             with Image.open(logo) as src:
-                if logo.suffix.lower() == ".ico" and hasattr(src, "ico"):
-                    sizes = src.ico.sizes()
-                    preferred = (32, 32) if (32, 32) in sizes else max(sizes)
-                    return src.ico.getimage(preferred).convert("RGBA").resize(
-                        (64, 64), Image.Resampling.LANCZOS
-                    )
-                return src.convert("RGBA").resize((64, 64), Image.Resampling.LANCZOS)
-        except Exception:
-            continue
-    return Image.new("RGBA", (64, 64), (15, 23, 30, 255))
+                out = src.convert("RGBA").resize(
+                    (64, 64), Image.Resampling.LANCZOS
+                )
+                diag.log_event("tray_icon_loaded", source=str(logo),
+                               size=str(src.size), alpha=str(out.getextrema()[3]))
+                return out
+        except Exception as exc:
+            diag.log_event("tray_icon_resource_failed", source=str(logo),
+                           error=str(exc))
+    diag.log_event("tray_icon_fallback", reason="all sources unavailable")
+    return Image.new("RGBA", (64, 64), (16, 71, 93, 255))
+
+
+def _mark_updated_instance_ready() -> None:
+    """Tell an update helper that the replacement actually booted its HTTP API."""
+    marker = str(os.environ.pop("PT2VHF_UPDATE_READY_MARKER", "") or "").strip()
+    if not marker:
+        return
+    try:
+        path = Path(marker).resolve()
+        expected_dir = (db.DB_PATH.parent / "updates").resolve()
+        if path.parent != expected_dir or path.name != "update_ready.flag":
+            raise ValueError("unsafe ready marker path")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("ready version={} pid={}\\n".format(__version__, os.getpid()),
+                        encoding="ascii")
+        diag.log_event("update_relaunch_confirmed", version=__version__,
+                       pid=os.getpid())
+    except Exception as exc:
+        diag.log_event("update_relaunch_marker_failed", error=str(exc))
 
 
 def _show_native_window(*_args) -> None:
@@ -637,6 +701,7 @@ def main() -> int:
         return 2
 
     diag.start_watchdog(URL)
+    _mark_updated_instance_ready()
     if os.getenv("PT2VHF_WIN7_LEGACY") == "1":
         diag.start_legacy_window_diagnostics()
 

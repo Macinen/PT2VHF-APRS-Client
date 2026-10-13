@@ -405,20 +405,25 @@ def _write_windows_cmd_helper(pending: dict[str, Any]) -> Path:
     lock_path = UPDATE_LOCK_FILE.resolve()
     ready_path = HELPER_READY_FILE.resolve()
 
+    previous_pid = max(0, int(pending.get("pid") or 0))
+    marker = (UPDATE_DIR / "update_ready.flag").resolve()
     lines = [
         "@echo off",
-        "setlocal",
+        "setlocal DisableDelayedExpansion",
         "chcp 65001 >nul",
+        f'set "oldpid={previous_pid}"',
+        f'set "marker={_cmd_value(marker)}"',
         f'set "downloaded={_cmd_value(downloaded)}"',
         f'set "current={_cmd_value(current)}"',
         f'set "pending={_cmd_value(pending_path)}"',
         f'set "lockfile={_cmd_value(lock_path)}"',
         f'set "logfile={_cmd_value(log)}"',
         f'set "ready={_cmd_value(ready_path)}"',
+        'if exist "%marker%" del /F /Q "%marker%" >nul 2>&1',
         '> "%ready%" echo ready',
-        '>> "%logfile%" echo %date% %time% updater cmd helper started',
-        # The app schedules its own shutdown only after seeing the ready file.
-        # A short delay avoids racing the executable lock during WebView shutdown.
+        '>> "%logfile%" echo %date% %time% updater cmd helper started oldpid=%oldpid%',
+        # The caller shuts down after receiving this helper-ready file.
+        # Never assume that a fixed sleep proves Windows released the EXE.
         'ping 127.0.0.1 -n 6 >nul',
     ]
 
@@ -428,22 +433,62 @@ def _write_windows_cmd_helper(pending: dict[str, Any]) -> Path:
         lines += [
             f'set "destination={_cmd_value(destination)}"',
             f'set "backup={_cmd_value(backup)}"',
-            'if exist "%current%" copy /Y "%current%" "%backup%" >nul 2>&1',
+            'set /a tries=0',
+            ':backup_retry',
+            'if not exist "%current%" goto update_failed',
+            'copy /Y "%current%" "%backup%" >nul 2>&1',
+            'if not errorlevel 1 goto backup_ok',
+            'set /a tries+=1',
+            '>> "%logfile%" echo %date% %time% backup retry %tries% (oldpid=%oldpid%)',
+            'if %tries% GEQ 30 goto update_failed',
+            'ping 127.0.0.1 -n 2 >nul',
+            'goto backup_retry',
+            ':backup_ok',
+            '>> "%logfile%" echo %date% %time% portable backup secured',
             'set /a tries=0',
             ':portable_retry',
             'if /I not "%current%"=="%destination%" if exist "%current%" del /F /Q "%current%" >nul 2>&1',
-            'if /I not "%current%"=="%destination%" if exist "%current%" goto portable_wait',
             'move /Y "%downloaded%" "%destination%" >nul 2>&1',
-            'if errorlevel 1 goto update_failed',
-            'del /F /Q "%pending%" "%lockfile%" >nul 2>&1',
-            '>> "%logfile%" echo %date% %time% portable update installed',
-            'start "" "%destination%"',
-            'exit /b 0',
-            ':portable_wait',
+            'if not errorlevel 1 goto portable_installed',
             'set /a tries+=1',
-            'if %tries% GEQ 15 goto update_failed',
+            '>> "%logfile%" echo %date% %time% executable still locked; retry %tries% (oldpid=%oldpid%)',
+            'if %tries% GEQ 30 goto update_failed',
             'ping 127.0.0.1 -n 2 >nul',
             'goto portable_retry',
+            ':portable_installed',
+            'if not exist "%destination%" goto update_failed',
+            '>> "%logfile%" echo %date% %time% portable update installed',
+            # The new instance signals health only after its local APRS HTTP
+            # server has actually started. A failed _MEI bootstrap never does.
+            'set "PT2VHF_UPDATE_READY_MARKER=%marker%"',
+            'start "" "%destination%"',
+            'if errorlevel 1 goto update_failed',
+            'set /a tries=0',
+            ':wait_new_instance',
+            'if exist "%marker%" goto portable_healthy',
+            'set /a tries+=1',
+            'if %tries% GEQ 35 goto portable_unhealthy',
+            'ping 127.0.0.1 -n 2 >nul',
+            'goto wait_new_instance',
+            ':portable_healthy',
+            '>> "%logfile%" echo %date% %time% new portable backend confirmed healthy',
+            'del /F /Q "%pending%" "%lockfile%" >nul 2>&1',
+            'exit /b 0',
+            ':portable_unhealthy',
+            '>> "%logfile%" echo %date% %time% new portable did not signal readiness; attempting rollback',
+            'set /a tries=0',
+            ':rollback_retry',
+            'copy /Y "%backup%" "%destination%" >nul 2>&1',
+            'if not errorlevel 1 goto rollback_restored',
+            'set /a tries+=1',
+            'if %tries% GEQ 25 goto update_failed',
+            'ping 127.0.0.1 -n 2 >nul',
+            'goto rollback_retry',
+            ':rollback_restored',
+            '>> "%logfile%" echo %date% %time% previous portable restored',
+            'set "PT2VHF_UPDATE_READY_MARKER="',
+            'start "" "%destination%"',
+            'exit /b 1',
         ]
     else:
         lines += [
@@ -457,8 +502,9 @@ def _write_windows_cmd_helper(pending: dict[str, Any]) -> Path:
 
     lines += [
         ':update_failed',
-        '>> "%logfile%" echo %date% %time% update failed in cmd helper',
-        'if exist "%backup%" if not exist "%current%" copy /Y "%backup%" "%current%" >nul 2>&1',
+        '>> "%logfile%" echo %date% %time% update failed in cmd helper; previous binary kept if possible',
+        'if defined backup if exist "%backup%" if not exist "%current%" copy /Y "%backup%" "%current%" >nul 2>&1',
+        'set "PT2VHF_UPDATE_READY_MARKER="',
         'if exist "%current%" start "" "%current%"',
         'exit /b 1',
     ]

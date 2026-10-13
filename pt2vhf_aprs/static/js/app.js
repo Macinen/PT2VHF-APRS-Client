@@ -10888,6 +10888,7 @@
       $('#recipientGroupCallsigns').value = '';
       $('#recipientGroupSelect').value = '';
       await loadRecipientGroups();
+      recipientGroupsSnapshot = scheduledFieldsSnapshot($('#scheduledRecipientGroupsEditor'));
     } catch (err) {
       toast(err.message, 'error');
     }
@@ -10895,6 +10896,10 @@
 
   // Scheduled operations use a short-lived modal: never occupy chat height.
   // The backend scheduling worker remains independent of this dialog.
+  const scheduledDialog = $('#scheduledMessagesPanel');
+  if (scheduledDialog && scheduledDialog.parentNode !== document.body) {
+    document.body.appendChild(scheduledDialog);
+  }
   let scheduledEditorSnapshot = '';
   let recipientGroupsSnapshot = '';
   let scheduledFocusBeforeOpen = null;
@@ -10995,6 +11000,7 @@
     }
   });
   $('#saveScheduledMessageButton')?.addEventListener('click', saveScheduledMessage);
+  $('#scheduledMessageForm')?.addEventListener('submit', saveScheduledMessage);
   $('#scheduledScheduleType')?.addEventListener('change', updateScheduledFormVisibility);
   $('#scheduledTargetType')?.addEventListener('change', updateScheduledFormVisibility);
   $('#scheduledRoute')?.addEventListener('change', updateScheduledFormVisibility);
