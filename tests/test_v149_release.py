@@ -112,21 +112,23 @@ def test_v149_internet_cannot_complete_an_rf_route():
         db.DB_PATH = original
 
 
-def test_v149_route_graph_is_bidirectional_for_observed_rf_links():
+def test_v149_route_graph_is_bidirectional_for_observed_rf_links(tmp_path):
+    # On Windows ARM64, SQLite/Windows may briefly keep the file open after
+    # the graph query returns. pytest tmp_path defers cleanup until process
+    # exit, avoiding premature TemporaryDirectory deletion (WinError 32).
     original = db.DB_PATH
     try:
-        with tempfile.TemporaryDirectory() as td:
-            db.DB_PATH = Path(td) / "test.db"
-            db.init_db()
-            with db.connection() as conn:
-                _seed_station(conn, "PT2AAA", -15.80, -47.90)
-                _seed_station(conn, "PT2BBB", -15.60, -47.70)
-                _seed_edge(conn, "PT2AAA", "PT2BBB", "rf", 3)
+        db.DB_PATH = tmp_path / "test.db"
+        db.init_db()
+        with db.connection() as conn:
+            _seed_station(conn, "PT2AAA", -15.80, -47.90)
+            _seed_station(conn, "PT2BBB", -15.60, -47.70)
+            _seed_edge(conn, "PT2AAA", "PT2BBB", "rf", 3)
 
-            forward = db.list_rf_routes("PT2AAA", "PT2BBB", hours=24)
-            reverse = db.list_rf_routes("PT2BBB", "PT2AAA", hours=24)
-            assert len(forward["routes"]) == 1
-            assert len(reverse["routes"]) == 1
-            assert reverse["routes"][0]["nodes"] == ["PT2BBB", "PT2AAA"]
+        forward = db.list_rf_routes("PT2AAA", "PT2BBB", hours=24)
+        reverse = db.list_rf_routes("PT2BBB", "PT2AAA", hours=24)
+        assert len(forward["routes"]) == 1
+        assert len(reverse["routes"]) == 1
+        assert reverse["routes"][0]["nodes"] == ["PT2BBB", "PT2AAA"]
     finally:
         db.DB_PATH = original
