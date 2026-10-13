@@ -3865,6 +3865,8 @@
       [ui('Destino', 'Destination'), edge.target || '—'],
       [ui('Sentido', 'Direction'), `${edge.source || '—'} → ${edge.target || '—'}`],
       [ui('Comprimento', 'Length'), formatRfDistanceKm(topologyEdgeDistanceKm(edge))],
+      ...(edge.historical_geometry ? [[ui('Geometria', 'Geometry'), ui('Posição histórica do enlace', 'Historical link position')]] : []),
+      ...(edge.event_timestamp ? [[ui('Evento', 'Event time'), fmtDate(edge.event_timestamp)]] : []),
       [ui('Pacotes observados', 'Observed packets'), Number(edge.packet_count || 0).toLocaleString('pt-BR')],
     ];
     if (mixedEvidence) {
@@ -3972,14 +3974,17 @@
         // v1.14.22: filtros de estações/objetos controlam somente os
         // marcadores. Enlaces possuem camada própria e permanecem visíveis
         // mesmo quando uma ou ambas as entidades das extremidades estão ocultas.
-        const key = `${edge.source}>${edge.target}:${edge.kind}`;
+        // A moving digi can have multiple real RF links in different locations.
+        // Each historical spatial segment needs a stable, independent layer key.
+        const key = edge.segment_id || `${edge.source}>${edge.target}:${edge.kind}`;
         active.add(key);
         const routeEvidence = routeEvidenceByPair.get(rfRoutePairKey(edge.source, edge.target));
-        const geometryEdge = routeEvidence || edge;
+        const geometryEdge = edge.kind !== 'igate' && routeEvidence ? routeEvidence : edge;
         const points = [
           [Number(geometryEdge.source_lat), Number(geometryEdge.source_lon)],
           [Number(geometryEdge.target_lat), Number(geometryEdge.target_lon)]
         ];
+        // Never fall back to a mobile station's *current* position for history.
         if (!points.flat().every(Number.isFinite)) continue;
 
         let line = state.topologyLines.get(key);
@@ -4025,7 +4030,9 @@
                 ? `<div>Também observado por RF: ${Number(edge.rf_packet_count || 0).toLocaleString('pt-BR')}</div>`
                 : `<div>Também observado via APRS-IS: ${Number(edge.internet_packet_count || 0).toLocaleString('pt-BR')}</div>`)
               : ''}
-            <div>Comprimento: ${escapeHtml(formatRfDistanceKm(topologyEdgeDistanceKm(edge)))}</div>
+            ${edge.historical_geometry ? '<div>Geometria: posição histórica no instante do evento</div>' : ''}
+            ${edge.event_timestamp ? '<div>Evento: ' + escapeHtml(fmtDate(edge.event_timestamp)) + '</div>' : ''}
+            <div>Comprimento: ${escapeHtml(formatRfDistanceKm(topologyEdgeDistanceKm(line._pt2vhfEdge)))}</div>
             <div>Pacotes observados: ${Number(edge.packet_count || 0).toLocaleString('pt-BR')}</div>
             <div>Classificação: ${escapeHtml(edge.classification_source || (edge.kind === 'igate' ? 'APRS-IS confirmado' : 'RF inferido do path'))}</div>
             <div>Primeiro: ${escapeHtml(fmtDate(edge.first_seen))}</div>

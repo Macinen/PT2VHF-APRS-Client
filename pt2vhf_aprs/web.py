@@ -16,6 +16,7 @@ from flask import Flask, Response, g, jsonify, render_template, request, send_fi
 
 from . import __version__
 from . import database as db
+from . import topology_map
 from . import diagnostics as diag
 from . import updater
 from . import retention
@@ -413,6 +414,8 @@ def _topology_diagnostic_payload(hours: float = 0, *, full: bool = False) -> dic
 
     topology = db.list_topology_edges(safe_hours)
     payload["topology"] = topology
+    # Historical aggregate stays intact; this parallel list is the map geometry.
+    payload["topology_map_segments"] = topology_map.list_map_edges(safe_hours)
 
     digis: dict[str, dict] = {}
     igates: dict[str, dict] = {}
@@ -1322,7 +1325,7 @@ def create_app() -> Flask:
             hours = float(request.args.get("hours", 0))
         except (TypeError, ValueError):
             hours = 0.0
-        return jsonify(db.list_topology_edges(hours))
+        return jsonify(topology_map.list_map_edges(hours))
 
     @app.get("/api/topology/rf-origins")
     def api_topology_rf_origins():
