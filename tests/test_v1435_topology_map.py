@@ -25,7 +25,7 @@ def _event(conn, ts, source, target, kind, source_pos, target_pos, medium="APRS-
     )
 
 
-def test_mobile_pt2ap_historical_rf_edges_cannot_stretch_to_latest_gps():
+def test_mobile_pt2ap_historical_rf_edges_cannot_stretch_to_latest_gps(monkeypatch):
     original = db.DB_PATH
     try:
         with tempfile.TemporaryDirectory() as td:
@@ -75,7 +75,12 @@ def test_mobile_pt2ap_historical_rf_edges_cannot_stretch_to_latest_gps():
                     "UPDATE stations SET latitude=-15.67,longitude=-47.86 WHERE callsign='PT2AP-10'"
                 )
             assert topology_map.list_map_edges(24) == edges
-            # A real Flask request must return this immutable event geometry.
+            # Test the real Flask endpoint without launching production
+            # scheduler/retention background threads. These global workers
+            # otherwise follow db.DB_PATH as subsequent tests switch databases,
+            # holding ephemeral SQLite files open on Windows (WinError 32).
+            monkeypatch.setattr(web.scheduled_message_service, "start", lambda: None)
+            monkeypatch.setattr(web.retention, "start_worker", lambda: None)
             client = web.create_app().test_client()
             response = client.get("/api/topology?hours=24")
             assert response.status_code == 200
