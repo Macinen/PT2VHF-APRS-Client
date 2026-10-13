@@ -10809,6 +10809,7 @@
     $('#scheduledContinueOnError').checked = schedule.continue_on_error !== false;
     $('#scheduledMessageText').value = schedule.message || '';
     updateScheduledFormVisibility();
+    showScheduledEditor();
     $('#scheduledMessageForm')?.scrollIntoView?.({ behavior:'smooth', block:'nearest' });
   }
 
@@ -10860,7 +10861,10 @@
       });
       toast(id ? ui('Agendamento atualizado.', 'Schedule updated.') : ui('Agendamento criado.', 'Schedule created.'), 'ok');
       resetScheduledForm();
+      $('#scheduledMessageForm')?.classList.add('hidden');
+      scheduledEditorSnapshot = '';
       await loadScheduledMessages();
+      $('#newScheduledMessageButton')?.focus();
       return result;
     } catch (err) {
       toast(err.message, 'error');
@@ -10889,22 +10893,107 @@
     }
   }
 
-  $('#scheduledMessagesButton')?.addEventListener('click', async () => {
-    state.scheduledPanelOpen = !state.scheduledPanelOpen;
-    $('#scheduledMessagesPanel')?.classList.toggle('hidden', !state.scheduledPanelOpen);
-    updateScheduledMessagesButton();
-    if (state.scheduledPanelOpen) {
-      await Promise.allSettled([loadRecipientGroups(), loadScheduledMessages()]);
-      if (!$('#scheduledRunAt')?.value) resetScheduledForm();
-    }
-  });
-  $('#closeScheduledMessagesButton')?.addEventListener('click', () => {
+  // Scheduled operations use a short-lived modal: never occupy chat height.
+  // The backend scheduling worker remains independent of this dialog.
+  let scheduledEditorSnapshot = '';
+  let recipientGroupsSnapshot = '';
+  let scheduledFocusBeforeOpen = null;
+  const scheduledFieldsSnapshot = (root) => JSON.stringify(
+    Array.from(root?.querySelectorAll('input, select, textarea') || [])
+      .map(el => [el.id, el.type === 'checkbox' ? el.checked : el.value])
+  );
+  function scheduleHasUnsavedChanges() {
+    const form = $('#scheduledMessageForm');
+    const groups = $('#scheduledRecipientGroupsEditor');
+    return Boolean(
+      (form && !form.classList.contains('hidden') && scheduledEditorSnapshot
+        && scheduledFieldsSnapshot(form) !== scheduledEditorSnapshot)
+      || (groups && !groups.classList.contains('hidden') && recipientGroupsSnapshot
+        && scheduledFieldsSnapshot(groups) !== recipientGroupsSnapshot)
+    );
+  }
+  function confirmScheduleDiscard() {
+    return !scheduleHasUnsavedChanges() || window.confirm(
+      ui('Descartar alterações não salvas?', 'Discard unsaved changes?')
+    );
+  }
+  function showScheduledEditor() {
+    $('#scheduledMessageForm')?.classList.remove('hidden');
+    scheduledEditorSnapshot = scheduledFieldsSnapshot($('#scheduledMessageForm'));
+    $('#scheduledName')?.focus();
+  }
+  function hideScheduledEditors() {
+    $('#scheduledMessageForm')?.classList.add('hidden');
+    $('#scheduledRecipientGroupsEditor')?.classList.add('hidden');
+    $('#manageRecipientGroupsButton')?.setAttribute('aria-expanded', 'false');
+    scheduledEditorSnapshot = '';
+    recipientGroupsSnapshot = '';
+  }
+  function closeScheduledModal() {
+    if (!confirmScheduleDiscard()) return false;
+    hideScheduledEditors();
     state.scheduledPanelOpen = false;
     $('#scheduledMessagesPanel')?.classList.add('hidden');
+    document.body.classList.remove('scheduled-modal-open');
     updateScheduledMessagesButton();
+    (scheduledFocusBeforeOpen || $('#scheduledMessagesButton'))?.focus?.();
+    scheduledFocusBeforeOpen = null;
+    return true;
+  }
+  $('#scheduledMessagesButton')?.addEventListener('click', async () => {
+    if (state.scheduledPanelOpen) return closeScheduledModal();
+    scheduledFocusBeforeOpen = document.activeElement;
+    hideScheduledEditors();
+    state.scheduledPanelOpen = true;
+    $('#scheduledMessagesPanel')?.classList.remove('hidden');
+    document.body.classList.add('scheduled-modal-open');
+    updateScheduledMessagesButton();
+    $('#newScheduledMessageButton')?.focus();
+    await Promise.allSettled([loadRecipientGroups(), loadScheduledMessages()]);
+    if (!$('#scheduledRunAt')?.value) resetScheduledForm();
   });
-  $('#newScheduledMessageButton')?.addEventListener('click', resetScheduledForm);
-  $('#cancelScheduledEditButton')?.addEventListener('click', resetScheduledForm);
+  $('#closeScheduledMessagesButton')?.addEventListener('click', closeScheduledModal);
+  $('#newScheduledMessageButton')?.addEventListener('click', () => {
+    if (!confirmScheduleDiscard()) return;
+    resetScheduledForm();
+    showScheduledEditor();
+  });
+  $('#cancelScheduledEditButton')?.addEventListener('click', () => {
+    if (!confirmScheduleDiscard()) return;
+    resetScheduledForm();
+    $('#scheduledMessageForm')?.classList.add('hidden');
+    scheduledEditorSnapshot = '';
+    $('#newScheduledMessageButton')?.focus();
+  });
+  $('#manageRecipientGroupsButton')?.addEventListener('click', () => {
+    const section = $('#scheduledRecipientGroupsEditor');
+    if (!section) return;
+    if (!section.classList.contains('hidden') && !confirmScheduleDiscard()) return;
+    const nowOpen = section.classList.toggle('hidden');
+    $('#manageRecipientGroupsButton')?.setAttribute('aria-expanded', nowOpen ? 'false' : 'true');
+    recipientGroupsSnapshot = nowOpen ? '' : scheduledFieldsSnapshot(section);
+    if (!nowOpen) $('#recipientGroupSelect')?.focus();
+  });
+  $('#scheduledMessagesPanel')?.addEventListener('keydown', event => {
+    if (!state.scheduledPanelOpen) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeScheduledModal();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const modal = $('#scheduledMessagesPanel');
+    const focusables = Array.from(modal.querySelectorAll(
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter(el => el.getClientRects().length && !el.closest('.hidden'));
+    if (!focusables.length) return;
+    const first = focusables[0], last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault(); last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault(); first.focus();
+    }
+  });
   $('#saveScheduledMessageButton')?.addEventListener('click', saveScheduledMessage);
   $('#scheduledScheduleType')?.addEventListener('change', updateScheduledFormVisibility);
   $('#scheduledTargetType')?.addEventListener('change', updateScheduledFormVisibility);

@@ -4188,17 +4188,30 @@ html[data-theme="light"] #tab-config .config-card .config-card-heading h3 {
   font-size: 10px;
 }
 .scheduled-messages-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin: 0 18px 16px;
+  width: min(1100px, calc(100vw - 32px));
+  height: fit-content;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  margin: auto;
   padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--panel);
-  max-height: min(72vh, 760px);
   overflow: auto;
+  overscroll-behavior: contain;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .68), 0 20px 65px rgba(0, 0, 0, .45);
 }
+.scheduled-messages-panel:focus { outline: 2px solid var(--accent); outline-offset: -3px; }
+.scheduled-messages-panel .scheduled-editor.hidden,
+.scheduled-messages-panel .recipient-groups-card.hidden { display: none !important; }
+.scheduled-messages-panel .scheduled-table-wrap { flex: 1 1 auto; min-height: 110px; }
+body.scheduled-modal-open { overflow: hidden; }
 .scheduled-messages-panel.hidden { display: none !important; }
 .scheduled-panel-header {
   display: flex;
@@ -4226,9 +4239,12 @@ html[data-theme="light"] #tab-config .config-card .config-card-heading h3 {
 }
 .scheduled-layout {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(260px, .8fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   align-items: start;
+}
+.scheduled-layout:has(.scheduled-editor:not(.hidden)):has(.recipient-groups-card:not(.hidden)) {
+  grid-template-columns: minmax(0, 2fr) minmax(240px, .8fr);
 }
 .scheduled-editor,
 .recipient-groups-card {
@@ -4288,7 +4304,7 @@ html[data-theme="light"] #tab-config .config-card .config-card-heading h3 {
   .scheduled-form-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
 }
 @media (max-width: 720px) {
-  .scheduled-messages-panel { margin: 0 8px 10px; padding: 10px; }
+  .scheduled-messages-panel { width: calc(100vw - 16px); max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); margin: auto; padding: 10px; }
   .scheduled-panel-header { flex-direction: column; }
   .scheduled-form-grid { grid-template-columns: 1fr; }
   .scheduled-targets-field,

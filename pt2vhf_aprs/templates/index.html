@@ -444,20 +444,21 @@
       <button id="sendMessageButton" class="btn primary send-btn" title="Enviar mensagem">Enviar</button>
     </div>
 
-    <section id="scheduledMessagesPanel" class="scheduled-messages-panel hidden">
+    <section id="scheduledMessagesPanel" class="scheduled-messages-panel hidden" role="dialog" aria-modal="true" aria-labelledby="scheduledMessagesTitle" tabindex="-1">
       <div class="scheduled-panel-header">
         <div>
-          <h3>Mensagens programadas</h3>
+          <h3 id="scheduledMessagesTitle">Mensagens programadas</h3>
           <p>Envio único ou recorrente para estação, lista de estações, boletim ou grupo APRS.</p>
         </div>
         <div class="scheduled-panel-actions">
           <button id="newScheduledMessageButton" type="button" class="btn secondary">Novo agendamento</button>
+          <button id="manageRecipientGroupsButton" type="button" class="btn secondary" aria-expanded="false">Listas de destinatários</button>
           <button id="closeScheduledMessagesButton" type="button" class="btn secondary">Fechar</button>
         </div>
       </div>
 
       <div class="scheduled-layout">
-        <form id="scheduledMessageForm" class="scheduled-editor">
+        <form id="scheduledMessageForm" class="scheduled-editor hidden">
           <input id="scheduledMessageId" type="hidden">
           <h4>Agendamento</h4>
           <div class="scheduled-form-grid">
@@ -545,12 +546,12 @@
           </div>
           <div class="scheduled-editor-actions">
             <button id="saveScheduledMessageButton" type="button" class="btn primary">Salvar agendamento</button>
-            <button id="cancelScheduledEditButton" type="button" class="btn secondary">Limpar formulário</button>
+            <button id="cancelScheduledEditButton" type="button" class="btn secondary">Cancelar</button>
           </div>
           <small class="hint">Horários semanais usam o fuso local do sistema. Agendamentos ficam gravados no banco local.</small>
         </form>
 
-        <aside class="recipient-groups-card">
+        <aside id="scheduledRecipientGroupsEditor" class="recipient-groups-card hidden">
           <h4>Listas de destinatários</h4>
           <label class="field"><span>Lista existente</span><select id="recipientGroupSelect"><option value="">— Nova lista —</option></select></label>
           <label class="field"><span>Nome da lista</span><input id="recipientGroupName" type="text" maxlength="80" placeholder="Ex.: APRS Thursday"></label>
