@@ -59,6 +59,7 @@ A **v1.14.34** traz reparos para o atualizador Windows Portable (tentativas de s
 - **Mensagens → Agendadas:** janela modal acessível e responsiva; a lista não desloca o chat. Editores de agendamentos e listas são revelados sob demanda, com aviso antes de perder alterações, suporte a Esc e navegação por teclado.
 - **Mantido:** Web LAN habilitada apenas por padrão para bancos novos, abertura adicional do navegador desativada, IP LAN preferencial quando acessível, indicação laranja/preto de sessão remota, e controle para silenciar novas estações.
 - **Validação pendente:** testes físicos do ícone em Windows 7/10/11, investigação do runtime pywebview/pythonnet/.NET no computador afetado e janela nativa intermitente em Windows 7. O pipeline valida builds, não substitui testes nessas máquinas.
+- **Estado do backlog:** as correções de código desta release contemplam os problemas recentes de atualização, bandeja, Web LAN e agendamento. Pendências históricas que exigem testes físicos ou serviços externos continuam identificadas; não considerar a íntegra do BACKLOG.md resolvida sem esses testes.
 
 ## Novidades da v1.14.33
 
