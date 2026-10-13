@@ -4,51 +4,51 @@ Cliente APRS-IS multiplataforma para **Windows, Linux e macOS**, com mapa, mensa
 
 A **v1.14.34** traz reparos para o atualizador Windows Portable (tentativas de substituição, confirmação de que o novo servidor iniciou e recuperação do executável anterior), ícone APRS próprio e contrastante na bandeja do Windows e agendamento de mensagens em janela modal sem ocupar a aba de Mensagens. A v1.14.33 já incluía melhorias de Web LAN e alertas, preservadas aqui. **Validação física em Windows e da atualização a partir da v1.14.31 ainda é necessária.** O padrão de abertura automática de aba adicional permanece desativado. A validação física do popup transitório Win7 e do atualizador Win11 continua pendente.
 
-## Downloads — versão 1.14.33
+## Downloads — versão 1.14.34
 
-**Links diretos de todos os instaladores e edições portáteis publicados.** A nova v1.14.34 está em preparação: até o GitHub concluir todos os builds e publicar os arquivos, estes links continuam apontando para a v1.14.33 que existe e não retorna 404. Na publicação, o pipeline atualiza a lista automaticamente.
+**Links diretos de todos os instaladores e edições portáteis publicados na release v1.14.34.**
 
 ### Windows 10 / 11 — x64 (Intel / AMD)
 
-- [Instalador Windows x64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_Setup_x64_v1.14.33.exe)
-- [Portable Windows x64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_Portable_x64_v1.14.33.exe)
+- [Instalador Windows x64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_Setup_x64_v1.14.34.exe)
+- [Portable Windows x64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_Portable_x64_v1.14.34.exe)
 
 ### Windows 10 / 11 — ARM64
 
-- [Instalador Windows ARM64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_Setup_ARM64_v1.14.33.exe)
-- [Portable Windows ARM64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_Portable_ARM64_v1.14.33.exe)
+- [Instalador Windows ARM64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_Setup_ARM64_v1.14.34.exe)
+- [Portable Windows ARM64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_Portable_ARM64_v1.14.34.exe)
 
 ### Windows 7 SP1 — x64 (Legacy)
 
-- [Instalador Windows 7 Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v1.14.33.exe)
-- [Portable Windows 7 Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v1.14.33.exe)
+- [Instalador Windows 7 Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_Setup_Win7_Legacy_x64_v1.14.34.exe)
+- [Portable Windows 7 Legacy](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_Win7_Legacy_Portable_x64_v1.14.34.exe)
 
 > A edição Legacy usa um runtime próprio para Windows 7 SP1 x64 e não exige WebView2. A validação física da janela transitória no Windows 7 permanece pendente; consulte [instruções do Windows 7](docs/WINDOWS7.md).
 
 ### Linux — x86_64 (Intel / AMD)
 
-- [AppImage Linux x86_64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_x86_64_v1.14.33.AppImage)
-- [Pacote DEB Linux x86_64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/pt2vhf-aprs-client_1.14.33_amd64.deb)
-- [Pacote portátil TAR.GZ Linux x86_64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_Linux_x86_64_v1.14.33.tar.gz)
+- [AppImage Linux x86_64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_x86_64_v1.14.34.AppImage)
+- [Pacote DEB Linux x86_64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/pt2vhf-aprs-client_1.14.34_amd64.deb)
+- [Pacote portátil TAR.GZ Linux x86_64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_Linux_x86_64_v1.14.34.tar.gz)
 
 ### Linux — ARM64
 
-- [AppImage Linux ARM64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_arm64_v1.14.33.AppImage)
-- [Pacote DEB Linux ARM64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/pt2vhf-aprs-client_1.14.33_arm64.deb)
-- [Pacote portátil TAR.GZ Linux ARM64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_Linux_arm64_v1.14.33.tar.gz)
+- [AppImage Linux ARM64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_arm64_v1.14.34.AppImage)
+- [Pacote DEB Linux ARM64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/pt2vhf-aprs-client_1.14.34_arm64.deb)
+- [Pacote portátil TAR.GZ Linux ARM64](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_Linux_arm64_v1.14.34.tar.gz)
 
 ### macOS
 
-- [Instalador macOS Apple Silicon (ARM64)](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_macOS_arm64_v1.14.33.dmg)
-- [Instalador macOS Intel (x86_64)](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_macOS_x86_64_v1.14.33.dmg)
+- [Instalador macOS Apple Silicon (ARM64)](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_macOS_arm64_v1.14.34.dmg)
+- [Instalador macOS Intel (x86_64)](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_macOS_x86_64_v1.14.34.dmg)
 
 ### Manual e histórico
 
-- [Manual ilustrado em PDF — v1.14.33](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.33/PT2VHF_APRS_Client_Manual_v1.14.33.pdf)
-- [Release completa v1.14.33 — notas, integridade e outros arquivos](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/tag/v1.14.33)
+- [Manual ilustrado em PDF — v1.14.34](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/download/v1.14.34/PT2VHF_APRS_Client_Manual_v1.14.34.pdf)
+- [Release completa v1.14.34 — notas, integridade e outros arquivos](https://github.com/alexpmr/PT2VHF-APRS-Client/releases/tag/v1.14.34)
 - [Todas as versões](https://github.com/alexpmr/PT2VHF-APRS-Client/releases)
 
-> **Importante:** todos os links acima são conferidos contra os arquivos efetivamente publicados na release v1.14.33. Para testar versões futuras ainda não publicadas, utilize a página de [Releases](https://github.com/alexpmr/PT2VHF-APRS-Client/releases) em vez de links antecipados.
+> **Importante:** todos os links acima são conferidos contra os arquivos efetivamente publicados na release v1.14.34. Para testar versões futuras ainda não publicadas, utilize a página de [Releases](https://github.com/alexpmr/PT2VHF-APRS-Client/releases) em vez de links antecipados.
 
 ## Novidades da v1.14.34
 
