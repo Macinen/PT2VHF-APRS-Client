@@ -1,12 +1,12 @@
-# PT2VHF APRS Client - v1.14.34
+# PT2VHF APRS Client - v1.14.35
 
 Cliente APRS-IS multiplataforma para **Windows, Linux e macOS**, com mapa, mensagens, estações, tracklogs, topologia observada, Log TNC2, banco SQLite local e atualização integrada.
 
-A **v1.14.34** traz reparos para o atualizador Windows Portable (tentativas de substituição, confirmação de que o novo servidor iniciou e recuperação do executável anterior), ícone APRS próprio e contrastante na bandeja do Windows e agendamento de mensagens em janela modal sem ocupar a aba de Mensagens. A v1.14.33 já incluía melhorias de Web LAN e alertas, preservadas aqui. **Validação física em Windows e da atualização a partir da v1.14.31 ainda é necessária.** O padrão de abertura automática de aba adicional permanece desativado. A validação física do popup transitório Win7 e do atualizador Win11 continua pendente.
+A **v1.14.35** corrige a geometria histórica dos enlaces RF de **digipeaters/iGates móveis**. O PT2AP pode ter repetido estações do Sul por RF de verdade: esses contatos permanecem onde ocorreram, mesmo após o carro chegar a Uberaba e Brasília. O mapa agora usa registros `topology_events` com coordenadas e instante do evento, divide contatos por localidades e preserva a classificação RF/APRS-IS. Se o histórico não contiver coordenadas confiáveis, não inventa uma linha até a posição atual da estação. O histórico SQLite e os recordes não são apagados; a exportação KML também usa geometria histórica. As correções das versões anteriores permanecem incluídas. **A aceitação definitiva depende de teste com os dados reais do PT2AP.**
 
-## Downloads — versão 1.14.34
+## Downloads — versão 1.14.34 (última publicada)
 
-**Links diretos de todos os instaladores e edições portáteis publicados na release v1.14.34.**
+**Links diretos de todos os instaladores e edições portáteis publicados.** A nova v1.14.35 está em preparação: até o GitHub concluir todos os builds e publicar os arquivos, estes links continuam apontando para a v1.14.34 que existe e não retorna 404. Na publicação, o pipeline atualiza a lista automaticamente.
 
 ### Windows 10 / 11 — x64 (Intel / AMD)
 
@@ -49,6 +49,15 @@ A **v1.14.34** traz reparos para o atualizador Windows Portable (tentativas de s
 - [Todas as versões](https://github.com/alexpmr/PT2VHF-APRS-Client/releases)
 
 > **Importante:** todos os links acima são conferidos contra os arquivos efetivamente publicados na release v1.14.34. Para testar versões futuras ainda não publicadas, utilize a página de [Releases](https://github.com/alexpmr/PT2VHF-APRS-Client/releases) em vez de links antecipados.
+
+## Novidades da v1.14.35
+
+- **PT2AP/Starlink e outros digi/iGate móveis:** enlaces RF locais genuínos continuam sendo RF e são desenhados usando as **coordenadas gravadas no instante da repetição**; a posição atual do móvel atualiza apenas o marcador atual.
+- **Fim das linhas RF esticadas:** o mapa geral utiliza exclusivamente `topology_events` para a geometria, separando ocorrências por segmentos espaciais com IDs independentes; viagem Sul → Uberaba → Brasília não altera enlaces antigos.
+- **APRS-IS/Starlink:** a classificação Internet mantém linha tracejada independente. Evidência RF inferida pelo path continua identificada como inferida, sem criar RF de centenas de quilômetros por causa do movimento do veículo.
+- **Histórico sem localização:** não usar último GPS conhecido como substituto; manter eventos e relações no banco e no JSON de diagnóstico, mas omitir do mapa a linha sem posição histórica comprovada.
+- **Exportação KML:** mesma geometria histórica validada do mapa. O JSON diagnóstico inclui `topology_map_segments`, preservando os registros agregados originais.
+- **Testes:** novas regressões SQLite + Flask para eventos PT2AP Sul/Uberaba/Brasília, SSIDs, natureza RF e APRS-IS e endpoints; pacote multiplataforma permanece sujeito aos testes físicos com o banco real.
 
 ## Novidades da v1.14.34
 

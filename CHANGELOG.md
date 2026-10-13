@@ -1,3 +1,13 @@
+## 1.14.35 - 2026-10-12
+
+- Mapa/topologia: corrigido o efeito elástico dos enlaces de digipeaters e iGates móveis, exemplificado pelo PT2AP com Starlink ao viajar do Sul a Brasília.
+- A API /api/topology usa coordenadas históricas de topology_events, não GPS atual de stations; enlaces legítimos RF permanecem ancorados onde realmente ocorreram, com segmentos independentes por localidade.
+- Preservada distinção entre RF via TNC, RF inferido pelo path e Internet/APRS-IS. Sem posição histórica válida, a aresta permanece no banco mas não é desenhada artificialmente no mapa.
+- Popup/hover passam a indicar geometria histórica e momento de observação; chave dos segmentos impede colisões na mesma dupla em lugares diferentes.
+- Exportação KML e JSON de diagnóstico passam a oferecer geometria histórica coerente com o mapa.
+- Suíte de testes: PT2AP no Sul/Uberaba/Brasília, evidência por SSID e meio, coordenadas ausentes e endpoint Flask real.
+- A regressão real fica aberta até validação em campo com o banco original da estação; outras pendências históricas seguem documentadas.
+
 ## 1.14.34 - 2026-10-12
 
 - Atualizador Windows Portable: retentativas de backup/substituição em caso de arquivo bloqueado; confirmação de que o servidor do novo executável iniciou e tentativa de recuperação automática da versão anterior.

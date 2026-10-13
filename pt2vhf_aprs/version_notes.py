@@ -3,6 +3,19 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.35": {
+        "title": "Enlaces RF históricos de digipeaters móveis sem distorção",
+        "items": [
+            "PT2AP e outros digis/iGates móveis: contatos RF reais não mudam de lugar quando o veículo desloca seu GPS.",
+            "A topologia geral do mapa agora usa a posição histórica do instante do pacote, congelada nos eventos registrados no SQLite.",
+            "Enlaces observados no Sul, em Uberaba e perto de Brasília ficam em suas localidades, sem linhas VHF esticadas artificiais.",
+            "Mesmo par de estações pode aparecer em segmentos históricos separados quando observado em lugares diferentes.",
+            "Dados insuficientes para localizar um evento não produzem uma falsa linha até o GPS atual; o registro é mantido no banco.",
+            "RF local genuíno via digi continua RF, RF inferido pelo path permanece identificado, e backhaul Starlink/APRS-IS continua Internet.",
+            "KML e JSON exportados passam a incluir geometria histórica; testes de regressão específicos e builds completos.",
+            "A confirmação visual com o banco real do PT2AP ainda é necessária antes de encerrar a ocorrência #85.",
+        ],
+    },
     "1.14.34": {
         "title": "Atualizador Portable, ícone APRS na bandeja e agendamentos em popup",
         "items": [
