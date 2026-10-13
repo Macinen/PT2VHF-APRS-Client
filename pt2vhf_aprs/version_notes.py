@@ -3,6 +3,19 @@ from __future__ import annotations
 from typing import Any
 
 VERSION_NOTES: dict[str, dict[str, Any]] = {
+    "1.14.34": {
+        "title": "Atualizador Portable, ícone APRS na bandeja e agendamentos em popup",
+        "items": [
+            "Atualizador Windows Portable agora repete a substituição se o EXE estiver bloqueado e guarda backup antes de instalar.",
+            "Após reiniciar, o aplicativo confirma que o servidor Web iniciou; o helper tenta recuperar a versão anterior caso a nova falhe.",
+            "Ícone APRS próprio e bem contrastado na bandeja do Windows, com diagnósticos de origem e fallback.",
+            "Agendamentos de mensagens são gerenciados em janela modal; Novo/Editar e listas só ocupam espaço quando solicitados.",
+            "Esc e Fechar devolvem foco à aba Mensagens e alertam antes de descartar mudanças não salvas.",
+            "Preservadas as melhorias da v1.14.33 em LAN, indicadores Web e notificação de estação nova.",
+            "Para migrar a partir da Portable v1.14.31 com falha no atualizador antigo, faça download manual da Portable atual.",
+            "Testes em Win7/Win11 reais e do runtime .NET ainda são necessários; a versão não elimina todas as pendências históricas.",
+        ],
+    },
     "1.14.33": {
         "title": "APRS maior, Web LAN pronta e indicação de presença remota",
         "items": [

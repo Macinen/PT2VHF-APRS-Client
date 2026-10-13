@@ -1,12 +1,12 @@
-# PT2VHF APRS Client - v1.14.33
+# PT2VHF APRS Client - v1.14.34
 
 Cliente APRS-IS multiplataforma para **Windows, Linux e macOS**, com mapa, mensagens, estações, tracklogs, topologia observada, Log TNC2, banco SQLite local e atualização integrada.
 
-A **v1.14.33** acrescenta o ícone Windows com a palavra **APRS** ampliada, preferência pelo IP LAN real ao abrir o navegador, LAN ativa por padrão apenas em instalações novas, indicação laranja/preto durante sessões Web remotas e o controle para silenciar o alerta de nova estação restaurado na aba Configuração. O padrão de abertura automática de aba adicional permanece desativado. A validação física do popup transitório Win7 e do atualizador Win11 continua pendente.
+A **v1.14.34** traz reparos para o atualizador Windows Portable (tentativas de substituição, confirmação de que o novo servidor iniciou e recuperação do executável anterior), ícone APRS próprio e contrastante na bandeja do Windows e agendamento de mensagens em janela modal sem ocupar a aba de Mensagens. A v1.14.33 já incluía melhorias de Web LAN e alertas, preservadas aqui. **Validação física em Windows e da atualização a partir da v1.14.31 ainda é necessária.** O padrão de abertura automática de aba adicional permanece desativado. A validação física do popup transitório Win7 e do atualizador Win11 continua pendente.
 
 ## Downloads — versão 1.14.33
 
-**Links diretos de todos os instaladores e edições portáteis publicados na release v1.14.33.**
+**Links diretos de todos os instaladores e edições portáteis publicados.** A nova v1.14.34 está em preparação: até o GitHub concluir todos os builds e publicar os arquivos, estes links continuam apontando para a v1.14.33 que existe e não retorna 404. Na publicação, o pipeline atualiza a lista automaticamente.
 
 ### Windows 10 / 11 — x64 (Intel / AMD)
 
@@ -49,6 +49,15 @@ A **v1.14.33** acrescenta o ícone Windows com a palavra **APRS** ampliada, pref
 - [Todas as versões](https://github.com/alexpmr/PT2VHF-APRS-Client/releases)
 
 > **Importante:** todos os links acima são conferidos contra os arquivos efetivamente publicados na release v1.14.33. Para testar versões futuras ainda não publicadas, utilize a página de [Releases](https://github.com/alexpmr/PT2VHF-APRS-Client/releases) em vez de links antecipados.
+
+## Novidades da v1.14.34
+
+- **Windows Portable:** retentativas reais de backup/substituição quando o executável está bloqueado, log de cada etapa, validação do reinício do servidor Web por marcador de prontidão e tentativa de rollback para a cópia anterior se a nova instância não iniciar.
+- **Importante para versões antigas:** o atualizador embutido na v1.14.31 não pode receber essas correções retroativamente. Se a atualização automática da v1.14.31 falhar, **feche-a inteiramente pela bandeja**, baixe a Portable v1.14.34 diretamente após a publicação e inicie manualmente; não apague os dados em `AppData`.
+- **Ícone na bandeja do Windows:** gerado na inicialização em 64×64 com fundo sólido, borda ciano e texto grande **APRS**, sem depender de converter o ICO do executável. Erros de fonte/imagem e fallback registrados no diagnóstico.
+- **Mensagens → Agendadas:** janela modal acessível e responsiva; a lista não desloca o chat. Editores de agendamentos e listas são revelados sob demanda, com aviso antes de perder alterações, suporte a Esc e navegação por teclado.
+- **Mantido:** Web LAN habilitada apenas por padrão para bancos novos, abertura adicional do navegador desativada, IP LAN preferencial quando acessível, indicação laranja/preto de sessão remota, e controle para silenciar novas estações.
+- **Validação pendente:** testes físicos do ícone em Windows 7/10/11, investigação do runtime pywebview/pythonnet/.NET no computador afetado e janela nativa intermitente em Windows 7. O pipeline valida builds, não substitui testes nessas máquinas.
 
 ## Novidades da v1.14.33
 

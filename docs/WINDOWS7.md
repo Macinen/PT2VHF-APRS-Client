@@ -79,3 +79,10 @@ O primeiro build Legacy sem dependência de APIs modernas foi validado em Window
 - O ícone do executável, da bandeja e dos atalhos agora inclui letras **APRS** de maior contraste.
 - A presença de usuários remotos pode destacar o IP do cabeçalho em laranja com texto preto. A presença requer heartbeat e expira automaticamente.
 - Regra de firewall continua sujeita ao UAC, restrita à sub-rede local. Não habilitar acesso pela Internet.
+
+## v1.14.34 — atualizador e bandeja
+
+- O Portable passa a verificar a prontidão da nova instância após a atualização e tenta recuperar a cópia anterior caso o novo processo não inicie. Atualizadores de versões antigas não têm essa proteção.
+- O ícone da área de notificação agora é desenhado com fundo sólido e texto APRS contrastante. Sua legibilidade real no Windows 7 ainda requer teste físico.
+- O painel de Mensagens agendadas é exibido em popup, com editores sob demanda e funcionamento independente do serviço de envio.
+- Não confundir esse modal com a janela nativa breve do Windows 7, ainda em investigação.

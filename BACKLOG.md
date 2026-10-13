@@ -1,3 +1,11 @@
+## Em validação na v1.14.34 — Correções prioritárias das issues #82, #83 e #84
+
+- **#82 — UI de agendamentos:** convertida para modal, com formulário e listas ocultos até ação explícita. Proteger edição não salva e não afetar trabalho agendado em segundo plano. Código alterado; teste visual físico ainda necessário.
+- **#83 — Portable v1.14.31 → v1.14.33:** helper do novo cliente passa a repetir backup/renomeação quando o executável está bloqueado; valida presença do novo servidor Web com arquivo `update_ready.flag` e tenta restaurar versão anterior em falha. **A versão 1.14.31 já distribuída continua com helper antigo**; primeira migração pode exigir download manual. Falhas pythonnet/netfx/_MEI do sistema de origem ainda requerem investigação e logs.
+- **#84 / #77 — bandeja do Windows:** nova imagem própria, opaca e de alto contraste, com texto APRS grande, sem depender de redimensionar um ICO; ainda requer confirmação em Windows 7/10/11 reais. Menu pystray mantido.
+- **#78–81 — LAN/alertas:** preservadas e revalidadas as alterações de código existentes na v1.14.33; feedback real de desempenho e segurança ainda é obrigatório para conclusão.
+- **Estado:** código integrado à v1.14.34 em preparação. **Não equivale à resolução integral do backlog histórico** (ex.: console transitório do Win7, dependências .NET/pywebview específicas e assinatura externa). Somente encerrar as issues após builds e aceites em campo.
+
 ## Pendente — BUG: ícone da bandeja Windows quase invisível apesar do menu funcionar (issue #84)
 
 - **Evidência fotográfica de 12/10/2026:** bandeja de notificações do Windows (seta ^, junto ao relógio) aberta com menu do **PT2VHF APRS Client** funcionando. O ícone correspondente, indicado pelo usuário na **segunda posição da linha superior, da esquerda para a direita**, está praticamente invisível/ilegível. Trata-se da **bandeja/system tray**, não apenas do botão da janela na barra principal de tarefas.

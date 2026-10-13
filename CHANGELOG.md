@@ -1,3 +1,13 @@
+## 1.14.34 - 2026-10-12
+
+- Atualizador Windows Portable: retentativas de backup/substituição em caso de arquivo bloqueado; confirmação de que o servidor do novo executável iniciou e tentativa de recuperação automática da versão anterior.
+- Inicializador Windows: grava sinal de prontidão para o helper de atualização somente após o servidor HTTP local estar disponível.
+- Bandeja de notificações: nova imagem APRS de alto contraste, fundo opaco e tamanho útil, gerada separadamente do ICO de atalhos, com logs de fallback.
+- Mensagens programadas: painel inline convertido em modal responsivo; novos agendamentos, edição e gerenciador de listas somente sob demanda; proteção contra perda de alterações não salvas, foco e teclado.
+- Mantidas as correções de Web LAN e Configuração realizadas na v1.14.33.
+- Aviso: migração a partir de v1.14.31 Portable pode exigir atualização manual inicial, porque seu helper antigo permanece instalado naquela versão.
+- Pendente de comprovação física: erro .NET/pythonnet em máquinas específicas, problema de cleanup _MEI do PyInstaller e popup intermitente Win7. Não considerar sanados apenas pelo sucesso dos builds.
+
 ## 1.14.33 - 2026-10-12
 
 - Configuração: restaurado o controle visível para silenciar ou reativar avisos de estação nova (station_appeared), preservando salvamento imediato no backend.
