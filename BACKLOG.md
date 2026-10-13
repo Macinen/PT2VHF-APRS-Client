@@ -1,3 +1,12 @@
+## Pendente — BUG: ícone da bandeja Windows quase invisível apesar do menu funcionar (issue #84)
+
+- **Evidência fotográfica de 12/10/2026:** bandeja de notificações do Windows (seta ^, junto ao relógio) aberta com menu do **PT2VHF APRS Client** funcionando. O ícone correspondente, indicado pelo usuário na **segunda posição da linha superior, da esquerda para a direita**, está praticamente invisível/ilegível. Trata-se da **bandeja/system tray**, não apenas do botão da janela na barra principal de tarefas.
+- **Diagnóstico no código:** `windows_app.py::_create_tray_icon()` instancia `pystray.Icon` corretamente, mas `_make_tray_image()` tenta `windows/app_icon.ico` e, em qualquer exceção não registrada, recorre a `pt2vhf_aprs/static/img/app_logo.png`. Para ICO, escolhe o quadro de 32 px e reescala a 64 px; essa imagem pode sofrer nova redução pelo Windows a 16–24 px. Falhas de extração, transparência, tamanho útil e fallback devem ser diagnosticadas no **Portable/Setup efetivamente compilado**, sem atribuir causa antes da validação.
+- **Correção requerida:** garantir ícone do **APRS bem contrastante, opaco onde necessário e com alta ocupação útil** na bandeja, com variante específica para 16/20/24 px; registrar no diagnóstico qual recurso foi carregado, dimensões e eventuais fallbacks; evitar `except Exception: continue` sem log; manter clique/menu funcionais.
+- **Aceite:** visível nos temas claro e escuro, diferentes escalas DPI, Windows 7 Legacy/10/11 (ARM64 quando disponível), bandeja aberta/oculta, após reinício Explorer e atualização; verificar com capturas de executáveis reais, não apenas testes de `.ico` de build. Preservar legibilidade e identidade visual do PT2VHF/APRS no desktop e barra de tarefas.
+- **Relacionado:** [#77 — ícone APRS ampliado no Windows](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/77). O novo gerador de ícones existe no código da v1.14.33, mas o resultado real da bandeja foi **reprovado**.
+- **Rastreamento:** [issue #84](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/84). **Ainda não implementado; manter aberto até teste físico.**
+
 ## Pendente — Popups/modais sob demanda para tarefas eventuais; agendamento de mensagens (issue #82)
 
 - **Pedido do mantenedor em 12/10/2026:** tarefas usadas esporadicamente (começando por **agendamento de mensagens**) devem usar uma janela/modal **visível apenas enquanto necessária**, mantendo a tela principal livre de formulários extensos.
