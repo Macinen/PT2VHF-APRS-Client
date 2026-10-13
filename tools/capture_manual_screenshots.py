@@ -56,6 +56,16 @@ def seed(data_dir: Path) -> None:
         "PY2ABC-9>APRS,TCPIP*,qAr,PT2XYZ-7:>enlace internet",
         medium="APRS-IS",
     )
+    # Explicit historical snapshot: demonstration must not use latest station GPS.
+    with db.connection() as conn:
+        conn.execute(
+            """INSERT INTO topology_events(
+                timestamp,source,target,kind,medium,evidence_level,
+                source_lat,source_lon,target_lat,target_lon
+            ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+            (db.utc_now_iso(), "PY2ABC-9", "PT2XYZ-7", "igate",
+             "APRS-IS", "internet", -15.81, -47.91, -15.72, -47.88),
+        )
     db.add_message("in", "PY2ABC-9", "PT2VHF-15", "Bom dia! Teste de mensagem APRS.", msg_id="101", status="Recebida")
     db.add_message("out", "PT2VHF-15", "PY2ABC-9", "Recebido. Aplicação funcionando.", msg_id="102", status="ACK")
     db.add_aprs_log("RX", "# aprsc 2.1.12-g123 24 Sep 2026 14:00:00 GMT")

@@ -96,6 +96,9 @@ def _segments_from_events(rows: list[Any], max_segments: int = MAP_SEGMENT_LIMIT
         else:
             segment["internet_confirmed_count"] += 1
 
+    totals: dict[tuple[str, str, str], int] = defaultdict(int)
+    for segment in segments.values():
+        totals[(segment["source"], segment["target"], segment["kind"])] += segment["packet_count"]
     ordered = sorted(segments.values(), key=lambda item: item["last_seen"], reverse=True)
     if len(ordered) > max_segments:
         diag.log_event("topology_map_segment_limit", total=len(ordered), shown=max_segments)
@@ -103,8 +106,8 @@ def _segments_from_events(rows: list[Any], max_segments: int = MAP_SEGMENT_LIMIT
     for edge in ordered:
         mixed = len(media_by_pair[(edge["source"], edge["target"])]) > 1
         edge["mixed_evidence"] = mixed
-        edge["rf_packet_count"] = edge["packet_count"] if edge["kind"] == "rf" else 0
-        edge["internet_packet_count"] = edge["packet_count"] if edge["kind"] == "igate" else 0
+        edge["rf_packet_count"] = totals[(edge["source"], edge["target"], "rf")]
+        edge["internet_packet_count"] = totals[(edge["source"], edge["target"], "igate")]
         edge["classification_source"] = (
             "APRS-IS confirmado" if edge["kind"] == "igate" else
             "RF recebido pelo TNC (posição histórica)" if edge["rf_transport_count"] > 0 else

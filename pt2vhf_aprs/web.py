@@ -1254,6 +1254,10 @@ def create_app() -> Flask:
                 return jsonify({"error": "Selecione pelo menos uma camada para exportar."}), 400
 
             payload = db.geographic_export_data(hours)
+            if options["include_topology"]:
+                # KML must use the same historical geometry as the on-screen
+                # map; exporting the latest GPS of a mobile would rubber-band RF.
+                payload["topology"] = topology_map.list_map_edges(hours)
             content = _kml_document(payload, **options)
             stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"PT2VHF_APRS_Client_{stamp}.kml"
