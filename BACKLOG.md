@@ -4,27 +4,27 @@
 - **#83 — Portable v1.14.31 → v1.14.33:** helper do novo cliente passa a repetir backup/renomeação quando o executável está bloqueado; valida presença do novo servidor Web com arquivo `update_ready.flag` e tenta restaurar versão anterior em falha. **A versão 1.14.31 já distribuída continua com helper antigo**; primeira migração pode exigir download manual. Falhas pythonnet/netfx/_MEI do sistema de origem ainda requerem investigação e logs.
 - **#84 / #77 — bandeja do Windows:** nova imagem própria, opaca e de alto contraste, com texto APRS grande, sem depender de redimensionar um ICO; ainda requer confirmação em Windows 7/10/11 reais. Menu pystray mantido.
 - **#78–81 — LAN/alertas:** preservadas e revalidadas as alterações de código existentes na v1.14.33; feedback real de desempenho e segurança ainda é obrigatório para conclusão.
-- **Estado:** código integrado à v1.14.34 em preparação. **Não equivale à resolução integral do backlog histórico** (ex.: console transitório do Win7, dependências .NET/pywebview específicas e assinatura externa). Somente encerrar as issues após builds e aceites em campo.
+- **Estado:** código da v1.14.34 **publicado oficialmente em 12/10/2026**, com pipeline completo Windows x64/ARM64/Win7 Legacy, Linux x64/ARM64, macOS Intel/ARM64 e manual PDF aprovado. Validação física/funcional de algumas issues permanece pendente. **Não equivale à resolução integral do backlog histórico** (ex.: console transitório do Win7, dependências .NET/pywebview específicas e assinatura externa). Somente encerrar as issues após builds e aceites em campo.
 
-## Pendente — BUG: ícone da bandeja Windows quase invisível apesar do menu funcionar (issue #84)
+## Implementado no código da v1.14.34 — BUG da bandeja Windows (issue #84; teste físico pendente)
 
 - **Evidência fotográfica de 12/10/2026:** bandeja de notificações do Windows (seta ^, junto ao relógio) aberta com menu do **PT2VHF APRS Client** funcionando. O ícone correspondente, indicado pelo usuário na **segunda posição da linha superior, da esquerda para a direita**, está praticamente invisível/ilegível. Trata-se da **bandeja/system tray**, não apenas do botão da janela na barra principal de tarefas.
-- **Diagnóstico no código:** `windows_app.py::_create_tray_icon()` instancia `pystray.Icon` corretamente, mas `_make_tray_image()` tenta `windows/app_icon.ico` e, em qualquer exceção não registrada, recorre a `pt2vhf_aprs/static/img/app_logo.png`. Para ICO, escolhe o quadro de 32 px e reescala a 64 px; essa imagem pode sofrer nova redução pelo Windows a 16–24 px. Falhas de extração, transparência, tamanho útil e fallback devem ser diagnosticadas no **Portable/Setup efetivamente compilado**, sem atribuir causa antes da validação.
+- **Diagnóstico da versão anterior:** `windows_app.py::_create_tray_icon()` instanciava `pystray.Icon`, mas `_make_tray_image()` carregava o ICO de 32 px e o ampliava para 64 px com fallback silencioso. A v1.14.34 agora desenha uma imagem específica da bandeja, registrando falhas e fallback. Falhas de extração, transparência, tamanho útil e fallback devem ser diagnosticadas no **Portable/Setup efetivamente compilado**, sem atribuir causa antes da validação.
 - **Correção requerida:** garantir ícone do **APRS bem contrastante, opaco onde necessário e com alta ocupação útil** na bandeja, com variante específica para 16/20/24 px; registrar no diagnóstico qual recurso foi carregado, dimensões e eventuais fallbacks; evitar `except Exception: continue` sem log; manter clique/menu funcionais.
 - **Aceite:** visível nos temas claro e escuro, diferentes escalas DPI, Windows 7 Legacy/10/11 (ARM64 quando disponível), bandeja aberta/oculta, após reinício Explorer e atualização; verificar com capturas de executáveis reais, não apenas testes de `.ico` de build. Preservar legibilidade e identidade visual do PT2VHF/APRS no desktop e barra de tarefas.
-- **Relacionado:** [#77 — ícone APRS ampliado no Windows](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/77). O novo gerador de ícones existe no código da v1.14.33, mas o resultado real da bandeja foi **reprovado**.
-- **Rastreamento:** [issue #84](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/84). **Ainda não implementado; manter aberto até teste físico.**
+- **Relacionado:** [#77 — ícone APRS ampliado no Windows](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/77). A v1.14.33 foi **reprovada em campo**; na v1.14.34 foi incluído um ícone próprio, opaco e contrastante, ainda pendente de novo teste visual.
+- **Rastreamento:** [issue #84](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/84). **Correção incluída na v1.14.34; manter aberto até confirmação visual em Windows real.**
 
-## Pendente — Popups/modais sob demanda para tarefas eventuais; agendamento de mensagens (issue #82)
+## Implementado no código da v1.14.34 — Modal de agendamento (issue #82; teste visual pendente)
 
 - **Pedido do mantenedor em 12/10/2026:** tarefas usadas esporadicamente (começando por **agendamento de mensagens**) devem usar uma janela/modal **visível apenas enquanto necessária**, mantendo a tela principal livre de formulários extensos.
-- **Situação atual:** o botão **Agendadas (N)** em Mensagens abre `#scheduledMessagesPanel` dentro do fluxo da própria aba; o painel exibe ao mesmo tempo formulário `#scheduledMessageForm`, listas de destinatários e tabela `#scheduledMessagesTable`, ocupando espaço precioso do chat e da lista.
+- **Situação anterior à v1.14.34:** o botão **Agendadas (N)** em Mensagens abria `#scheduledMessagesPanel` dentro do fluxo da própria aba; o painel exibe ao mesmo tempo formulário `#scheduledMessageForm`, listas de destinatários e tabela `#scheduledMessagesTable`, ocupando espaço precioso do chat e da lista.
 - **Novo comportamento:** o botão **Agendadas** abre um popup centralizado e responsivo, com lista/resumo dos agendamentos, botão **Novo**, ações de editar/ativar/desativar/executar/excluir e **formulários exibidos somente na ação Novo/Editar**. A gestão das listas de destinatários também deve aparecer somente quando solicitada.
 - **Fechamento:** `Fechar`, `Cancelar` e tecla `Esc`; confirmação ao descartar mudanças não salvas, foco gerenciado e devolvido ao botão de origem, acessibilidade (`role=dialog`, `aria-modal`), temas e traduções. Garantir rolagem interna/altura máxima em telas 1280×720 e Windows 7 Legacy.
 - **Persistência/execução:** o modal é somente apresentação: fechar/ocultar não cancela o trabalho agendado, não interrompe a thread/worker de envio, não limpa agendamentos salvos e não dispara envio imediato. O contador e a lista precisam refletir o SQLite.
 - **Arquitetura:** criar padrão reutilizável para outras operações eventuais complexas, sem converter controles cotidianos em popups, nem confundir com a janela **nativa intermitente** do Win7 que constitui um bug separado.
 - **Critérios de aceite:** a aba Mensagens mantém somente acesso compacto **Agendadas (N)** quando fechado; popup e subformulários aparecem sob demanda; operações de agendamento continuam funcionais; sem perda silenciosa de rascunhos; teste de teclado/responsividade/Windows 7 e 11.
-- **Rastreamento:** [issue #82](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/82). **Ainda não implementado.**
+- **Rastreamento:** [issue #82](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/82). **Implementado na v1.14.34; validação em Windows real ainda pendente.**
 
 ## Restaurado na v1.14.33 — Configuração: silenciar aviso de estação nova (issue #81)
 
@@ -32,47 +32,47 @@
 - **Causa encontrada:** o checkbox `station_appeared` ainda existia em `pt2vhf_aprs/static/js/v190.js`, mas seu cartão dinâmico “Backup completo, grupos e alertas” era anexado fora de `#configForm`, após o rodapé Salvar configuração; dificultava a localização.
 - **Correção no código-fonte:** recolocar o cartão na grade principal de Configuração, antes de “Retenção e tamanho do banco”, com título **Alertas e notificações de estações** e instrução “Desmarque Estação apareceu para silenciar os avisos de novas estações”. Preservar `station_appeared` e o salvamento imediato/persistente via `/api/v190/alerts/settings`.
 - **Teste pendente de validação física:** abrir Configuração nas edições Windows 7/11, desmarcar e confirmar que não aparecem alertas de estação nova/reentrada; reiniciar e validar estado persistido. Sem interferir nos demais alertas.
-- **Rastreamento:** [issue #81](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/81). Implementado no código da versão em preparação; manter aberta até conclusão dos testes e publicação.
+- **Rastreamento:** [issue #81](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/81). Implementado e publicado na v1.14.33/34; manter aberta até confirmação funcional em campo.
 
-## Pendente — IP LAN maior no cabeçalho e destaque laranja/preto enquanto houver usuários Web remotos ativos (issue #80)
+## Implementado no código da v1.14.33, preservado na v1.14.34 — Indicador Web remoto (issue #80)
 
 - **Solicitação do mantenedor em 12/10/2026:** ampliar moderadamente o IP e a porta do endereço Web no cabeçalho, tornando-os mais visíveis; destacar o mesmo bloco com **fundo laranja e letras pretas quando houver alguém utilizando a interface Web pela rede**.
 - **Estados:** normal quando não há usuário remoto ativo; **laranja + preto + texto “Web em uso”** quando há sessão remota efetivamente ativa; indicar separadamente se LAN estiver desabilitada/indisponível. Preservar legibilidade em temas claro/escuro, resoluções pequenas e Windows 7 Legacy.
-- **Detecção de atividade:** não confundir “houve um acesso remoto há menos de 15 minutos” com “há alguém usando agora”. Hoje `lan_access.py::last_remote_request()` usa janela de 900 s para provar apenas acesso recente; acrescentar presença/heartbeat de sessões Web remotas e expirar por inatividade curta (recomendação: 60–120 s), excluindo verificações locais, probes/healthchecks e falsos positivos.
+- **Detecção de atividade:** não confundir “houve um acesso remoto há menos de 15 minutos” com “há alguém usando agora”. O antigo `lan_access.py::last_remote_request()` usa janela de 900 s apenas para acesso recente; desde a v1.14.33 há também presença/heartbeat das sessões remotas com expiração curta (~75 s), sem contá-la como último acesso histórico.
 - **Implementação:** atualizar `#webAccessStatus`, `#webAccessLabel`, `#webAccessUrl` em `pt2vhf_aprs/templates/index.html`; estilos de `.web-access-status` em `pt2vhf_aprs/static/css/app.css`; atualização dinâmica em `pt2vhf_aprs/static/js/app.js::updateWebAccessStatus()`; fornecer `remote_web_active` e contagem de sessões no diagnóstico da interface Web com atualização periódica e i18n.
 - **Aceite:** IP/porta um pouco maiores e sem truncar; cor laranja com texto preto apenas durante uso remoto; retorno automático ao visual normal em no máximo ~2 min após cessar atividade; modo LAN desativado não indica usuários ativos; testes em LAN com múltiplas sessões e navegador local, incluindo Windows 7/11.
 - **Relacionado:** [issue #78](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/78) (abertura por IP LAN) e [issue #79](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/79) (padrões de inicialização).
-- **Rastreamento:** [issue #80](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/80). **Ainda não implementado.**
+- **Rastreamento:** [issue #80](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/80). **Implementado; validação remota real e DPI pendente.**
 
-## Pendente — Novos padrões: acesso Web LAN ligado e abertura automática do navegador desligada (issue #79)
+## Implementado na v1.14.33, preservado na v1.14.34 — Padrões LAN/navegador (issue #79)
 
 - **Solicitação de 12/10/2026:** a opção **“Permitir acesso Web pela rede local (LAN)”** deve vir **ativada por padrão** (`web_lan_enabled=1`), enquanto a opção **“Abrir também no navegador ao iniciar”** deve permanecer **desativada por padrão** (`open_browser_on_start=0`).
-- **Estado encontrado no código:** `pt2vhf_aprs/database.py::DEFAULT_CONFIG` já traz `open_browser_on_start=0`, mas atualmente define `web_lan_enabled=0`. O schema SQL e a migração desse campo também usam `DEFAULT 0`; textos de ajuda da interface ainda informam “Desligado por padrão”.
+- **Estado corrigido:** `pt2vhf_aprs/database.py::DEFAULT_CONFIG` define `open_browser_on_start=0` e `web_lan_enabled=1`. O schema SQL, migração e texto de ajuda foram ajustados para novas configurações; preferências previamente salvas são preservadas.
 - **Persistência:** aplicar o novo default somente a configurações novas, sem sobrescrever a escolha de quem já habilitou ou desabilitou LAN no banco. A inicialização do servidor deve respeitar a configuração efetivamente persistida.
 - **Operação:** disponibilizar o backend Web na LAN sem disparar navegador/aba extra automaticamente; manter acesso manual pela bandeja, links e dispositivos na LAN. Preservar o modo app do Windows 7 Legacy, cuja janela baseada em navegador pode ser necessária para exibir a interface principal — não confundir com a opção de abrir uma aba adicional.
 - **Segurança:** não habilitar port-forward/UPnP nem acesso WAN; regras de firewall devem permanecer restritas à sub-rede local, sem conceder permissões administrativas silenciosamente. Exibir corretamente IP e porta reais, e permitir desativação simples da LAN.
 - **Verificações:** primeira instalação, atualização com preferências salvas, textos de configuração/i18n, Windows 7/10/11 e demais plataformas, testes de defaults e ausência de abertura automática de navegador.
 - **Relacionado:** [issue #78](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/78) — quando navegador for aberto explicitamente, preferir o IP LAN utilizável.
-- **Rastreamento:** [issue #79](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/79). **Ainda não implementado.**
+- **Rastreamento:** [issue #79](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/79). **Implementado; validar primeira instalação real.**
 
-## Pendente — Abrir navegador pelo IP real da LAN, não por 127.0.0.1 (issue #78)
+## Implementado na v1.14.33, preservado na v1.14.34 — Abrir Web pelo IP LAN (issue #78)
 
 - **Pedido em 12/10/2026:** quando o PT2VHF APRS Client abrir a interface no navegador, priorizar o endereço IPv4 **real do computador na rede**, por exemplo `http://192.168.1.25:8080`, e não `http://127.0.0.1:8080`.
 - **Escopo:** inicialização com navegador, opção de abrir a interface pela bandeja, reabertura quando já existe instância e modo navegador do Windows 7 Legacy. A porta deve ser a que foi **realmente reservada** pelo backend, não uma constante presumida.
 - **Segurança/compatibilidade:** preferir endereço LAN somente se `web_lan_enabled` estiver ativado, o servidor estiver escutando em endereço da rede e o IP/porta forem acessíveis. Não habilitar compartilhamento, firewall nem exposição externa silenciosamente. Se o servidor aceitar apenas loopback ou a interface LAN estiver indisponível, utilizar `127.0.0.1` como fallback para não abrir página inacessível.
-- **Infraestrutura existente:** `LocalServerHandle.share_url` e `lan_host` em `pt2vhf_aprs/local_server.py` oferecem o caminho de URL compartilhável quando LAN está ativa; `windows_app.py::_current_url()` ainda prioriza `handle.url` (loopback), assim como `read_runtime_url` na reabertura.
+- **Infraestrutura corrigida:** `LocalServerHandle.share_url` e `lan_host` em `pt2vhf_aprs/local_server.py` oferecem o caminho compartilhável, e `windows_app.py::_current_url()` / `read_runtime_browser_url()` preferem IP LAN confirmado, preservando localhost como fallback.
 - **Multi-interface:** tratamento de Ethernet/Wi-Fi/VPN/adaptadores virtuais; registrar diagnóstico do IP escolhido e do fallback. Preservar `127.0.0.1` para watchdog e verificações internas que não precisam da URL externa.
 - **Aceite:** teste em Windows 7 Legacy e Windows 11, com LAN ativada/desativada, porta alternativa e reabertura pela bandeja/segunda instância.
-- **Rastreamento:** [issue #78](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/78). **Ainda não implementado.**
+- **Rastreamento:** [issue #78](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/78). **Implementado; testar multirrede e reabertura em Windows real.**
 
-## Pendente — Ícone Windows ampliado, APRS legível e identidade PT2VHF (issue #77)
+## Implementado no código da v1.14.33/34 — Ícones APRS Windows (issue #77; teste físico pendente)
 
 - **Relato do mantenedor em 12/10/2026:** os ícones usados no Windows parecem minúsculos tanto na Área de Trabalho quanto na barra de tarefas e na área de notificação (bandeja próxima ao relógio).
 - **Objetivo:** ícone com ocupação visual maior **dentro dos limites de tamanho impostos pelo próprio Windows**, contraste robusto, a palavra **APRS** em destaque e preservação da identidade visual do PT2VHF. Não modificar a logomarca do aplicativo na interface.
 - **Arte/resoluções:** projetar composições específicas para 16/24/32/48/64/128/256 px, evitando grandes margens transparentes e perda de legibilidade ao reduzir a imagem. Priorizar marca e texto APRS legíveis nos tamanhos pequenos; não simplesmente aumentar o canvas.
 - **Caminhos técnicos:** revisar `windows/make_icon.py`, `windows/aprs_taskbar_icon.png`, `windows_app.py::_make_tray_image`, `app_icon.ico`, todos os `*.spec` Windows e ícones de atalhos dos instaladores Inno Setup, abrangendo x64, ARM64 e Windows 7 Legacy.
 - **Aceite:** conferir visualmente, em máquinas reais, Área de Trabalho, barra de tarefas, bandeja, Alt+Tab e atalhos após instalar/atualizar; verificar transparência, cache de ícones, variações de DPI e ausência de regressão para Win7.
-- **Rastreamento:** [issue #77](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/77). **Ainda não implementado.**
+- **Rastreamento:** [issue #77](https://github.com/alexpmr/PT2VHF-APRS-Client/issues/77). **Geração multirresolução e bandeja opaca/contrastante implementadas; aguarda inspeção do usuário.**
 
 ## Implementado — README GitHub com downloads diretos de todas as plataformas (12/10/2026)
 
