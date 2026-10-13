@@ -11,29 +11,28 @@ def read(rel: str) -> str:
     return (ROOT / rel).read_text(encoding="utf-8")
 
 
-def test_v1812_init_db_migrates_legacy_packets_before_medium_indexes():
+def test_v1812_init_db_migrates_legacy_packets_before_medium_indexes(tmp_path):
     original = db.DB_PATH
     try:
-        with tempfile.TemporaryDirectory() as td:
-            legacy = Path(td) / "legacy.db"
-            conn = sqlite3.connect(legacy)
-            try:
-                conn.executescript(
-                    """
-                    CREATE TABLE packets (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        timestamp TEXT NOT NULL,
-                        from_call TEXT,
-                        packet_format TEXT,
-                        raw TEXT NOT NULL
-                    );
-                    CREATE INDEX idx_packets_time ON packets(timestamp DESC);
-                    INSERT INTO packets(timestamp,from_call,packet_format,raw)
-                    VALUES('2026-10-02T20:00:00+00:00','PT2OLD','status','PT2OLD>APRS:>legacy');
-                    """
-                )
-                conn.commit()
-            finally:
+        legacy = tmp_path / "legacy.db"
+        conn = sqlite3.connect(legacy)
+        try:
+            conn.executescript(
+                """
+                CREATE TABLE packets (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp TEXT NOT NULL,
+                    from_call TEXT,
+                    packet_format TEXT,
+                    raw TEXT NOT NULL
+                );
+                CREATE INDEX idx_packets_time ON packets(timestamp DESC);
+                INSERT INTO packets(timestamp,from_call,packet_format,raw)
+                VALUES('2026-10-02T20:00:00+00:00','PT2OLD','status','PT2OLD>APRS:>legacy');
+                """
+            )
+            conn.commit()
+        finally:
                 conn.close()
 
             db.DB_PATH = legacy

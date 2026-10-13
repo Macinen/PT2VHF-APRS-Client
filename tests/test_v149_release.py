@@ -37,77 +37,74 @@ def test_v149_version_and_ui_markers():
     assert "formatRfDistanceKm(topologyEdgeDistanceKm(edge))" in js
 
 
-def test_v149_candidates_only_include_complete_rf_reachability():
+def test_v149_candidates_only_include_complete_rf_reachability(tmp_path):
     original = db.DB_PATH
     try:
-        with tempfile.TemporaryDirectory() as td:
-            db.DB_PATH = Path(td) / "test.db"
-            db.init_db()
-            with db.connection() as conn:
-                _seed_station(conn, "PT2AAA", -15.80, -47.90)
-                _seed_station(conn, "PT2DIG", -15.70, -47.80)
-                _seed_station(conn, "PT2BBB", -15.60, -47.70)
-                _seed_station(conn, "PT2NET", -15.50, -47.60)
-                _seed_edge(conn, "PT2AAA", "PT2DIG", "rf", 9)
-                _seed_edge(conn, "PT2DIG", "PT2BBB", "rf", 7)
-                _seed_edge(conn, "PT2BBB", "PT2NET", "igate", 50)
+        db.DB_PATH = tmp_path / "test.db"
+        db.init_db()
+        with db.connection() as conn:
+            _seed_station(conn, "PT2AAA", -15.80, -47.90)
+            _seed_station(conn, "PT2DIG", -15.70, -47.80)
+            _seed_station(conn, "PT2BBB", -15.60, -47.70)
+            _seed_station(conn, "PT2NET", -15.50, -47.60)
+            _seed_edge(conn, "PT2AAA", "PT2DIG", "rf", 9)
+            _seed_edge(conn, "PT2DIG", "PT2BBB", "rf", 7)
+            _seed_edge(conn, "PT2BBB", "PT2NET", "igate", 50)
 
-            candidates = db.list_rf_route_candidates("PT2AAA", hours=24)
-            calls = {item["callsign"] for item in candidates}
-            assert {"PT2DIG", "PT2BBB"} <= calls
-            assert "PT2NET" not in calls
+        candidates = db.list_rf_route_candidates("PT2AAA", hours=24)
+        calls = {item["callsign"] for item in candidates}
+        assert {"PT2DIG", "PT2BBB"} <= calls
+        assert "PT2NET" not in calls
     finally:
         db.DB_PATH = original
 
 
-def test_v149_routes_support_multiple_complete_paths_and_distances():
+def test_v149_routes_support_multiple_complete_paths_and_distances(tmp_path):
     original = db.DB_PATH
     try:
-        with tempfile.TemporaryDirectory() as td:
-            db.DB_PATH = Path(td) / "test.db"
-            db.init_db()
-            with db.connection() as conn:
-                _seed_station(conn, "PT2AAA", -15.80, -47.90)
-                _seed_station(conn, "PT2D1", -15.72, -47.84)
-                _seed_station(conn, "PT2D2", -15.68, -47.76)
-                _seed_station(conn, "PT2BBB", -15.60, -47.70)
-                _seed_edge(conn, "PT2AAA", "PT2D1", "rf", 10)
-                _seed_edge(conn, "PT2D1", "PT2BBB", "rf", 8)
-                _seed_edge(conn, "PT2AAA", "PT2D2", "rf", 6)
-                _seed_edge(conn, "PT2D2", "PT2BBB", "rf", 6)
+        db.DB_PATH = tmp_path / "test.db"
+        db.init_db()
+        with db.connection() as conn:
+            _seed_station(conn, "PT2AAA", -15.80, -47.90)
+            _seed_station(conn, "PT2D1", -15.72, -47.84)
+            _seed_station(conn, "PT2D2", -15.68, -47.76)
+            _seed_station(conn, "PT2BBB", -15.60, -47.70)
+            _seed_edge(conn, "PT2AAA", "PT2D1", "rf", 10)
+            _seed_edge(conn, "PT2D1", "PT2BBB", "rf", 8)
+            _seed_edge(conn, "PT2AAA", "PT2D2", "rf", 6)
+            _seed_edge(conn, "PT2D2", "PT2BBB", "rf", 6)
 
-            result = db.list_rf_routes("PT2AAA", "PT2BBB", hours=24, max_routes=12, max_hops=8)
-            assert result["source"] == "PT2AAA"
-            assert result["target"] == "PT2BBB"
-            assert result["direct_distance_km"] > 0
-            assert len(result["routes"]) == 2
-            paths = {tuple(route["nodes"]) for route in result["routes"]}
-            assert ("PT2AAA", "PT2D1", "PT2BBB") in paths
-            assert ("PT2AAA", "PT2D2", "PT2BBB") in paths
-            for route in result["routes"]:
-                assert route["hops"] == 2
-                assert route["distance_km"] > 0
-                assert len(route["edges"]) == 2
-                assert all(edge["distance_km"] > 0 for edge in route["edges"])
+        result = db.list_rf_routes("PT2AAA", "PT2BBB", hours=24, max_routes=12, max_hops=8)
+        assert result["source"] == "PT2AAA"
+        assert result["target"] == "PT2BBB"
+        assert result["direct_distance_km"] > 0
+        assert len(result["routes"]) == 2
+        paths = {tuple(route["nodes"]) for route in result["routes"]}
+        assert ("PT2AAA", "PT2D1", "PT2BBB") in paths
+        assert ("PT2AAA", "PT2D2", "PT2BBB") in paths
+        for route in result["routes"]:
+            assert route["hops"] == 2
+            assert route["distance_km"] > 0
+            assert len(route["edges"]) == 2
+            assert all(edge["distance_km"] > 0 for edge in route["edges"])
     finally:
         db.DB_PATH = original
 
 
-def test_v149_internet_cannot_complete_an_rf_route():
+def test_v149_internet_cannot_complete_an_rf_route(tmp_path):
     original = db.DB_PATH
     try:
-        with tempfile.TemporaryDirectory() as td:
-            db.DB_PATH = Path(td) / "test.db"
-            db.init_db()
-            with db.connection() as conn:
-                _seed_station(conn, "PT2AAA", -15.80, -47.90)
-                _seed_station(conn, "PT2MID", -15.70, -47.80)
-                _seed_station(conn, "PT2BBB", -15.60, -47.70)
-                _seed_edge(conn, "PT2AAA", "PT2MID", "rf", 12)
-                _seed_edge(conn, "PT2MID", "PT2BBB", "igate", 12)
+        db.DB_PATH = tmp_path / "test.db"
+        db.init_db()
+        with db.connection() as conn:
+            _seed_station(conn, "PT2AAA", -15.80, -47.90)
+            _seed_station(conn, "PT2MID", -15.70, -47.80)
+            _seed_station(conn, "PT2BBB", -15.60, -47.70)
+            _seed_edge(conn, "PT2AAA", "PT2MID", "rf", 12)
+            _seed_edge(conn, "PT2MID", "PT2BBB", "igate", 12)
 
-            result = db.list_rf_routes("PT2AAA", "PT2BBB", hours=24)
-            assert result["routes"] == []
+        result = db.list_rf_routes("PT2AAA", "PT2BBB", hours=24)
+        assert result["routes"] == []
     finally:
         db.DB_PATH = original
 
