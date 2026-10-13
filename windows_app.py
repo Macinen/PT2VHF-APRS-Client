@@ -582,20 +582,21 @@ def _run_embedded_window(icon: pystray.Icon) -> int:
 
     try:
         import webview
-    except Exception:
+        _window = webview.create_window(
+            APP_NAME,
+            _current_url(),
+            js_api=NativeApi(),
+            width=WINDOW_WIDTH,
+            height=WINDOW_HEIGHT,
+            min_size=(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT),
+            resizable=True,
+            text_select=True,
+        )
+        _window.events.closing += _on_window_closing
+    except Exception as exc:
+        diag.log_event("embedded_window_create_failed", error=str(exc),
+                       fallback="default_browser")
         return _run_browser_mode(icon)
-
-    _window = webview.create_window(
-        APP_NAME,
-        _current_url(),
-        js_api=NativeApi(),
-        width=WINDOW_WIDTH,
-        height=WINDOW_HEIGHT,
-        min_size=(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT),
-        resizable=True,
-        text_select=True,
-    )
-    _window.events.closing += _on_window_closing
 
     tray_thread = threading.Thread(
         target=icon.run,
@@ -611,9 +612,18 @@ def _run_embedded_window(icon: pystray.Icon) -> int:
         return 0
     except Exception as exc:
         legacy = os.getenv("PT2VHF_WIN7_LEGACY") == "1"
-        diag.log_event("embedded_window_failed", gui=gui, legacy=legacy, error=str(exc))
+        netfx_failure = (
+            "default .net runtime" in str(exc).lower()
+            or "pythonnet" in str(exc).lower()
+            or "set_runtime_from_env" in str(exc).lower()
+        )
+        diag.log_event("embedded_window_failed", gui=gui, legacy=legacy,
+                       netfx_failure=netfx_failure, error=str(exc),
+                       fallback="default_browser" if not legacy else "disabled")
         try:
-            if os.name == "nt":
+            # On systems where pythonnet cannot initialize CLR, blocking
+            # MessageBox dialogs prevent a seamless usable Web fallback.
+            if os.name == "nt" and not netfx_failure:
                 message = (
                     "Não foi possível iniciar a janela integrada do PT2VHF APRS Client.\n\n"
                     + ("Windows 7 Legacy permanece em modo desktop; o navegador não será aberto automaticamente.\n\n"

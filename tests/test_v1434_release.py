@@ -61,6 +61,9 @@ def test_windows_tray_badge_and_ready_signal_are_independent():
     assert "tray_icon_resource_failed" in source
     assert "source=\"drawn_aprs_badge\"" in source
     assert "def _mark_updated_instance_ready()" in source
+    assert '"embedded_window_create_failed"' in source
+    assert 'netfx_failure=netfx_failure' in source
+    assert 'if os.name == "nt" and not netfx_failure' in source
     assert "update_ready.flag" in source
     assert "update_relaunch_confirmed" in source
     assert source.index("if not _wait_for_server():") < source.index("_mark_updated_instance_ready()",

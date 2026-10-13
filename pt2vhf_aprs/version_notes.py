@@ -8,6 +8,7 @@ VERSION_NOTES: dict[str, dict[str, Any]] = {
         "items": [
             "Atualizador Windows Portable agora repete a substituição se o EXE estiver bloqueado e guarda backup antes de instalar.",
             "Após reiniciar, o aplicativo confirma que o servidor Web iniciou; o helper tenta recuperar a versão anterior caso a nova falhe.",
+            "Caso pywebview/pythonnet não inicialize, o aplicativo preserva o backend e abre o navegador padrão sem alerta .NET bloqueante.",
             "Ícone APRS próprio e bem contrastado na bandeja do Windows, com diagnósticos de origem e fallback.",
             "Agendamentos de mensagens são gerenciados em janela modal; Novo/Editar e listas só ocupam espaço quando solicitados.",
             "Esc e Fechar devolvem foco à aba Mensagens e alertam antes de descartar mudanças não salvas.",

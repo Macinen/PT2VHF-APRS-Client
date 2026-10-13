@@ -2,6 +2,7 @@
 
 - Atualizador Windows Portable: retentativas de backup/substituição em caso de arquivo bloqueado; confirmação de que o servidor do novo executável iniciou e tentativa de recuperação automática da versão anterior.
 - Inicializador Windows: grava sinal de prontidão para o helper de atualização somente após o servidor HTTP local estar disponível.
+- Janela integrada: se pythonnet/CLR falhar, registrar a falha e oferecer navegador funcional sem diálogo modal .NET bloqueante; criação do WebView também protegida por fallback.
 - Bandeja de notificações: nova imagem APRS de alto contraste, fundo opaco e tamanho útil, gerada separadamente do ICO de atalhos, com logs de fallback.
 - Mensagens programadas: painel inline convertido em modal responsivo; novos agendamentos, edição e gerenciador de listas somente sob demanda; proteção contra perda de alterações não salvas, foco e teclado.
 - Mantidas as correções de Web LAN e Configuração realizadas na v1.14.33.
