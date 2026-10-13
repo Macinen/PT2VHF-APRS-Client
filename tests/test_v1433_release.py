@@ -103,4 +103,8 @@ def test_windows_ico_has_real_per_size_aprs_variants(tmp_path, monkeypatch):
             assert frame.mode == "RGBA"
             assert frame.getbbox() is not None
     app = src("windows_app.py")
-    assert "src.ico.getimage(preferred)" in app
+    # v1.14.34 uses a dedicated opaque APRS badge in the tray rather than
+    # re-scaling a 32px ICO frame, which rendered almost invisible in Windows.
+    assert 'source="drawn_aprs_badge"' in app
+    assert 'd.text((x, y), "APRS"' in app
+    assert 'tray_icon_resource_failed' in app
