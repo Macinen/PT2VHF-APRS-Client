@@ -99,4 +99,5 @@ def test_packaged_windows_sources_must_have_icon_and_python_tray():
     for script in (modern, portable):
         assert "app_icon.ico" in script
         assert "'windows'" in script
-    assert "__version__ = \"1.14.34\"" in read("pt2vhf_aprs/__init__.py")
+    current_version = read("VERSION").strip()
+    assert f'__version__ = "{current_version}"' in read("pt2vhf_aprs/__init__.py")
