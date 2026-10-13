@@ -12,6 +12,8 @@ def read(rel: str) -> str:
 
 
 def test_v1812_init_db_migrates_legacy_packets_before_medium_indexes(tmp_path):
+    # pytest owns the database lifetime; on Windows deleting a recently used
+    # SQLite file immediately from TemporaryDirectory can fail with WinError 32.
     original = db.DB_PATH
     try:
         legacy = tmp_path / "legacy.db"
@@ -33,31 +35,31 @@ def test_v1812_init_db_migrates_legacy_packets_before_medium_indexes(tmp_path):
             )
             conn.commit()
         finally:
-                conn.close()
+            conn.close()
 
-            db.DB_PATH = legacy
-            db.init_db()
+        db.DB_PATH = legacy
+        db.init_db()
 
-            with db.connection() as migrated:
-                columns = {
-                    row["name"]: row
-                    for row in migrated.execute("PRAGMA table_info(packets)").fetchall()
-                }
-                indexes = {
-                    row["name"]
-                    for row in migrated.execute("PRAGMA index_list(packets)").fetchall()
-                }
-                row = migrated.execute(
-                    "SELECT medium,rx_fingerprint FROM packets WHERE from_call='PT2OLD'"
-                ).fetchone()
+        with db.connection() as migrated:
+            columns = {
+                row["name"]: row
+                for row in migrated.execute("PRAGMA table_info(packets)").fetchall()
+            }
+            indexes = {
+                row["name"]
+                for row in migrated.execute("PRAGMA index_list(packets)").fetchall()
+            }
+            row = migrated.execute(
+                "SELECT medium,rx_fingerprint FROM packets WHERE from_call='PT2OLD'"
+            ).fetchone()
 
-            assert "medium" in columns
-            assert "rx_fingerprint" in columns
-            assert "idx_packets_medium_time" in indexes
-            assert "idx_packets_medium_call_time" in indexes
-            assert "idx_packets_fingerprint_time" in indexes
-            assert row["medium"] == "APRS-IS"
-            assert row["rx_fingerprint"] is None
+        assert "medium" in columns
+        assert "rx_fingerprint" in columns
+        assert "idx_packets_medium_time" in indexes
+        assert "idx_packets_medium_call_time" in indexes
+        assert "idx_packets_fingerprint_time" in indexes
+        assert row["medium"] == "APRS-IS"
+        assert row["rx_fingerprint"] is None
     finally:
         db.DB_PATH = original
         db.invalidate_map_data_cache(drop_payload=True)
